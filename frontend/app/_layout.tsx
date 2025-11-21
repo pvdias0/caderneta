@@ -1,5 +1,62 @@
-import { Stack } from "expo-router";
+import { useEffect } from 'react';
+import { Stack } from 'expo-router';
+import { AuthProvider, useAuth } from '../context/auth.context';
 
+/**
+ * Componente interno que usa o contexto de autenticação
+ */
+function RootLayoutNav() {
+  const { isLoading, isAuthenticated } = useAuth();
+
+  if (isLoading) {
+    return <Stack />;
+  }
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animationEnabled: true,
+      }}
+    >
+      {isAuthenticated ? (
+        // Rotas autenticadas
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            headerShown: false,
+          }}
+        />
+      ) : (
+        // Rotas públicas (login/register)
+        <>
+          <Stack.Screen
+            name="login"
+            options={{
+              animationEnabled: false,
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="register"
+            options={{
+              presentation: 'modal',
+              headerShown: false,
+            }}
+          />
+        </>
+      )}
+    </Stack>
+  );
+}
+
+/**
+ * Layout raiz com AuthProvider
+ */
 export default function RootLayout() {
-  return <Stack />;
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
+  );
 }
