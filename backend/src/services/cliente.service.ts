@@ -1,5 +1,9 @@
 import pool from "../config/database.js";
-import { Cliente, CreateClienteDTO, UpdateClienteDTO } from "../types/cliente.js";
+import {
+  Cliente,
+  CreateClienteDTO,
+  UpdateClienteDTO,
+} from "../types/cliente.js";
 
 export class ClienteService {
   /**
@@ -33,7 +37,10 @@ export class ClienteService {
   /**
    * Obter um cliente específico
    */
-  async getClienteById(clienteId: number, usuarioId: number): Promise<Cliente | null> {
+  async getClienteById(
+    clienteId: number,
+    usuarioId: number
+  ): Promise<Cliente | null> {
     const query = `
       SELECT 
         id_cliente as id,
@@ -174,11 +181,19 @@ export class ClienteService {
       }
     }
 
-    if (data.telefone !== undefined && data.telefone !== null && data.telefone.length > 20) {
+    if (
+      data.telefone !== undefined &&
+      data.telefone !== null &&
+      data.telefone.length > 20
+    ) {
       throw new Error("Telefone não pode exceder 20 caracteres");
     }
 
-    if (data.endereco !== undefined && data.endereco !== null && data.endereco.length > 255) {
+    if (
+      data.endereco !== undefined &&
+      data.endereco !== null &&
+      data.endereco.length > 255
+    ) {
       throw new Error("Endereço não pode exceder 255 caracteres");
     }
 
@@ -292,7 +307,10 @@ export class ClienteService {
   /**
    * Obter total a receber de um cliente
    */
-  async getTotalAReceber(clienteId: number, usuarioId: number): Promise<number> {
+  async getTotalAReceber(
+    clienteId: number,
+    usuarioId: number
+  ): Promise<number> {
     // Primeiro, verificar se cliente pertence ao usuário
     const cliente = await this.getClienteById(clienteId, usuarioId);
     if (!cliente) {

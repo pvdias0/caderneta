@@ -48,7 +48,10 @@ export class ClienteController {
         return;
       }
 
-      const cliente = await clienteService.getClienteById(Number(id), usuarioId);
+      const cliente = await clienteService.getClienteById(
+        Number(id),
+        usuarioId
+      );
 
       if (!cliente) {
         res.status(404).json({ error: "Cliente não encontrado" });
@@ -127,7 +130,9 @@ export class ClienteController {
       }
 
       if (Object.keys(req.body).length === 0) {
-        res.status(400).json({ error: "Nenhum campo para atualizar fornecido" });
+        res
+          .status(400)
+          .json({ error: "Nenhum campo para atualizar fornecido" });
         return;
       }
 
@@ -246,7 +251,10 @@ export class ClienteController {
         return;
       }
 
-      const total = await clienteService.getTotalAReceber(Number(id), usuarioId);
+      const total = await clienteService.getTotalAReceber(
+        Number(id),
+        usuarioId
+      );
 
       res.status(200).json({
         success: true,

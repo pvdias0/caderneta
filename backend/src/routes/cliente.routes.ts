@@ -93,9 +93,6 @@ router.put("/:id", clienteController.atualizarCliente.bind(clienteController));
  * @desc    Deletar um cliente
  * @access  Private
  */
-router.delete(
-  "/:id",
-  clienteController.deletarCliente.bind(clienteController)
-);
+router.delete("/:id", clienteController.deletarCliente.bind(clienteController));
 
 export default router;
