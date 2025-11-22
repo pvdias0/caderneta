@@ -61,8 +61,6 @@ export default function RegisterPage() {
     // Validar senha
     if (!senha) {
       newErrors.senha = 'Senha é obrigatória';
-    } else if (senha.length < 6) {
-      newErrors.senha = 'Senha deve ter pelo menos 6 caracteres';
     }
 
     // Validar confirmação de senha

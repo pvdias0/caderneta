@@ -1,16 +1,16 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import {
   validateLogin,
   createUser,
   findUserById,
   updateLastLogin,
-} from '../services/usuario.service.js';
+} from "../services/usuario.service.js";
 import {
   generateTokens,
   verifyRefreshToken,
   generateAccessToken,
-} from '../services/jwt.service.js';
-import { ILoginRequest, IRegisterRequest } from '../types/auth.js';
+} from "../services/jwt.service.js";
+import { ILoginRequest, IRegisterRequest } from "../types/auth.js";
 
 /**
  * Controller de autenticação - Login, registro, refresh token, logout
@@ -27,7 +27,7 @@ export async function login(req: Request, res: Response): Promise<void> {
     // Validar entrada
     if (!email || !senha) {
       res.status(400).json({
-        error: 'Email e senha são obrigatórios',
+        error: "Email e senha são obrigatórios",
       });
       return;
     }
@@ -37,36 +37,37 @@ export async function login(req: Request, res: Response): Promise<void> {
 
     if (!tokenPayload) {
       res.status(401).json({
-        error: 'Email ou senha incorretos',
+        error: "Email ou senha incorretos",
       });
       return;
     }
 
     // Gerar tokens
-    const { accessToken, refreshToken, expiresIn } = generateTokens(tokenPayload);
+    const { accessToken, refreshToken, expiresIn } =
+      generateTokens(tokenPayload);
 
     // Atualizar último acesso
     await updateLastLogin(tokenPayload.id);
 
     // Configurar cookies HTTP-only
-    res.cookie('accessToken', accessToken, {
+    res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 24 * 60 * 60 * 1000, // 24 horas
     });
 
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
     });
 
     console.log(`✅ Login bem-sucedido: ${email}`);
 
     res.status(200).json({
-      message: 'Login realizado com sucesso',
+      message: "Login realizado com sucesso",
       user: {
         id: tokenPayload.id,
         email: tokenPayload.email,
@@ -79,9 +80,9 @@ export async function login(req: Request, res: Response): Promise<void> {
       },
     });
   } catch (error) {
-    console.error('❌ Erro ao fazer login:', error);
+    console.error("❌ Erro ao fazer login:", error);
     res.status(500).json({
-      error: 'Erro ao processar login',
+      error: "Erro ao processar login",
     });
   }
 }
@@ -97,15 +98,7 @@ export async function register(req: Request, res: Response): Promise<void> {
     // Validar entrada
     if (!nome_usuario || !email || !senha) {
       res.status(400).json({
-        error: 'Nome de usuário, email e senha são obrigatórios',
-      });
-      return;
-    }
-
-    // Validar força da senha
-    if (senha.length < 6) {
-      res.status(400).json({
-        error: 'Senha deve ter pelo menos 6 caracteres',
+        error: "Nome de usuário, email e senha são obrigatórios",
       });
       return;
     }
@@ -116,7 +109,7 @@ export async function register(req: Request, res: Response): Promise<void> {
     console.log(`✅ Novo usuário registrado: ${email}`);
 
     res.status(201).json({
-      message: 'Usuário registrado com sucesso',
+      message: "Usuário registrado com sucesso",
       user: {
         id: user.id,
         email: user.email,
@@ -125,7 +118,10 @@ export async function register(req: Request, res: Response): Promise<void> {
     });
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message.includes('já cadastrado') || error.message.includes('já existe')) {
+      if (
+        error.message.includes("já cadastrado") ||
+        error.message.includes("já existe")
+      ) {
         res.status(409).json({
           error: error.message,
         });
@@ -133,9 +129,9 @@ export async function register(req: Request, res: Response): Promise<void> {
       }
     }
 
-    console.error('❌ Erro ao registrar usuário:', error);
+    console.error("❌ Erro ao registrar usuário:", error);
     res.status(500).json({
-      error: 'Erro ao processar registro',
+      error: "Erro ao processar registro",
     });
   }
 }
@@ -154,7 +150,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 
     if (!refreshToken) {
       res.status(401).json({
-        error: 'Refresh token não fornecido',
+        error: "Refresh token não fornecido",
       });
       return;
     }
@@ -164,7 +160,7 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 
     if (!decoded) {
       res.status(401).json({
-        error: 'Refresh token inválido ou expirado',
+        error: "Refresh token inválido ou expirado",
       });
       return;
     }
@@ -178,10 +174,10 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 
     // Atualizar cookie se existir
     if (req.cookies?.accessToken) {
-      res.cookie('accessToken', newAccessToken, {
+      res.cookie("accessToken", newAccessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
         maxAge: 24 * 60 * 60 * 1000, // 24 horas
       });
     }
@@ -189,14 +185,14 @@ export async function refresh(req: Request, res: Response): Promise<void> {
     console.log(`✅ Token renovado para usuário: ${decoded.email}`);
 
     res.status(200).json({
-      message: 'Access token renovado com sucesso',
+      message: "Access token renovado com sucesso",
       accessToken: newAccessToken,
-      expiresIn: '24h',
+      expiresIn: "24h",
     });
   } catch (error) {
-    console.error('❌ Erro ao renovar token:', error);
+    console.error("❌ Erro ao renovar token:", error);
     res.status(500).json({
-      error: 'Erro ao renovar token',
+      error: "Erro ao renovar token",
     });
   }
 }
@@ -208,27 +204,27 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 export async function logout(req: Request, res: Response): Promise<void> {
   try {
     // Limpar cookies
-    res.clearCookie('accessToken', {
+    res.clearCookie("accessToken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
 
-    res.clearCookie('refreshToken', {
+    res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
 
     console.log(`✅ Logout realizado`);
 
     res.status(200).json({
-      message: 'Logout realizado com sucesso',
+      message: "Logout realizado com sucesso",
     });
   } catch (error) {
-    console.error('❌ Erro ao fazer logout:', error);
+    console.error("❌ Erro ao fazer logout:", error);
     res.status(500).json({
-      error: 'Erro ao processar logout',
+      error: "Erro ao processar logout",
     });
   }
 }
@@ -241,7 +237,7 @@ export async function me(req: Request, res: Response): Promise<void> {
   try {
     if (!req.user) {
       res.status(401).json({
-        error: 'Não autenticado',
+        error: "Não autenticado",
       });
       return;
     }
@@ -250,7 +246,7 @@ export async function me(req: Request, res: Response): Promise<void> {
 
     if (!user) {
       res.status(404).json({
-        error: 'Usuário não encontrado',
+        error: "Usuário não encontrado",
       });
       return;
     }
@@ -265,9 +261,9 @@ export async function me(req: Request, res: Response): Promise<void> {
       },
     });
   } catch (error) {
-    console.error('❌ Erro ao obter dados do usuário:', error);
+    console.error("❌ Erro ao obter dados do usuário:", error);
     res.status(500).json({
-      error: 'Erro ao obter dados do usuário',
+      error: "Erro ao obter dados do usuário",
     });
   }
 }

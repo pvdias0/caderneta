@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { apiService, LoginResponse } from '../services/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { apiService, LoginResponse } from "../services/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
  * Interface do contexto de autenticação
@@ -11,7 +17,11 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, senha: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (nome_usuario: string, email: string, senha: string) => Promise<void>;
+  register: (
+    nome_usuario: string,
+    email: string,
+    senha: string
+  ) => Promise<void>;
   error: string | null;
 }
 
@@ -41,9 +51,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const restoreSession = async () => {
     try {
       setIsLoading(true);
-      const accessToken = await AsyncStorage.getItem('accessToken');
-      const refreshToken = await AsyncStorage.getItem('refreshToken');
-      const userData = await AsyncStorage.getItem('user');
+      const accessToken = await AsyncStorage.getItem("accessToken");
+      const refreshToken = await AsyncStorage.getItem("refreshToken");
+      const userData = await AsyncStorage.getItem("user");
 
       if (accessToken && refreshToken) {
         apiService.setTokens(accessToken, refreshToken);
@@ -53,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch (error) {
-      console.error('❌ Erro ao restaurar sessão:', error);
+      console.error("❌ Erro ao restaurar sessão:", error);
     } finally {
       setIsLoading(false);
     }
@@ -70,18 +80,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await apiService.login(email, senha);
 
       if (response.status !== 200 || !response.data) {
-        throw new Error(response.error || 'Erro ao fazer login');
+        throw new Error(response.error || "Erro ao fazer login");
       }
 
       // Armazenar tokens
       const { tokens, user: userData } = response.data;
-      await AsyncStorage.setItem('accessToken', tokens.accessToken);
-      await AsyncStorage.setItem('refreshToken', tokens.refreshToken);
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      await AsyncStorage.setItem("accessToken", tokens.accessToken);
+      await AsyncStorage.setItem("refreshToken", tokens.refreshToken);
+      await AsyncStorage.setItem("user", JSON.stringify(userData));
 
       setUser(userData);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro desconhecido";
       setError(errorMessage);
       throw err;
     } finally {
@@ -96,13 +107,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       await apiService.logout();
-      await AsyncStorage.removeItem('accessToken');
-      await AsyncStorage.removeItem('refreshToken');
-      await AsyncStorage.removeItem('user');
+      await AsyncStorage.removeItem("accessToken");
+      await AsyncStorage.removeItem("refreshToken");
+      await AsyncStorage.removeItem("user");
       setUser(null);
       apiService.clearTokens();
     } catch (err) {
-      console.error('❌ Erro ao fazer logout:', err);
+      console.error("❌ Erro ao fazer logout:", err);
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +122,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /**
    * Registrar novo usuário
    */
-  const register = async (nome_usuario: string, email: string, senha: string) => {
+  const register = async (
+    nome_usuario: string,
+    email: string,
+    senha: string
+  ) => {
     try {
       setIsLoading(true);
       setError(null);
@@ -119,13 +134,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await apiService.register(nome_usuario, email, senha);
 
       if (response.status !== 201 && response.status !== 200) {
-        throw new Error(response.error || 'Erro ao registrar');
+        throw new Error(response.error || "Erro ao registrar");
       }
 
-      // Após registro bem-sucedido, fazer login automaticamente
-      await login(email, senha);
+      // ✅ Registro bem-sucedido - usuário precisa fazer login manualmente
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      const errorMessage =
+        err instanceof Error ? err.message : "Erro desconhecido";
       setError(errorMessage);
       throw err;
     } finally {
@@ -156,7 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth deve ser usado dentro de AuthProvider');
+    throw new Error("useAuth deve ser usado dentro de AuthProvider");
   }
   return context;
 }

@@ -1,0 +1,98 @@
+# ========================
+# Ambiente & Configuração
+# ========================
+.env
+.env.local
+.env.staging
+.env.production
+.env.*.local
+!.env.example
+
+# ========================
+# Node.js
+# ========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ========================
+# Expo/React Native
+# ========================
+.expo/
+.expo-shared/
+dist/
+build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# ========================
+# IDE
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+.gradle
+.classpath
+.project
+.settings/
+*.sublime-workspace
+
+# ========================
+# OS
+# ========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ========================
+# Cache
+# ========================
+.cache/
+.eslintcache
+tsconfig.tsbuildinfo
+
+# ========================
+# Production
+# ========================
+dist/
+build/
+out/
+
+# ========================
+# Banco de Dados
+# ========================
+*.db
+*.sqlite
+*.sqlite3
+pgadmin_dev/
+postgres_data/
+
+# ========================
+# Logs
+# ========================
+logs/
+*.log
+lerna-debug.log*
+
+# ========================
+# Temporal
+# ========================
+tmp/
+temp/
+.tmp/
