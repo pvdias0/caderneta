@@ -23,6 +23,18 @@ export default function TabsLayout() {
           href: null, // Esconder esta aba
         }}
       />
+      <Tabs.Screen
+        name="clientes"
+        options={{
+          href: null, // Protegida por rota condicional, não mostrar em abas
+        }}
+      />
+      <Tabs.Screen
+        name="estoque"
+        options={{
+          href: null, // Protegida por rota condicional, não mostrar em abas
+        }}
+      />
     </Tabs>
   );
 }

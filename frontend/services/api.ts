@@ -1,4 +1,4 @@
-import config from '../config';
+import { config } from "../config";
 
 /**
  * Interface para respostas da API
@@ -51,12 +51,70 @@ export interface RegisterResponse {
 }
 
 /**
+ * Interface para cliente
+ */
+export interface Cliente {
+  id_cliente: number;
+  nome: string;
+  email?: string;
+  telefone?: string;
+  datacriacao: string;
+  ultimaatualizacao: string;
+}
+
+export interface CreateClienteRequest {
+  nome: string;
+  email?: string;
+  telefone?: string;
+}
+
+export interface ClientesListResponse {
+  success?: boolean;
+  data?: Cliente[];
+  clientes?: Cliente[];
+  total?: number;
+}
+
+/**
+ * Interface para Produto (Estoque)
+ */
+export interface Produto {
+  id_produto: number;
+  nome: string;
+  valor_produto: number;
+  quantidade_estoque: number;
+  datacriacao: string;
+  ultimaatualizacao: string;
+}
+
+export interface CreateProdutoRequest {
+  nome: string;
+  valor_produto: number;
+  quantidade_estoque: number;
+}
+
+export interface ProdutosListResponse {
+  success?: boolean;
+  data?: Produto[];
+  produtos?: Produto[];
+  total?: number;
+}
+
+/**
  * Serviço de API com fetch
  */
 class ApiService {
   private baseUrl: string = config.apiUrl;
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
+  private onUnauthorized: (() => void) | null = null;
+
+  /**
+   * Registrar callback para quando houver erro de autenticação
+   */
+  setUnauthorizedCallback(callback: () => void): void {
+    this.onUnauthorized = callback;
+  }
 
   /**
    * Fazer uma requisição genérica
@@ -70,13 +128,13 @@ class ApiService {
 
       // Headers padrão
       const headers: any = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...options.headers,
       };
 
       // Adicionar token se houver
       if (this.accessToken) {
-        headers['Authorization'] = `Bearer ${this.accessToken}`;
+        headers["Authorization"] = `Bearer ${this.accessToken}`;
       }
 
       const response = await fetch(url, {
@@ -90,13 +148,25 @@ class ApiService {
         if (refreshed) {
           // Retentar requisição original
           return this.request<T>(endpoint, options);
+        } else {
+          // Refresh falhou, fazer logout
+          if (this.onUnauthorized) {
+            this.onUnauthorized();
+          }
         }
       }
 
-      const contentType = response.headers.get('content-type');
+      // Se for 401 sem refresh token, fazer logout
+      if (response.status === 401) {
+        if (this.onUnauthorized) {
+          this.onUnauthorized();
+        }
+      }
+
+      const contentType = response.headers.get("content-type");
       let data: any;
 
-      if (contentType?.includes('application/json')) {
+      if (contentType?.includes("application/json")) {
         data = await response.json();
       } else {
         data = await response.text();
@@ -105,11 +175,11 @@ class ApiService {
       return {
         status: response.status,
         data: response.ok ? data : undefined,
-        error: !response.ok ? data?.error || 'Erro na requisição' : undefined,
+        error: !response.ok ? data?.error || "Erro na requisição" : undefined,
         message: data?.message,
       };
     } catch (error) {
-      console.error('❌ Erro na requisição:', error);
+      console.error("❌ Erro na requisição:", error);
       return {
         status: 0,
         error: String(error),
@@ -120,9 +190,12 @@ class ApiService {
   /**
    * Login
    */
-  async login(email: string, senha: string): Promise<ApiResponse<LoginResponse>> {
-    const response = await this.request<LoginResponse>('/api/v1/auth/login', {
-      method: 'POST',
+  async login(
+    email: string,
+    senha: string
+  ): Promise<ApiResponse<LoginResponse>> {
+    const response = await this.request<LoginResponse>("/api/v1/auth/login", {
+      method: "POST",
       body: JSON.stringify({
         email,
         senha,
@@ -146,8 +219,8 @@ class ApiService {
     email: string,
     senha: string
   ): Promise<ApiResponse<RegisterResponse>> {
-    return this.request<RegisterResponse>('/api/v1/auth/register', {
-      method: 'POST',
+    return this.request<RegisterResponse>("/api/v1/auth/register", {
+      method: "POST",
       body: JSON.stringify({
         nome_usuario,
         email,
@@ -162,9 +235,9 @@ class ApiService {
   private async refreshAccessToken(): Promise<boolean> {
     try {
       const response = await this.request<{ accessToken: string }>(
-        '/api/v1/auth/refresh',
+        "/api/v1/auth/refresh",
         {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify({
             refreshToken: this.refreshToken,
           }),
@@ -178,7 +251,7 @@ class ApiService {
 
       return false;
     } catch (error) {
-      console.error('❌ Erro ao renovar token:', error);
+      console.error("❌ Erro ao renovar token:", error);
       return false;
     }
   }
@@ -187,8 +260,8 @@ class ApiService {
    * Logout
    */
   async logout(): Promise<ApiResponse> {
-    const response = await this.request('/api/v1/auth/logout', {
-      method: 'POST',
+    const response = await this.request("/api/v1/auth/logout", {
+      method: "POST",
     });
 
     // Limpar tokens
@@ -202,8 +275,8 @@ class ApiService {
    * Obter dados do usuário autenticado
    */
   async getMe(): Promise<ApiResponse<{ user: any }>> {
-    return this.request('/api/v1/auth/me', {
-      method: 'GET',
+    return this.request("/api/v1/auth/me", {
+      method: "GET",
     });
   }
 
@@ -235,6 +308,133 @@ class ApiService {
   clearTokens(): void {
     this.accessToken = null;
     this.refreshToken = null;
+  }
+
+  /**
+   * Listar clientes do usuário
+   */
+  async getClientes(): Promise<ApiResponse<ClientesListResponse>> {
+    return this.request<ClientesListResponse>("/api/v1/clientes", {
+      method: "GET",
+    });
+  }
+
+  /**
+   * Obter um cliente específico
+   */
+  async getClienteById(id: number): Promise<ApiResponse<Cliente>> {
+    return this.request<Cliente>(`/api/v1/clientes/${id}`, {
+      method: "GET",
+    });
+  }
+
+  /**
+   * Criar novo cliente
+   */
+  async createCliente(
+    data: CreateClienteRequest
+  ): Promise<ApiResponse<Cliente>> {
+    return this.request<Cliente>("/api/v1/clientes", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Atualizar cliente
+   */
+  async updateCliente(
+    id: number,
+    data: Partial<CreateClienteRequest>
+  ): Promise<ApiResponse<Cliente>> {
+    return this.request<Cliente>(`/api/v1/clientes/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Deletar cliente
+   */
+  async deleteCliente(id: number): Promise<ApiResponse> {
+    return this.request(`/api/v1/clientes/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  /**
+   * Deletar múltiplos clientes
+   */
+  async deleteClientes(ids: number[]): Promise<ApiResponse> {
+    return this.request("/api/v1/clientes/bulk/delete", {
+      method: "DELETE",
+      body: JSON.stringify({ ids }),
+    });
+  }
+
+  /**
+   * Listar produtos do usuário
+   */
+  async getProdutos(): Promise<ApiResponse<ProdutosListResponse>> {
+    return this.request<ProdutosListResponse>("/api/v1/produtos", {
+      method: "GET",
+    });
+  }
+
+  /**
+   * Criar novo produto
+   */
+  async createProduto(
+    data: CreateProdutoRequest
+  ): Promise<ApiResponse<Produto>> {
+    return this.request<Produto>("/api/v1/produtos", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Atualizar produto
+   */
+  async updateProduto(
+    id: number,
+    data: Partial<CreateProdutoRequest>
+  ): Promise<ApiResponse<Produto>> {
+    return this.request<Produto>(`/api/v1/produtos/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Deletar produto
+   */
+  async deleteProduto(id: number): Promise<ApiResponse> {
+    return this.request(`/api/v1/produtos/${id}`, {
+      method: "DELETE",
+    });
+  }
+
+  /**
+   * Deletar múltiplos produtos
+   */
+  async deleteProdutos(ids: number[]): Promise<ApiResponse> {
+    return this.request("/api/v1/produtos/bulk/delete", {
+      method: "DELETE",
+      body: JSON.stringify({ ids }),
+    });
+  }
+
+  /**
+   * Buscar produtos por nome
+   */
+  async searchProdutos(q: string): Promise<ApiResponse<ProdutosListResponse>> {
+    return this.request<ProdutosListResponse>(
+      `/api/v1/produtos/busca?q=${encodeURIComponent(q)}`,
+      {
+        method: "GET",
+      }
+    );
   }
 }
 

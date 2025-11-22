@@ -12,14 +12,12 @@ export class ClienteService {
   async getAllClientes(usuarioId: number): Promise<Cliente[]> {
     const query = `
       SELECT 
-        id_cliente as id,
-        id_usuario as usuario_id,
+        id_cliente,
         nome,
         email,
         telefone,
-        endereco,
-        datacriacao as data_criacao,
-        ultimaatualizacao as ultima_atualizacao
+        datacriacao,
+        ultimaatualizacao
       FROM cliente
       WHERE id_usuario = $1
       ORDER BY nome ASC
@@ -43,14 +41,12 @@ export class ClienteService {
   ): Promise<Cliente | null> {
     const query = `
       SELECT 
-        id_cliente as id,
-        id_usuario as usuario_id,
+        id_cliente,
         nome,
         email,
         telefone,
-        endereco,
-        datacriacao as data_criacao,
-        ultimaatualizacao as ultima_atualizacao
+        datacriacao,
+        ultimaatualizacao
       FROM cliente
       WHERE id_cliente = $1 AND id_usuario = $2
     `;
@@ -71,7 +67,7 @@ export class ClienteService {
     usuarioId: number,
     data: CreateClienteDTO
   ): Promise<Cliente> {
-    const { nome, email, telefone, endereco } = data;
+    const { nome, email, telefone } = data;
 
     // Validações
     if (!nome || nome.trim().length === 0) {
@@ -104,23 +100,16 @@ export class ClienteService {
       throw new Error("Telefone não pode exceder 20 caracteres");
     }
 
-    // Validar endereço se fornecido
-    if (endereco && endereco.length > 255) {
-      throw new Error("Endereço não pode exceder 255 caracteres");
-    }
-
     const query = `
-      INSERT INTO cliente (id_usuario, nome, email, telefone, endereco, datacriacao, ultimaatualizacao)
-      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+      INSERT INTO cliente (id_usuario, nome, email, telefone, datacriacao, ultimaatualizacao)
+      VALUES ($1, $2, $3, $4, NOW(), NOW())
       RETURNING 
-        id_cliente as id,
-        id_usuario as usuario_id,
+        id_cliente,
         nome,
         email,
         telefone,
-        endereco,
-        datacriacao as data_criacao,
-        ultimaatualizacao as ultima_atualizacao
+        datacriacao,
+        ultimaatualizacao
     `;
 
     try {
@@ -129,7 +118,6 @@ export class ClienteService {
         nome.trim(),
         email || null,
         telefone || null,
-        endereco || null,
       ]);
 
       return result.rows[0];
@@ -189,14 +177,6 @@ export class ClienteService {
       throw new Error("Telefone não pode exceder 20 caracteres");
     }
 
-    if (
-      data.endereco !== undefined &&
-      data.endereco !== null &&
-      data.endereco.length > 255
-    ) {
-      throw new Error("Endereço não pode exceder 255 caracteres");
-    }
-
     const updateFields: string[] = [];
     const updateValues: any[] = [];
     let paramCount = 1;
@@ -219,12 +199,6 @@ export class ClienteService {
       paramCount++;
     }
 
-    if (data.endereco !== undefined) {
-      updateFields.push(`endereco = $${paramCount}`);
-      updateValues.push(data.endereco || null);
-      paramCount++;
-    }
-
     updateFields.push(`ultimaatualizacao = NOW()`);
 
     const query = `
@@ -232,14 +206,12 @@ export class ClienteService {
       SET ${updateFields.join(", ")}
       WHERE id_cliente = $${paramCount} AND id_usuario = $${paramCount + 1}
       RETURNING 
-        id_cliente as id,
-        id_usuario as usuario_id,
+        id_cliente,
         nome,
         email,
         telefone,
-        endereco,
-        datacriacao as data_criacao,
-        ultimaatualizacao as ultima_atualizacao
+        datacriacao,
+        ultimaatualizacao
     `;
 
     try {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   TextInput,
@@ -9,9 +9,9 @@ import {
   Platform,
   ActivityIndicator,
   ScrollView,
-} from 'react-native';
-import { useAuth } from '../context/auth.context';
-import { useRouter } from 'expo-router';
+} from "react-native";
+import { useAuth } from "../context/auth.context";
+import { useRouter } from "expo-router";
 
 /**
  * Página de Registro
@@ -20,10 +20,10 @@ export default function RegisterPage() {
   const router = useRouter();
   const { register, isLoading, error: authError } = useAuth();
 
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confirmaSenha, setConfirmaSenha] = useState('');
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmaSenha, setConfirmaSenha] = useState("");
   const [errors, setErrors] = useState<{
     email?: string;
     username?: string;
@@ -46,28 +46,28 @@ export default function RegisterPage() {
 
     // Validar email
     if (!email) {
-      newErrors.email = 'Email é obrigatório';
+      newErrors.email = "Email é obrigatório";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Email inválido';
+      newErrors.email = "Email inválido";
     }
 
     // Validar username
     if (!username) {
-      newErrors.username = 'Nome de usuário é obrigatório';
+      newErrors.username = "Nome de usuário é obrigatório";
     } else if (username.length < 3) {
-      newErrors.username = 'Nome de usuário deve ter pelo menos 3 caracteres';
+      newErrors.username = "Nome de usuário deve ter pelo menos 3 caracteres";
     }
 
     // Validar senha
     if (!senha) {
-      newErrors.senha = 'Senha é obrigatória';
+      newErrors.senha = "Senha é obrigatória";
     }
 
     // Validar confirmação de senha
     if (!confirmaSenha) {
-      newErrors.confirmaSenha = 'Confirmação de senha é obrigatória';
+      newErrors.confirmaSenha = "Confirmação de senha é obrigatória";
     } else if (confirmaSenha !== senha) {
-      newErrors.confirmaSenha = 'As senhas não correspondem';
+      newErrors.confirmaSenha = "As senhas não correspondem";
     }
 
     setErrors(newErrors);
@@ -84,9 +84,9 @@ export default function RegisterPage() {
 
     try {
       await register(username, email, senha);
-      router.replace('/(tabs)');
+      router.replace("/login" as any);
     } catch (error) {
-      console.error('Erro ao registrar:', error);
+      console.error("Erro ao registrar:", error);
     }
   };
 
@@ -99,7 +99,7 @@ export default function RegisterPage() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <ScrollView
@@ -108,7 +108,10 @@ export default function RegisterPage() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleBackToLogin} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={handleBackToLogin}
+            style={styles.backButton}
+          >
             <Text style={styles.backButtonText}>← Voltar</Text>
           </TouchableOpacity>
           <Text style={styles.title}>📘 Caderneta</Text>
@@ -130,7 +133,9 @@ export default function RegisterPage() {
               onChangeText={setEmail}
               editable={!isLoading}
             />
-            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
           </View>
 
           {/* Username Input */}
@@ -145,13 +150,20 @@ export default function RegisterPage() {
               onChangeText={setUsername}
               editable={!isLoading}
             />
-            {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
+            {errors.username && (
+              <Text style={styles.errorText}>{errors.username}</Text>
+            )}
           </View>
 
           {/* Senha Input */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Senha</Text>
-            <View style={[styles.passwordContainer, errors.senha && styles.inputError]}>
+            <View
+              style={[
+                styles.passwordContainer,
+                errors.senha && styles.inputError,
+              ]}
+            >
               <TextInput
                 style={styles.passwordInput}
                 placeholder="••••••••"
@@ -166,17 +178,24 @@ export default function RegisterPage() {
                 disabled={isLoading}
               >
                 <Text style={styles.showPasswordText}>
-                  {showPassword ? '👁️‍🗨️' : '👁️'}
+                  {showPassword ? "👁️‍🗨️" : "👁️"}
                 </Text>
               </TouchableOpacity>
             </View>
-            {errors.senha && <Text style={styles.errorText}>{errors.senha}</Text>}
+            {errors.senha && (
+              <Text style={styles.errorText}>{errors.senha}</Text>
+            )}
           </View>
 
           {/* Confirma Senha Input */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Confirmar Senha</Text>
-            <View style={[styles.passwordContainer, errors.confirmaSenha && styles.inputError]}>
+            <View
+              style={[
+                styles.passwordContainer,
+                errors.confirmaSenha && styles.inputError,
+              ]}
+            >
               <TextInput
                 style={styles.passwordInput}
                 placeholder="••••••••"
@@ -191,7 +210,7 @@ export default function RegisterPage() {
                 disabled={isLoading}
               >
                 <Text style={styles.showPasswordText}>
-                  {showConfirmPassword ? '👁️‍🗨️' : '👁️'}
+                  {showConfirmPassword ? "👁️‍🗨️" : "👁️"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -223,7 +242,9 @@ export default function RegisterPage() {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>🔒 Seus dados são seguros com HTTP-only cookies</Text>
+          <Text style={styles.footerText}>
+            🔒 Seus dados são seguros com HTTP-only cookies
+          </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -233,46 +254,46 @@ export default function RegisterPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 40,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 40,
     marginTop: 20,
   },
   backButton: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     marginBottom: 16,
     paddingVertical: 8,
     paddingHorizontal: 8,
   },
   backButtonText: {
-    color: '#007AFF',
+    color: "#007AFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   title: {
     fontSize: 32,
-    fontWeight: '700',
-    color: '#1a1a1a',
+    fontWeight: "700",
+    color: "#1a1a1a",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
   },
   form: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 24,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -283,69 +304,69 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
+    fontWeight: "600",
+    color: "#1a1a1a",
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1a1a1a',
-    backgroundColor: '#f9f9f9',
+    color: "#1a1a1a",
+    backgroundColor: "#f9f9f9",
   },
   inputError: {
-    borderColor: '#ff3b30',
-    backgroundColor: '#fff5f5',
+    borderColor: "#ff3b30",
+    backgroundColor: "#fff5f5",
   },
   errorText: {
-    color: '#ff3b30',
+    color: "#ff3b30",
     fontSize: 12,
     marginTop: 4,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
   },
   passwordInput: {
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1a1a1a',
+    color: "#1a1a1a",
   },
   showPasswordText: {
     fontSize: 20,
     marginLeft: 8,
   },
   authErrorContainer: {
-    backgroundColor: '#fff5f5',
+    backgroundColor: "#fff5f5",
     borderLeftWidth: 4,
-    borderLeftColor: '#ff3b30',
+    borderLeftColor: "#ff3b30",
     padding: 12,
     borderRadius: 6,
     marginBottom: 20,
   },
   authErrorText: {
-    color: '#ff3b30',
+    color: "#ff3b30",
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   registerButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: "#007AFF",
     borderRadius: 8,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 16,
-    shadowColor: '#007AFF',
+    shadowColor: "#007AFF",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -355,17 +376,17 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   registerButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   footer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
   footerText: {
     fontSize: 12,
-    color: '#999',
-    textAlign: 'center',
+    color: "#999",
+    textAlign: "center",
   },
 });

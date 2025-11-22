@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
-import { Stack } from 'expo-router';
-import { AuthProvider, useAuth } from '../context/auth.context';
+import { useEffect } from "react";
+import { Stack } from "expo-router";
+import { View, ActivityIndicator } from "react-native";
+import { AuthProvider, useAuth } from "../context/auth.context";
 
 /**
  * Componente interno que usa o contexto de autenticação
@@ -9,7 +10,11 @@ function RootLayoutNav() {
   const { isLoading, isAuthenticated } = useAuth();
 
   if (isLoading) {
-    return <Stack />;
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
   }
 
   return (
@@ -40,7 +45,7 @@ function RootLayoutNav() {
           <Stack.Screen
             name="register"
             options={{
-              presentation: 'modal',
+              presentation: "modal",
               headerShown: false,
             }}
           />

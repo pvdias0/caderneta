@@ -1,24 +1,20 @@
 export interface Cliente {
-  id: string;
-  usuario_id: string;
+  id_cliente: string;
   nome: string;
   email?: string;
   telefone?: string;
-  endereco?: string;
-  data_criacao: Date;
-  ultima_atualizacao: Date;
+  datacriacao: Date;
+  ultimaatualizacao: Date;
 }
 
 export interface CreateClienteDTO {
   nome: string;
   email?: string;
   telefone?: string;
-  endereco?: string;
 }
 
 export interface UpdateClienteDTO {
   nome?: string;
   email?: string;
   telefone?: string;
-  endereco?: string;
 }

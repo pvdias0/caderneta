@@ -55,12 +55,12 @@ router.get(
 router.post("/", clienteController.criarCliente.bind(clienteController));
 
 /**
- * @route   POST /api/v1/clientes/deletar-multiplos
+ * @route   DELETE /api/v1/clientes/bulk/delete
  * @desc    Deletar múltiplos clientes
  * @access  Private
  */
-router.post(
-  "/deletar-multiplos",
+router.delete(
+  "/bulk/delete",
   clienteController.deletarClientes.bind(clienteController)
 );
 

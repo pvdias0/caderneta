@@ -101,11 +101,17 @@ export default function HomeScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Ações Rápidas</Text>
           <View style={styles.actionsGrid}>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("/clientes" as any)}
+            >
               <Text style={styles.actionButtonText}>👥</Text>
               <Text style={styles.actionButtonLabel}>Clientes</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("/estoque" as any)}
+            >
               <Text style={styles.actionButtonText}>📦</Text>
               <Text style={styles.actionButtonLabel}>Estoque</Text>
             </TouchableOpacity>

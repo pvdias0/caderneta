@@ -43,6 +43,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   useEffect(() => {
     restoreSession();
+
+    // Registrar callback para logout automático quando não autorizado
+    apiService.setUnauthorizedCallback(async () => {
+      console.warn(
+        "⚠️ Sessão expirada ou token inválido - fazendo logout automático"
+      );
+      await logout();
+    });
   }, []);
 
   /**
@@ -55,15 +63,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const refreshToken = await AsyncStorage.getItem("refreshToken");
       const userData = await AsyncStorage.getItem("user");
 
-      if (accessToken && refreshToken) {
+      if (accessToken && refreshToken && userData) {
         apiService.setTokens(accessToken, refreshToken);
-
-        if (userData) {
-          setUser(JSON.parse(userData));
-        }
+        setUser(JSON.parse(userData));
+      } else {
+        // Se não houver tokens, fazer logout para limpar qualquer sessão inválida
+        await AsyncStorage.removeItem("accessToken");
+        await AsyncStorage.removeItem("refreshToken");
+        await AsyncStorage.removeItem("user");
+        setUser(null);
+        apiService.clearTokens();
       }
     } catch (error) {
       console.error("❌ Erro ao restaurar sessão:", error);
+      // Em caso de erro, limpar tudo e requer novo login
+      await AsyncStorage.removeItem("accessToken");
+      await AsyncStorage.removeItem("refreshToken");
+      await AsyncStorage.removeItem("user");
+      setUser(null);
+      apiService.clearTokens();
     } finally {
       setIsLoading(false);
     }

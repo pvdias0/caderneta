@@ -11,6 +11,7 @@ import pool, {
 } from "./config/database.js";
 import authRoutes from "./routes/auth.routes.js";
 import clienteRoutes from "./routes/cliente.routes.js";
+import produtoRoutes from "./routes/produto.routes.js";
 
 const app: Express = express();
 
@@ -93,6 +94,9 @@ app.use("/api/v1/auth", authRoutes);
 
 // Rotas de clientes
 app.use("/api/v1/clientes", clienteRoutes);
+
+// Rotas de produtos (estoque)
+app.use("/api/v1/produtos", produtoRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

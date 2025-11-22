@@ -1,13 +1,21 @@
 import { Request, Response } from "express";
 import clienteService from "../services/cliente.service.js";
 
+/**
+ * Helper para obter usuarioId do request
+ */
+function getUsuarioId(req: Request): number | null {
+  const usuarioId = (req as any).user?.id || (req as any).usuarioId;
+  return usuarioId ? Number(usuarioId) : null;
+}
+
 export class ClienteController {
   /**
    * Listar todos os clientes do usuário autenticado
    */
   async listarClientes(req: Request, res: Response): Promise<void> {
     try {
-      const usuarioId = (req as any).usuarioId; // Setado pelo middleware de autenticação
+      const usuarioId = getUsuarioId(req);
 
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });
@@ -16,10 +24,16 @@ export class ClienteController {
 
       const clientes = await clienteService.getAllClientes(usuarioId);
 
+      // Converter id_cliente para número
+      const clientesConvertidos = clientes.map((cliente) => ({
+        ...cliente,
+        id_cliente: Number(cliente.id_cliente),
+      }));
+
       res.status(200).json({
         success: true,
-        data: clientes,
-        total: clientes.length,
+        data: clientesConvertidos,
+        total: clientesConvertidos.length,
       });
     } catch (error) {
       console.error("Erro ao listar clientes:", error);
@@ -35,7 +49,7 @@ export class ClienteController {
    */
   async obterCliente(req: Request, res: Response): Promise<void> {
     try {
-      const usuarioId = (req as any).usuarioId;
+      const usuarioId = getUsuarioId(req);
       const { id } = req.params;
 
       if (!usuarioId) {
@@ -76,8 +90,8 @@ export class ClienteController {
    */
   async criarCliente(req: Request, res: Response): Promise<void> {
     try {
-      const usuarioId = (req as any).usuarioId;
-      const { nome, email, telefone, endereco } = req.body;
+      const usuarioId = getUsuarioId(req);
+      const { nome, email, telefone } = req.body;
 
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });
@@ -93,12 +107,17 @@ export class ClienteController {
         nome,
         email: email || undefined,
         telefone: telefone || undefined,
-        endereco: endereco || undefined,
       });
+
+      // Converter id_cliente para número
+      const clienteConvertido = {
+        ...novoCliente,
+        id_cliente: Number(novoCliente.id_cliente),
+      };
 
       res.status(201).json({
         success: true,
-        data: novoCliente,
+        data: clienteConvertido,
         message: "Cliente criado com sucesso",
       });
     } catch (error) {
@@ -115,9 +134,9 @@ export class ClienteController {
    */
   async atualizarCliente(req: Request, res: Response): Promise<void> {
     try {
-      const usuarioId = (req as any).usuarioId;
+      const usuarioId = getUsuarioId(req);
       const { id } = req.params;
-      const { nome, email, telefone, endereco } = req.body;
+      const { nome, email, telefone } = req.body;
 
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });
@@ -143,7 +162,6 @@ export class ClienteController {
           nome,
           email,
           telefone,
-          endereco,
         }
       );
 
@@ -166,7 +184,7 @@ export class ClienteController {
    */
   async deletarCliente(req: Request, res: Response): Promise<void> {
     try {
-      const usuarioId = (req as any).usuarioId;
+      const usuarioId = getUsuarioId(req);
       const { id } = req.params;
 
       if (!usuarioId) {
@@ -199,7 +217,7 @@ export class ClienteController {
    */
   async deletarClientes(req: Request, res: Response): Promise<void> {
     try {
-      const usuarioId = (req as any).usuarioId;
+      const usuarioId = getUsuarioId(req);
       const { ids } = req.body;
 
       if (!usuarioId) {
@@ -225,7 +243,7 @@ export class ClienteController {
         message: `${ids.length} cliente(s) deletado(s) com sucesso`,
       });
     } catch (error) {
-      console.error("Erro ao deletar clientes:", error);
+      console.error("❌ Erro ao deletar clientes:", error);
       res.status(400).json({
         error: "Falha ao deletar clientes",
         message: (error as any).message,
@@ -238,7 +256,7 @@ export class ClienteController {
    */
   async getTotalAReceber(req: Request, res: Response): Promise<void> {
     try {
-      const usuarioId = (req as any).usuarioId;
+      const usuarioId = getUsuarioId(req);
       const { id } = req.params;
 
       if (!usuarioId) {
@@ -277,7 +295,7 @@ export class ClienteController {
    */
   async getTotalAReceberGeral(req: Request, res: Response): Promise<void> {
     try {
-      const usuarioId = (req as any).usuarioId;
+      const usuarioId = getUsuarioId(req);
 
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });

@@ -49,21 +49,6 @@ export async function login(req: Request, res: Response): Promise<void> {
     // Atualizar último acesso
     await updateLastLogin(tokenPayload.id);
 
-    // Configurar cookies HTTP-only
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 24 horas
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
-    });
-
     console.log(`✅ Login bem-sucedido: ${email}`);
 
     res.status(200).json({
@@ -139,14 +124,13 @@ export async function register(req: Request, res: Response): Promise<void> {
 /**
  * Refresh token - Gerar novo access token usando refresh token
  * POST /api/v1/auth/refresh
+ *
+ * Para aplicações mobile (React Native), os tokens são enviados no corpo da requisição
+ * e não em cookies HTTP-only
  */
 export async function refresh(req: Request, res: Response): Promise<void> {
   try {
-    let refreshToken = req.cookies?.refreshToken;
-
-    if (!refreshToken) {
-      refreshToken = req.body?.refreshToken;
-    }
+    const refreshToken = req.body?.refreshToken;
 
     if (!refreshToken) {
       res.status(401).json({
@@ -172,16 +156,6 @@ export async function refresh(req: Request, res: Response): Promise<void> {
       nome_usuario: decoded.nome_usuario,
     });
 
-    // Atualizar cookie se existir
-    if (req.cookies?.accessToken) {
-      res.cookie("accessToken", newAccessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 24 * 60 * 60 * 1000, // 24 horas
-      });
-    }
-
     console.log(`✅ Token renovado para usuário: ${decoded.email}`);
 
     res.status(200).json({
@@ -198,24 +172,14 @@ export async function refresh(req: Request, res: Response): Promise<void> {
 }
 
 /**
- * Logout - Limpar cookies
+ * Logout - Limpar tokens (apenas informativo para mobile)
  * POST /api/v1/auth/logout
+ *
+ * Para aplicações mobile, o logout é feito removendo os tokens do AsyncStorage no cliente
+ * Esta rota é informativa apenas
  */
 export async function logout(req: Request, res: Response): Promise<void> {
   try {
-    // Limpar cookies
-    res.clearCookie("accessToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
-
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
-
     console.log(`✅ Logout realizado`);
 
     res.status(200).json({
