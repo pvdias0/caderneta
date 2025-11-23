@@ -6,28 +6,11 @@
     "preview": {
       "android": {
         "buildType": "apk"
-      },
-      "ios": {
-        "buildType": "simulator"
       }
-    },
-    "preview2": {
-      "android": {
-        "gradleCommand": ":app:assembleRelease"
-      },
-      "ios": {
-        "buildType": "archive"
-      }
-    },
-    "preview3": {
-      "developmentClient": true
     },
     "production": {
       "android": {
         "buildType": "app-bundle"
-      },
-      "ios": {
-        "buildType": "archive"
       }
     }
   },
