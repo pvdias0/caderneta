@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "Caderneta",
-    "slug": "frontend",
+    "slug": "caderneta",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "caderneta",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -47,9 +47,7 @@
     },
     "extra": {
       "router": {},
-      "eas": {
-        "projectId": "a837f568-f8bc-496f-99e7-6fe5d8e16b77"
-      }
+      "eas": {}
     }
   }
 }
