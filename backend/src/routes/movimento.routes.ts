@@ -37,6 +37,16 @@ router.post(
 );
 
 /**
+ * @route   POST /api/v1/clientes/:clienteId/movimentos/compra-com-itens
+ * @desc    Criar uma compra com múltiplos itens (carrinho)
+ * @access  Private
+ */
+router.post(
+  "/compra-com-itens",
+  movimentoController.criarCompraComItens.bind(movimentoController)
+);
+
+/**
  * @route   POST /api/v1/clientes/:clienteId/movimentos/pagamento
  * @desc    Criar um pagamento
  * @access  Private
@@ -54,6 +64,16 @@ router.post(
 router.put(
   "/compra/:compraId",
   movimentoController.atualizarCompra.bind(movimentoController)
+);
+
+/**
+ * @route   PUT /api/v1/clientes/:clienteId/movimentos/compra/:compraId/com-itens
+ * @desc    Atualizar uma compra com itens
+ * @access  Private
+ */
+router.put(
+  "/compra/:compraId/com-itens",
+  movimentoController.atualizarCompraComItens.bind(movimentoController)
 );
 
 /**

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { apiService, Cliente } from "../../../services/api";
 import { styles } from "./styles";
@@ -38,6 +38,13 @@ export default function ClientesScreen() {
   useEffect(() => {
     loadClientes();
   }, []); // Adicionar lista de dependências vazia para executar apenas uma vez
+
+  // Recarregar clientes quando a página ganhar foco
+  useFocusEffect(
+    useCallback(() => {
+      loadClientes();
+    }, [])
+  );
 
   const loadClientes = async () => {
     try {
@@ -179,7 +186,9 @@ export default function ClientesScreen() {
 
   const renderClienteItem = ({ item }: { item: Cliente }) => {
     const isSelected = selectedClientes.has(item.id_cliente);
-    const saldoDevedor = item.saldo_devedor || 0;
+    const saldoDevedor = item.saldo_devedor
+      ? parseFloat(String(item.saldo_devedor))
+      : 0;
 
     return (
       <TouchableOpacity

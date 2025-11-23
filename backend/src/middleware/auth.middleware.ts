@@ -1,6 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
-import { verifyAccessToken, verifyRefreshToken, generateAccessToken } from '../services/jwt.service.js';
-import { IDecodedToken } from '../types/auth.js';
+import { Request, Response, NextFunction } from "express";
+import {
+  verifyAccessToken,
+  verifyRefreshToken,
+  generateAccessToken,
+} from "../services/jwt.service.js";
+import { IDecodedToken } from "../types/auth.js";
 
 /**
  * Interface estendida do Express Request com dados de autenticação
@@ -28,17 +32,22 @@ export async function authMiddleware(
 ): Promise<void> {
   try {
     // Tentar pegar o token do header Authorization
-    let token = req.headers.authorization?.split(' ')[1];
+    let token = req.headers.authorization?.split(" ")[1];
 
     // Se não encontrar no header, tentar buscar do cookie
     if (!token) {
       token = req.cookies?.accessToken;
     }
 
+    // Se não encontrar no cookie, tentar buscar da query string
+    if (!token) {
+      token = (req.query?.token as string) || undefined;
+    }
+
     if (!token) {
       res.status(401).json({
-        error: 'Token não fornecido',
-        message: 'Autenticação necessária',
+        error: "Token não fornecido",
+        message: "Autenticação necessária",
       });
       return;
     }
@@ -48,7 +57,7 @@ export async function authMiddleware(
 
     if (!decoded) {
       res.status(401).json({
-        error: 'Token inválido ou expirado',
+        error: "Token inválido ou expirado",
       });
       return;
     }
@@ -59,9 +68,9 @@ export async function authMiddleware(
 
     next();
   } catch (error) {
-    console.error('❌ Erro no middleware de autenticação:', error);
+    console.error("❌ Erro no middleware de autenticação:", error);
     res.status(500).json({
-      error: 'Erro ao processar autenticação',
+      error: "Erro ao processar autenticação",
     });
   }
 }
@@ -77,15 +86,15 @@ export async function autoRefreshMiddleware(
   next: NextFunction
 ): Promise<void> {
   try {
-    let accessToken = req.headers.authorization?.split(' ')[1];
+    let accessToken = req.headers.authorization?.split(" ")[1];
     let refreshToken = req.cookies?.refreshToken;
 
     // Se access token é inválido mas refresh token existe
     if (!accessToken || !verifyAccessToken(accessToken)) {
       if (!refreshToken) {
         res.status(401).json({
-          error: 'Sessão expirada',
-          message: 'Faça login novamente',
+          error: "Sessão expirada",
+          message: "Faça login novamente",
         });
         return;
       }
@@ -94,7 +103,7 @@ export async function autoRefreshMiddleware(
       const decoded = verifyRefreshToken(refreshToken);
       if (!decoded) {
         res.status(401).json({
-          error: 'Refresh token inválido',
+          error: "Refresh token inválido",
         });
         return;
       }
@@ -107,14 +116,14 @@ export async function autoRefreshMiddleware(
       });
 
       // Adicionar novo token ao response header
-      res.setHeader('X-New-Access-Token', newAccessToken);
+      res.setHeader("X-New-Access-Token", newAccessToken);
 
       // Atualizar cookie se existir
       if (req.cookies?.accessToken) {
-        res.cookie('accessToken', newAccessToken, {
+        res.cookie("accessToken", newAccessToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
           maxAge: 24 * 60 * 60 * 1000, // 24 horas
         });
       }
@@ -133,7 +142,7 @@ export async function autoRefreshMiddleware(
 
     next();
   } catch (error) {
-    console.error('❌ Erro no auto refresh middleware:', error);
+    console.error("❌ Erro no auto refresh middleware:", error);
     next(); // Continuar mesmo com erro
   }
 }
@@ -148,7 +157,7 @@ export async function optionalAuthMiddleware(
   next: NextFunction
 ): Promise<void> {
   try {
-    let token = req.headers.authorization?.split(' ')[1];
+    let token = req.headers.authorization?.split(" ")[1];
 
     if (!token) {
       token = req.cookies?.accessToken;

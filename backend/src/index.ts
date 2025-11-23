@@ -13,6 +13,7 @@ import authRoutes from "./routes/auth.routes.js";
 import clienteRoutes from "./routes/cliente.routes.js";
 import produtoRoutes from "./routes/produto.routes.js";
 import movimentoRoutes from "./routes/movimento.routes.js";
+import pdfRoutes from "./routes/pdf.routes.js";
 
 const app: Express = express();
 
@@ -98,6 +99,9 @@ app.use("/api/v1/clientes", clienteRoutes);
 
 // Rotas de movimentos (aninhadas em clientes)
 app.use("/api/v1/clientes/:clienteId/movimentos", movimentoRoutes);
+
+// Rotas de PDF (aninhadas em clientes)
+app.use("/api/v1/clientes/:clienteId", pdfRoutes);
 
 // Rotas de produtos (estoque)
 app.use("/api/v1/produtos", produtoRoutes);

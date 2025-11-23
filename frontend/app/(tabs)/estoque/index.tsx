@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { apiService, Produto } from "../../../services/api";
 import { styles } from "./styles";
@@ -63,6 +63,13 @@ export default function EstoqueScreen() {
   useEffect(() => {
     loadProdutos();
   }, []);
+
+  // Recarregar produtos quando a página ganhar foco
+  useFocusEffect(
+    useCallback(() => {
+      loadProdutos();
+    }, [])
+  );
 
   const loadProdutos = async () => {
     try {
@@ -242,8 +249,22 @@ export default function EstoqueScreen() {
       >
         <View style={styles.produtoInfo}>
           <Text style={styles.produtoName}>{item.nome}</Text>
-          <Text style={styles.produtoDetail}>💰 R$ {valor.toFixed(2)}</Text>
-          <Text style={styles.produtoDetail}>📦 {quantidade} unidades</Text>
+
+          <View style={styles.produtoDetailsRow}>
+            <View style={styles.produtoDetailItem}>
+              <Text style={styles.produtoDetailLabel}>Preço</Text>
+              <Text style={styles.produtoDetailValue}>
+                R$ {valor.toFixed(2)}
+              </Text>
+            </View>
+
+            <View style={styles.produtoDetailItem}>
+              <Text style={styles.produtoDetailLabel}>Quantidade</Text>
+              <Text style={styles.produtoDetailValue}>
+                {Math.floor(quantidade)} un
+              </Text>
+            </View>
+          </View>
         </View>
 
         {deleteMode && (

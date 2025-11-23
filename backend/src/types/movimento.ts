@@ -18,6 +18,14 @@ export interface UpdateMovimentoDTO {
   valor?: number;
 }
 
+export interface ItemCompra {
+  id_item_compra: number;
+  id_compra: number;
+  id_produto: number | string;
+  quantidade: number;
+  valor_unitario: number;
+}
+
 export interface MovimentoCompleto {
   id_movimento: number;
   id_conta: number;
@@ -26,4 +34,5 @@ export interface MovimentoCompleto {
   data_movimento: string;
   id_compra?: number;
   id_pagamento?: number;
+  itens?: ItemCompra[];
 }

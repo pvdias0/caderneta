@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
   Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { useAuth } from "../../context/auth.context";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { styles } from "./styles";
+import apiService from "../../services/api";
 
 /**
  * Página de Home/Dashboard
@@ -18,6 +20,36 @@ export default function HomeScreen() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [totalAReceber, setTotalAReceber] = useState<number>(0);
+  const [loadingTotal, setLoadingTotal] = useState(false);
+
+  const carregarTotalAReceber = useCallback(async () => {
+    try {
+      setLoadingTotal(true);
+      console.log("🔄 Carregando total a receber...");
+      const response = await apiService.getTotalAReceberGeral();
+      console.log("✅ Response:", response);
+      if (response.status === 200 && response.data) {
+        // O backend retorna: { data: { total_a_receber: 11 }, success: true }
+        const totalData = (response.data as any)?.data || response.data;
+        const total = parseFloat(String(totalData.total_a_receber || 0));
+        console.log("💰 Total carregado:", total);
+        setTotalAReceber(total);
+      } else {
+        console.log("⚠️ Status não é 200 ou dados vazios:", response);
+      }
+    } catch (error) {
+      console.error("❌ Erro ao carregar total a receber:", error);
+    } finally {
+      setLoadingTotal(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      carregarTotalAReceber();
+    }, [carregarTotalAReceber])
+  );
 
   const handleLogout = async () => {
     try {
@@ -40,7 +72,7 @@ export default function HomeScreen() {
 
       {/* Custom Header */}
       <View style={styles.customHeader}>
-        <Text style={styles.headerTitle}>📘 Caderneta</Text>
+        <Text style={styles.headerTitle}>📘 Caderneta </Text>
         <TouchableOpacity
           style={styles.profileButton}
           onPress={() => setShowProfileMenu(!showProfileMenu)}
@@ -94,7 +126,13 @@ export default function HomeScreen() {
         {/* Total a Receber Card */}
         <View style={styles.receivableCard}>
           <Text style={styles.receivableLabel}>Total a Receber</Text>
-          <Text style={styles.receivableAmount}>R$ 0,00</Text>
+          {loadingTotal ? (
+            <ActivityIndicator size="large" color="#007AFF" />
+          ) : (
+            <Text style={styles.receivableAmount}>
+              R$ {totalAReceber.toFixed(2).replace(".", ",")}
+            </Text>
+          )}
         </View>
 
         {/* Quick Actions - Only 2 options */}

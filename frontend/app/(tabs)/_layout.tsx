@@ -18,19 +18,19 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
-        options={{
-          href: null, // Esconder esta aba
-        }}
-      />
-      <Tabs.Screen
-        name="clientes"
+        name="clientes/index"
         options={{
           href: null, // Protegida por rota condicional, não mostrar em abas
         }}
       />
       <Tabs.Screen
-        name="estoque"
+        name="cliente/index"
+        options={{
+          href: null, // Protegida por rota condicional, não mostrar em abas
+        }}
+      />
+      <Tabs.Screen
+        name="estoque/index"
         options={{
           href: null, // Protegida por rota condicional, não mostrar em abas
         }}

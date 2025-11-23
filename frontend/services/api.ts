@@ -112,6 +112,7 @@ export interface Movimento {
   data_movimento: string;
   id_compra?: number;
   id_pagamento?: number;
+  itens?: ItemCompra[];
 }
 
 export interface CreateMovimentoRequest {
@@ -124,6 +125,33 @@ export interface MovimentosListResponse {
   data?: Movimento[];
   movimentos?: Movimento[];
   total?: number;
+}
+
+/**
+ * Interface para ItemCompra
+ */
+export interface ItemCompra {
+  id_item_compra: number | string;
+  id_compra: number | string;
+  id_produto: number | string;
+  quantidade: number | string;
+  valor_unitario: number | string;
+  datacriacao?: string;
+  ultimaatualizacao?: string;
+}
+
+export interface CreateItemCompraRequest {
+  id_produto: number;
+  quantidade: number;
+  valor_unitario: number;
+}
+
+export interface CompraDetalhada {
+  id_compra: number;
+  id_conta: number;
+  valor_compra: number;
+  data_compra: string;
+  itens: ItemCompra[];
 }
 
 /**
@@ -389,6 +417,29 @@ class ApiService {
   }
 
   /**
+   * Gerar extrato em PDF do cliente
+   */
+  async gerarExtratoCliente(clienteId: number): Promise<any> {
+    try {
+      if (!this.accessToken) {
+        throw new Error("Token de autenticação não disponível");
+      }
+
+      return {
+        status: 200,
+        message: "Extrato gerado com sucesso",
+        url: `${this.baseUrl}/api/v1/clientes/${clienteId}/extrato?token=${this.accessToken}`,
+      };
+    } catch (error) {
+      console.error("Erro ao gerar extrato:", error);
+      return {
+        status: 0,
+        error: String(error),
+      };
+    }
+  }
+
+  /**
    * Deletar múltiplos clientes
    */
   async deleteClientes(ids: number[]): Promise<ApiResponse> {
@@ -452,6 +503,20 @@ class ApiService {
   }
 
   /**
+   * Obter total geral a receber de todos os clientes
+   */
+  async getTotalAReceberGeral(): Promise<
+    ApiResponse<{ total_a_receber: number }>
+  > {
+    return this.request<{ total_a_receber: number }>(
+      "/api/v1/clientes/total-a-receber",
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  /**
    * Buscar produtos por nome
    */
   async searchProdutos(q: string): Promise<ApiResponse<ProdutosListResponse>> {
@@ -478,7 +543,24 @@ class ApiService {
   }
 
   /**
-   * Criar uma compra
+   * Criar uma compra com itens
+   */
+  async createCompraComItens(
+    clienteId: number,
+    dataCompra: string,
+    itens: { id_produto: number; quantidade: number; valor_unitario: number }[]
+  ): Promise<ApiResponse<any>> {
+    return this.request<any>(
+      `/api/v1/clientes/${clienteId}/movimentos/compra-com-itens`,
+      {
+        method: "POST",
+        body: JSON.stringify({ data_compra: dataCompra, itens }),
+      }
+    );
+  }
+
+  /**
+   * Criar uma compra simples (sem itens detalhados)
    */
   async createCompra(
     clienteId: number,
@@ -498,13 +580,37 @@ class ApiService {
    */
   async createPagamento(
     clienteId: number,
-    valorPagamento: number
+    valorPagamento: number,
+    dataPagamento?: string
   ): Promise<ApiResponse<Movimento>> {
+    const body: any = { valor_pagamento: valorPagamento };
+    if (dataPagamento) {
+      body.data_pagamento = dataPagamento;
+    }
+
     return this.request<Movimento>(
       `/api/v1/clientes/${clienteId}/movimentos/pagamento`,
       {
         method: "POST",
-        body: JSON.stringify({ valor_pagamento: valorPagamento }),
+        body: JSON.stringify(body),
+      }
+    );
+  }
+
+  /**
+   * Atualizar uma compra com itens
+   */
+  async updateCompraComItens(
+    clienteId: number,
+    compraId: number,
+    dataCompra: string,
+    itens: { id_produto: number; quantidade: number; valor_unitario: number }[]
+  ): Promise<ApiResponse<any>> {
+    return this.request<any>(
+      `/api/v1/clientes/${clienteId}/movimentos/compra/${compraId}/com-itens`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ data_compra: dataCompra, itens }),
       }
     );
   }
@@ -515,13 +621,19 @@ class ApiService {
   async updateCompra(
     clienteId: number,
     compraId: number,
-    valorCompra: number
+    valorCompra: number,
+    dataCompra?: string
   ): Promise<ApiResponse<Movimento>> {
+    const body: any = { valor_compra: valorCompra };
+    if (dataCompra) {
+      body.data_compra = dataCompra;
+    }
+
     return this.request<Movimento>(
       `/api/v1/clientes/${clienteId}/movimentos/compra/${compraId}`,
       {
         method: "PUT",
-        body: JSON.stringify({ valor_compra: valorCompra }),
+        body: JSON.stringify(body),
       }
     );
   }
@@ -532,13 +644,19 @@ class ApiService {
   async updatePagamento(
     clienteId: number,
     pagamentoId: number,
-    valorPagamento: number
+    valorPagamento: number,
+    dataPagamento?: string
   ): Promise<ApiResponse<Movimento>> {
+    const body: any = { valor_pagamento: valorPagamento };
+    if (dataPagamento) {
+      body.data_pagamento = dataPagamento;
+    }
+
     return this.request<Movimento>(
       `/api/v1/clientes/${clienteId}/movimentos/pagamento/${pagamentoId}`,
       {
         method: "PUT",
-        body: JSON.stringify({ valor_pagamento: valorPagamento }),
+        body: JSON.stringify(body),
       }
     );
   }

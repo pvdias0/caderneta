@@ -89,7 +89,29 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#1a1a1a",
+    marginBottom: 12,
+  },
+  produtoDetailsRow: {
+    flexDirection: "row",
+    gap: 16,
+    justifyContent: "flex-start",
+  },
+  produtoDetailItem: {
+    flex: 0,
+    minWidth: 100,
+  },
+  produtoDetailLabel: {
+    fontSize: 11,
+    color: "#999",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    fontWeight: "600",
     marginBottom: 4,
+  },
+  produtoDetailValue: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#007AFF",
   },
   produtoDetail: {
     fontSize: 12,
