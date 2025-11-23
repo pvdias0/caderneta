@@ -190,4 +190,4 @@ ISC
 
 ## 👨‍💻 Autor
 
-Paulo Vitor Dias
+Pedro Vitor Dias
