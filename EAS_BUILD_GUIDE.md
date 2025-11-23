@@ -271,6 +271,7 @@ eas project:init
 ### Build cancelado/falhou
 
 Verifique os logs:
+
 ```bash
 eas build:view <BUILD_ID>
 ```
@@ -289,4 +290,3 @@ Isso é normal para o primeiro build. Builds subsequentes são mais rápidos.
 4. ✅ Configurar `.env.production`
 5. ✅ Rodar `eas build --platform android --profile preview`
 6. ✅ Baixar e testar APK
-

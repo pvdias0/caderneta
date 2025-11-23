@@ -77,4 +77,3 @@ Qual é a URL do seu backend no Render?
 Exemplo: `https://caderneta-api-abc123.onrender.com`
 
 Preciso disso para atualizar o `.env.production` corretamente.
-
