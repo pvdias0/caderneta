@@ -60,6 +60,7 @@ export interface Cliente {
   telefone?: string;
   datacriacao: string;
   ultimaatualizacao: string;
+  saldo_devedor?: number;
 }
 
 export interface CreateClienteRequest {
@@ -97,6 +98,31 @@ export interface ProdutosListResponse {
   success?: boolean;
   data?: Produto[];
   produtos?: Produto[];
+  total?: number;
+}
+
+/**
+ * Interface para Movimento
+ */
+export interface Movimento {
+  id_movimento: number;
+  id_conta: number;
+  tipo: "COMPRA" | "PAGAMENTO" | "AJUSTE";
+  valor: number;
+  data_movimento: string;
+  id_compra?: number;
+  id_pagamento?: number;
+}
+
+export interface CreateMovimentoRequest {
+  valor_compra?: number;
+  valor_pagamento?: number;
+}
+
+export interface MovimentosListResponse {
+  success?: boolean;
+  data?: Movimento[];
+  movimentos?: Movimento[];
   total?: number;
 }
 
@@ -433,6 +459,116 @@ class ApiService {
       `/api/v1/produtos/busca?q=${encodeURIComponent(q)}`,
       {
         method: "GET",
+      }
+    );
+  }
+
+  /**
+   * Listar movimentos de um cliente
+   */
+  async getMovimentos(
+    clienteId: number
+  ): Promise<ApiResponse<MovimentosListResponse>> {
+    return this.request<MovimentosListResponse>(
+      `/api/v1/clientes/${clienteId}/movimentos`,
+      {
+        method: "GET",
+      }
+    );
+  }
+
+  /**
+   * Criar uma compra
+   */
+  async createCompra(
+    clienteId: number,
+    valorCompra: number
+  ): Promise<ApiResponse<Movimento>> {
+    return this.request<Movimento>(
+      `/api/v1/clientes/${clienteId}/movimentos/compra`,
+      {
+        method: "POST",
+        body: JSON.stringify({ valor_compra: valorCompra }),
+      }
+    );
+  }
+
+  /**
+   * Criar um pagamento
+   */
+  async createPagamento(
+    clienteId: number,
+    valorPagamento: number
+  ): Promise<ApiResponse<Movimento>> {
+    return this.request<Movimento>(
+      `/api/v1/clientes/${clienteId}/movimentos/pagamento`,
+      {
+        method: "POST",
+        body: JSON.stringify({ valor_pagamento: valorPagamento }),
+      }
+    );
+  }
+
+  /**
+   * Atualizar uma compra
+   */
+  async updateCompra(
+    clienteId: number,
+    compraId: number,
+    valorCompra: number
+  ): Promise<ApiResponse<Movimento>> {
+    return this.request<Movimento>(
+      `/api/v1/clientes/${clienteId}/movimentos/compra/${compraId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ valor_compra: valorCompra }),
+      }
+    );
+  }
+
+  /**
+   * Atualizar um pagamento
+   */
+  async updatePagamento(
+    clienteId: number,
+    pagamentoId: number,
+    valorPagamento: number
+  ): Promise<ApiResponse<Movimento>> {
+    return this.request<Movimento>(
+      `/api/v1/clientes/${clienteId}/movimentos/pagamento/${pagamentoId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ valor_pagamento: valorPagamento }),
+      }
+    );
+  }
+
+  /**
+   * Deletar uma compra
+   */
+  async deleteCompra(
+    clienteId: number,
+    compraId: number
+  ): Promise<ApiResponse> {
+    return this.request(
+      `/api/v1/clientes/${clienteId}/movimentos/compra/${compraId}`,
+      {
+        method: "DELETE",
+      }
+    );
+  }
+
+  /**
+   * Deletar um pagamento
+   */
+  async deletePagamento(
+    clienteId: number,
+    pagamentoId: number
+  ): Promise<ApiResponse> {
+    return this.request(
+      `/api/v1/clientes/${clienteId}/movimentos/pagamento/${pagamentoId}`,
+      {
+        method: "DELETE",
       }
     );
   }

@@ -57,6 +57,11 @@ export const styles = StyleSheet.create({
     color: "#ccc",
     fontStyle: "italic",
   },
+  saldoCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#ff3b30",
+    backgroundColor: "#fff8f6",
+  },
   statsContainer: {
     flexDirection: "row",
     gap: 12,
@@ -189,5 +194,39 @@ export const styles = StyleSheet.create({
     color: "#1a1a1a",
     fontSize: 16,
     fontWeight: "600",
+  },
+  movimentoCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#f0f0f0",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  movimentoCardCompra: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#ff3b30",
+  },
+  movimentoCardPagamento: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#34C759",
+  },
+  movimentoType: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1a1a1a",
+  },
+  movimentoValue: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1a1a1a",
+    marginBottom: 4,
+  },
+  movimentoDate: {
+    fontSize: 12,
+    color: "#999",
   },
 });

@@ -12,15 +12,17 @@ export class ClienteService {
   async getAllClientes(usuarioId: number): Promise<Cliente[]> {
     const query = `
       SELECT 
-        id_cliente,
-        nome,
-        email,
-        telefone,
-        datacriacao,
-        ultimaatualizacao
-      FROM cliente
-      WHERE id_usuario = $1
-      ORDER BY nome ASC
+        c.id_cliente,
+        c.nome,
+        c.email,
+        c.telefone,
+        c.datacriacao,
+        c.ultimaatualizacao,
+        COALESCE(ct.saldo_devedor, 0) as saldo_devedor
+      FROM cliente c
+      LEFT JOIN conta ct ON c.id_cliente = ct.id_cliente
+      WHERE c.id_usuario = $1
+      ORDER BY c.nome ASC
     `;
 
     try {
@@ -41,14 +43,16 @@ export class ClienteService {
   ): Promise<Cliente | null> {
     const query = `
       SELECT 
-        id_cliente,
-        nome,
-        email,
-        telefone,
-        datacriacao,
-        ultimaatualizacao
-      FROM cliente
-      WHERE id_cliente = $1 AND id_usuario = $2
+        c.id_cliente,
+        c.nome,
+        c.email,
+        c.telefone,
+        c.datacriacao,
+        c.ultimaatualizacao,
+        COALESCE(ct.saldo_devedor, 0) as saldo_devedor
+      FROM cliente c
+      LEFT JOIN conta ct ON c.id_cliente = ct.id_cliente
+      WHERE c.id_cliente = $1 AND c.id_usuario = $2
     `;
 
     try {
@@ -109,7 +113,8 @@ export class ClienteService {
         email,
         telefone,
         datacriacao,
-        ultimaatualizacao
+        ultimaatualizacao,
+        0 as saldo_devedor
     `;
 
     try {
@@ -211,7 +216,8 @@ export class ClienteService {
         email,
         telefone,
         datacriacao,
-        ultimaatualizacao
+        ultimaatualizacao,
+        (SELECT COALESCE(saldo_devedor, 0) FROM conta WHERE id_cliente = $${paramCount}) as saldo_devedor
     `;
 
     try {

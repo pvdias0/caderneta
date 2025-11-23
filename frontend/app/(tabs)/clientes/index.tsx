@@ -179,6 +179,7 @@ export default function ClientesScreen() {
 
   const renderClienteItem = ({ item }: { item: Cliente }) => {
     const isSelected = selectedClientes.has(item.id_cliente);
+    const saldoDevedor = item.saldo_devedor || 0;
 
     return (
       <TouchableOpacity
@@ -193,7 +194,12 @@ export default function ClientesScreen() {
         }}
       >
         <View style={styles.clienteInfo}>
-          <Text style={styles.clienteName}>{item.nome}</Text>
+          <View style={styles.clienteNameRow}>
+            <Text style={styles.clienteName}>{item.nome}</Text>
+            <Text style={styles.clienteSaldoInline}>
+              R$ {saldoDevedor.toFixed(2)}
+            </Text>
+          </View>
           {item.email && <Text style={styles.clienteDetail}>{item.email}</Text>}
           {item.telefone && (
             <Text style={styles.clienteDetail}>{item.telefone}</Text>

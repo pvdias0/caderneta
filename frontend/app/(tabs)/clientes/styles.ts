@@ -98,11 +98,21 @@ export const styles = StyleSheet.create({
   clienteInfo: {
     flex: 1,
   },
+  clienteNameRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
+  },
   clienteName: {
     fontSize: 16,
     fontWeight: "600",
     color: "#1a1a1a",
-    marginBottom: 4,
+  },
+  clienteSaldoInline: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#ff3b30",
   },
   clienteDetail: {
     fontSize: 12,
