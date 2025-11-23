@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "buildCommand": "cd backend && npm run build",
+  "outputDirectory": "backend/dist",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "backend/src/index.ts": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "runtime": "nodejs20.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/backend/src/index.ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/backend/src/index.ts"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
