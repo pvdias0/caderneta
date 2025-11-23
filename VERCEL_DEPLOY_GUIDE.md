@@ -42,12 +42,12 @@ Na tela "Configure Project":
 
 Deixar como padrão (Vercel detecta automaticamente):
 
-| Campo | Valor | Status |
-|-------|-------|--------|
-| Framework Preset | Node.js | ✅ Auto-detectado |
-| Build Command | `npm run build` | ✅ Lido de package.json |
-| Output Directory | `dist` | ✅ Lido de vercel.json |
-| Install Command | `npm install` | ✅ Padrão |
+| Campo            | Valor           | Status                  |
+| ---------------- | --------------- | ----------------------- |
+| Framework Preset | Node.js         | ✅ Auto-detectado       |
+| Build Command    | `npm run build` | ✅ Lido de package.json |
+| Output Directory | `dist`          | ✅ Lido de vercel.json  |
+| Install Command  | `npm install`   | ✅ Padrão               |
 
 ---
 
@@ -103,11 +103,13 @@ Copie os valores e cole em cada campo do Vercel.
 Após receber a URL (ex: `https://caderneta-api-xyz.vercel.app`):
 
 ### Health Check
+
 ```bash
 curl https://caderneta-api-xyz.vercel.app/api/v1/health
 ```
 
 Resposta esperada:
+
 ```json
 {
   "status": "ok",
@@ -117,11 +119,13 @@ Resposta esperada:
 ```
 
 ### Database Check
+
 ```bash
 curl https://caderneta-api-xyz.vercel.app/api/v1/health/db
 ```
 
 Resposta esperada:
+
 ```json
 {
   "status": "ok",
@@ -158,6 +162,7 @@ EXPO_PUBLIC_API_URL=https://caderneta-api-xyz.vercel.app
 **Causa**: Root Directory está errado (não está usando `./backend`)
 
 **Solução**:
+
 1. Volte para "Settings" do projeto
 2. Clique em "Root Directory"
 3. Verifique se está `./backend`
@@ -211,14 +216,14 @@ Frontend conecta via EXPO_PUBLIC_API_URL
 
 ## 🆘 Troubleshooting Rápido
 
-| Problema | Solução |
-|----------|---------|
-| tsc: command not found | TypeScript em dependencies ✅ |
-| tsconfig.json not found | Root Directory = ./backend ✅ |
-| Cannot find module 'dotenv' | npm install não rodou (ver logs) |
-| Database connection timeout | Verificar credenciais DB e firewall |
-| CORS error no frontend | Adicionar URL frontend em CORS_ORIGIN |
-| Port already in use | Vercel gerencia portas automaticamente |
+| Problema                    | Solução                                |
+| --------------------------- | -------------------------------------- |
+| tsc: command not found      | TypeScript em dependencies ✅          |
+| tsconfig.json not found     | Root Directory = ./backend ✅          |
+| Cannot find module 'dotenv' | npm install não rodou (ver logs)       |
+| Database connection timeout | Verificar credenciais DB e firewall    |
+| CORS error no frontend      | Adicionar URL frontend em CORS_ORIGIN  |
+| Port already in use         | Vercel gerencia portas automaticamente |
 
 ---
 
@@ -231,4 +236,3 @@ Frontend conecta via EXPO_PUBLIC_API_URL
 5. ✅ Testar health check
 6. ✅ Atualizar frontend com API_URL
 7. ✅ Deploy frontend
-
