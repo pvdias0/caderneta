@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "Caderneta",
-    "slug": "caderneta",
+    "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "caderneta",
+    "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
