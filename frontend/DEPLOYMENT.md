@@ -20,6 +20,7 @@ O frontend React Native Expo está otimizado para deploy em Vercel (web) ou como
 ### 1. Variáveis de Ambiente
 
 **`.env.production`**
+
 ```dotenv
 EXPO_PUBLIC_ENV=production
 EXPO_PUBLIC_API_URL=https://seu-railway-api.railway.app
@@ -28,6 +29,7 @@ EXPO_PUBLIC_ENABLE_LOGGING=false
 ```
 
 **Checklist:**
+
 - [ ] URL de API aponta para backend em produção
 - [ ] ENV está setado como "production"
 - [ ] Logging desativado em produção
@@ -99,6 +101,7 @@ vercel --prod --yes
 #### Passo 3: Configurar Environment Variables
 
 No Vercel Dashboard:
+
 - Settings → Environment Variables
 - Adicionar:
   ```
@@ -166,6 +169,7 @@ curl https://seu-api.railway.app/api/v1/health
 ## 🔐 Variáveis de Ambiente Produção
 
 ### Backend (Railway)
+
 ```
 NODE_ENV=production
 API_URL=https://seu-railway-api.railway.app
@@ -175,6 +179,7 @@ CORS_ORIGIN=https://seu-frontend.vercel.app
 ```
 
 ### Frontend (Vercel)
+
 ```
 EXPO_PUBLIC_ENV=production
 EXPO_PUBLIC_API_URL=https://seu-railway-api.railway.app
@@ -182,6 +187,7 @@ EXPO_PUBLIC_ENABLE_LOGGING=false
 ```
 
 **Síncronia:**
+
 - Frontend URL: `https://seu-frontend.vercel.app`
 - Backend URL: `https://seu-railway-api.railway.app`
 - CORS no backend inclui frontend URL
@@ -262,31 +268,34 @@ EXPO_PUBLIC_ENABLE_LOGGING=false
 ## 📝 Variáveis Necessárias Summary
 
 ### Railway Backend
-| Variável | Exemplo | Crítico |
-|----------|---------|---------|
-| NODE_ENV | production | ✅ Sim |
-| API_PORT | 3000 | ✅ Sim |
-| API_URL | https://seu-api.railway.app | ✅ Sim |
-| DB_HOST | seu-railway-db.railway.app | ✅ Sim |
-| DB_USER | postgres | ✅ Sim |
-| DB_PASSWORD | senha_segura_64_chars | ✅ Sim |
-| DB_NAME | railway | ✅ Sim |
-| JWT_SECRET | hash_seguro_64_chars | ✅ Sim |
-| JWT_REFRESH_SECRET | hash_seguro_64_chars | ✅ Sim |
-| CORS_ORIGIN | https://seu-frontend.vercel.app | ✅ Sim |
+
+| Variável           | Exemplo                         | Crítico |
+| ------------------ | ------------------------------- | ------- |
+| NODE_ENV           | production                      | ✅ Sim  |
+| API_PORT           | 3000                            | ✅ Sim  |
+| API_URL            | https://seu-api.railway.app     | ✅ Sim  |
+| DB_HOST            | seu-railway-db.railway.app      | ✅ Sim  |
+| DB_USER            | postgres                        | ✅ Sim  |
+| DB_PASSWORD        | senha_segura_64_chars           | ✅ Sim  |
+| DB_NAME            | railway                         | ✅ Sim  |
+| JWT_SECRET         | hash_seguro_64_chars            | ✅ Sim  |
+| JWT_REFRESH_SECRET | hash_seguro_64_chars            | ✅ Sim  |
+| CORS_ORIGIN        | https://seu-frontend.vercel.app | ✅ Sim  |
 
 ### Vercel Frontend
-| Variável | Exemplo | Crítico |
-|----------|---------|---------|
-| EXPO_PUBLIC_ENV | production | ✅ Sim |
-| EXPO_PUBLIC_API_URL | https://seu-api.railway.app | ✅ Sim |
-| EXPO_PUBLIC_ENABLE_LOGGING | false | ⚠️ Recomendado |
+
+| Variável                   | Exemplo                     | Crítico        |
+| -------------------------- | --------------------------- | -------------- |
+| EXPO_PUBLIC_ENV            | production                  | ✅ Sim         |
+| EXPO_PUBLIC_API_URL        | https://seu-api.railway.app | ✅ Sim         |
+| EXPO_PUBLIC_ENABLE_LOGGING | false                       | ⚠️ Recomendado |
 
 ---
 
 ## 🔍 Troubleshooting
 
 ### Erro: "Cannot connect to API"
+
 ```
 Causa: API URL incorreta ou API offline
 
@@ -297,6 +306,7 @@ Solução:
 ```
 
 ### Erro: "CORS error"
+
 ```
 Causa: Frontend URL não em CORS_ORIGIN
 
@@ -307,6 +317,7 @@ Solução:
 ```
 
 ### Erro: "404 on routes"
+
 ```
 Causa: Vercel não roteando corretamente
 
@@ -323,4 +334,3 @@ Solução:
 - [Vercel Deploy React Native](https://docs.expo.dev/build-reference/web/)
 - [Expo Build Web](https://docs.expo.dev/build/web/)
 - [Vercel Environment Variables](https://vercel.com/docs/concepts/projects/environment-variables)
-

@@ -113,6 +113,7 @@ caderneta/
 ## 📊 Arquitetura de Camadas
 
 ### Backend (Express.js)
+
 ```
 REQUEST
    ↓
@@ -130,6 +131,7 @@ RESPONSE
 ```
 
 ### Frontend (React Native)
+
 ```
 USER INTERACTION
    ↓
@@ -149,6 +151,7 @@ RESPONSE → UPDATE STATE → RE-RENDER
 ## 🔄 Fluxo de Dados
 
 ### Autenticação
+
 ```
 [Login Screen]
     ↓
@@ -166,6 +169,7 @@ RESPONSE → UPDATE STATE → RE-RENDER
 ```
 
 ### Criar Movimento (Compra)
+
 ```
 [Cliente Detail Screen]
     ↓
@@ -191,6 +195,7 @@ RESPONSE → UPDATE STATE → RE-RENDER
 ## 📝 Padrões de Nomenclatura
 
 ### Arquivos
+
 ```
 snake_case.ts       = Arquivos
 PascalCase.tsx      = Componentes React
@@ -198,6 +203,7 @@ index.ts            = Exports da pasta
 ```
 
 ### Variáveis
+
 ```
 let camelCase       = Variáveis
 const CONSTANT_CASE = Constantes
@@ -206,6 +212,7 @@ type TName          = Types
 ```
 
 ### Endpoints
+
 ```
 GET    /api/v1/clientes              = List
 GET    /api/v1/clientes/{id}         = Detail
@@ -219,6 +226,7 @@ DELETE /api/v1/clientes/{id}         = Delete
 ## 🔐 Variáveis de Ambiente
 
 ### Backend Obrigatórias
+
 ```env
 NODE_ENV                    = production|staging|development
 API_PORT                    = 3000
@@ -234,6 +242,7 @@ CORS_ORIGIN                 = https://seu-frontend.app
 ```
 
 ### Frontend Obrigatórias
+
 ```env
 EXPO_PUBLIC_ENV             = production|staging|development
 EXPO_PUBLIC_API_URL         = https://seu-api.app
@@ -246,6 +255,7 @@ EXPO_PUBLIC_ENABLE_LOGGING  = true|false
 ## 🧪 Scripts Disponíveis
 
 ### Backend
+
 ```bash
 npm install              # Install dependencies
 npm run dev             # Development (watch mode)
@@ -256,6 +266,7 @@ npm test               # Tests (placeholder)
 ```
 
 ### Frontend
+
 ```bash
 npm install             # Install dependencies
 npm run dev            # Development (Expo)
@@ -268,6 +279,7 @@ npx expo export --platform web
 ## 📊 Banco de Dados
 
 ### Tabelas Principais
+
 ```
 ┌─────────────┐
 │   usuario   │
@@ -317,6 +329,7 @@ npx expo export --platform web
 ## 🚀 Deployment Structure
 
 ### Production
+
 ```
 VERCEL (Frontend)
 ├── dist/
@@ -338,11 +351,13 @@ RAILWAY (PostgreSQL)
 ## 📈 Escalabilidade
 
 ### Atual (0-1000 users)
+
 - ✅ 1 Railway app
 - ✅ 1 PostgreSQL instance
 - ✅ Vercel hobby tier
 
 ### Futuro (1000-10k users)
+
 - ⚠️ Multiple API instances
 - ⚠️ Database replication
 - ⚠️ Redis cache layer
@@ -355,7 +370,7 @@ RAILWAY (PostgreSQL)
 Antes de fazer deploy, certifique-se que você entende:
 
 - [ ] Como variáveis de ambiente funcionam
-- [ ] Diferença entre .env.* arquivos
+- [ ] Diferença entre .env.\* arquivos
 - [ ] Como Railway faz auto-deploy via Git
 - [ ] Como Vercel faz auto-deploy via Git
 - [ ] Como JWT tokens funcionam
@@ -370,12 +385,14 @@ Antes de fazer deploy, certifique-se que você entende:
 ## 🎓 Recursos Recomendados
 
 ### Backend
+
 - Express.js Guide: https://expressjs.com/
 - PostgreSQL Docs: https://postgresql.org/docs/
 - JWT Introduction: https://jwt.io/introduction
 - Railway Docs: https://railway.app/docs
 
 ### Frontend
+
 - React Native: https://reactnative.dev/
 - Expo: https://docs.expo.dev/
 - Expo Router: https://docs.expo.dev/routing/
@@ -385,17 +402,16 @@ Antes de fazer deploy, certifique-se que você entende:
 
 ## 📞 Suporte & Referência
 
-| Tópico | Arquivo |
-|--------|---------|
-| Análise Técnica | `DEPLOY_ANALYSIS.md` |
-| Resumo | `DEPLOY_SUMMARY.md` |
-| Deployment Backend | `backend/DEPLOYMENT.md` |
-| Deployment Frontend | `frontend/DEPLOYMENT.md` |
-| Checklist | `DEPLOYMENT_CHECKLIST.md` |
-| Estrutura | `PROJECT_STRUCTURE.md` (este arquivo) |
+| Tópico              | Arquivo                               |
+| ------------------- | ------------------------------------- |
+| Análise Técnica     | `DEPLOY_ANALYSIS.md`                  |
+| Resumo              | `DEPLOY_SUMMARY.md`                   |
+| Deployment Backend  | `backend/DEPLOYMENT.md`               |
+| Deployment Frontend | `frontend/DEPLOYMENT.md`              |
+| Checklist           | `DEPLOYMENT_CHECKLIST.md`             |
+| Estrutura           | `PROJECT_STRUCTURE.md` (este arquivo) |
 
 ---
 
 **Última atualização**: 23/11/2024  
 **Status**: ✅ Production Ready
-

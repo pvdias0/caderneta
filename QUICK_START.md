@@ -2,21 +2,22 @@
 
 ## ⏱️ Timeline Esperado
 
-| Fase | Tempo | O que fazer |
-|------|-------|-----------|
-| Prep | 10 min | Gerar chaves, preparar variáveis |
-| Railway Setup | 15 min | Criar projeto, DB, variáveis |
-| Backend Deploy | 10 min | Push código, Railway auto-deploy |
-| Vercel Setup | 10 min | Conectar repo, variáveis |
-| Frontend Deploy | 10 min | Push código, Vercel auto-deploy |
-| Validação | 5 min | Testar endpoints, login |
-| **TOTAL** | **~1h** | 🎉 Live! |
+| Fase            | Tempo   | O que fazer                      |
+| --------------- | ------- | -------------------------------- |
+| Prep            | 10 min  | Gerar chaves, preparar variáveis |
+| Railway Setup   | 15 min  | Criar projeto, DB, variáveis     |
+| Backend Deploy  | 10 min  | Push código, Railway auto-deploy |
+| Vercel Setup    | 10 min  | Conectar repo, variáveis         |
+| Frontend Deploy | 10 min  | Push código, Vercel auto-deploy  |
+| Validação       | 5 min   | Testar endpoints, login          |
+| **TOTAL**       | **~1h** | 🎉 Live!                         |
 
 ---
 
 ## 1️⃣ Preparação (10 minutos)
 
 ### Gerar Chaves Seguras
+
 ```bash
 # Terminal - Execute no seu computador
 node -e "console.log('JWT_SECRET=' + require('crypto').randomBytes(32).toString('hex'))"
@@ -26,6 +27,7 @@ node -e "console.log('JWT_REFRESH_SECRET=' + require('crypto').randomBytes(32).t
 ```
 
 ### Preparar Documentos
+
 ```bash
 # Abra em um editor de texto
 cat backend/.env.production
@@ -39,6 +41,7 @@ cat frontend/.env.production
 ## 2️⃣ Railway Setup (15 minutos)
 
 ### Criar Projeto
+
 1. Acesse: https://railway.app
 2. Login com GitHub
 3. "New Project" → "Deploy from GitHub"
@@ -47,6 +50,7 @@ cat frontend/.env.production
 6. Aguarde primeiro deploy
 
 ### Adicionar PostgreSQL
+
 1. No dashboard: "Add Service" → "PostgreSQL"
 2. Aguarde iniciar (1-2 min)
 3. Clique em PostgreSQL → "Connect"
@@ -60,6 +64,7 @@ cat frontend/.env.production
    ```
 
 ### Configurar Variáveis Backend
+
 Railway Dashboard → Backend App → Variables
 
 ```env
@@ -85,6 +90,7 @@ RATE_LIMIT_MAX_REQUESTS=100
 ```
 
 ### Testar Backend
+
 ```bash
 # Copie a URL do Backend (Railway Dashboard)
 # Veja em: Deployments → [latest] → URL
@@ -98,6 +104,7 @@ curl https://seu-railway-backend-[...].railway.app/api/v1/health
 ## 3️⃣ Backend Deploy (Automático)
 
 Quando você fez Git push na branch `production`:
+
 - ✅ Railway detectou mudanças
 - ✅ Build automático iniciou
 - ✅ Deploy em progresso
@@ -110,6 +117,7 @@ Quando você fez Git push na branch `production`:
 ## 4️⃣ Vercel Setup (10 minutos)
 
 ### Conectar Frontend
+
 1. Acesse: https://vercel.com
 2. Login com GitHub
 3. "Add New Project" → Selecione `caderneta`
@@ -117,6 +125,7 @@ Quando você fez Git push na branch `production`:
 5. "Deploy"
 
 ### Configurar Variáveis
+
 Vercel Dashboard → Settings → Environment Variables
 
 ```env
@@ -126,6 +135,7 @@ EXPO_PUBLIC_ENABLE_LOGGING=false
 ```
 
 ### Redeploy
+
 1. Settings → Deployments
 2. "Redeploy" o last commit
 3. Aguarde ~2-3 minutos
@@ -135,6 +145,7 @@ EXPO_PUBLIC_ENABLE_LOGGING=false
 ## 5️⃣ Frontend Deploy (Automático)
 
 Quando você configurou as variáveis:
+
 - ✅ Vercel detectou mudanças
 - ✅ Build iniciou
 - ✅ Deploy em progresso
@@ -147,6 +158,7 @@ Quando você configurou as variáveis:
 ## ✅ Validação Final (5 minutos)
 
 ### Backend Checks
+
 ```bash
 # Substituir [xxx] pela URL real do Railway
 
@@ -160,6 +172,7 @@ curl https://seu-railway-backend-[xxx].railway.app/api/v1/health/db
 ```
 
 ### Frontend Checks
+
 1. Abra: `https://seu-frontend.vercel.app`
 2. ✅ App carrega sem erros
 3. ✅ Tente fazer login
@@ -167,6 +180,7 @@ curl https://seu-railway-backend-[xxx].railway.app/api/v1/health/db
 5. ✅ Clique em "Clientes" (deve listar)
 
 ### Integration Test
+
 1. Frontend faz requisição para Backend
 2. DevTools Console (F12) não mostra CORS error
 3. Dados carregam corretamente
@@ -187,6 +201,7 @@ Backend:  https://seu-railway-backend-[xxx].railway.app
 ## 🔍 Se Algo Der Errado
 
 ### Backend não conecta ao banco
+
 ```bash
 # Railway Dashboard → PostgreSQL → "Connect"
 # Verificar se credenciais estão corretas
@@ -194,6 +209,7 @@ Backend:  https://seu-railway-backend-[xxx].railway.app
 ```
 
 ### Frontend mostra CORS error
+
 ```bash
 # 1. Verificar EXPO_PUBLIC_API_URL correto
 # 2. Verificar CORS_ORIGIN no backend inclui frontend URL
@@ -201,6 +217,7 @@ Backend:  https://seu-railway-backend-[xxx].railway.app
 ```
 
 ### Deploy não atualiza
+
 ```bash
 # Railway: Force rebuild
 # Vercel: Redeploy last commit
@@ -212,6 +229,7 @@ Backend:  https://seu-railway-backend-[xxx].railway.app
 ## 📊 Monitorar Depois
 
 ### Primeiras 24 Horas
+
 - [ ] Verificar logs a cada 2 horas
 - [ ] Testar login de verdade
 - [ ] Testar criar cliente
@@ -219,6 +237,7 @@ Backend:  https://seu-railway-backend-[xxx].railway.app
 - [ ] Testar gerar extrato
 
 ### Primeira Semana
+
 - [ ] Verificar performance
 - [ ] Coletar feedback
 - [ ] Fix any issues
@@ -252,15 +271,18 @@ Quando completar todos os passos:
 ## 📞 Quick Reference
 
 ### URLs
+
 - Railway Dashboard: https://railway.app
 - Vercel Dashboard: https://vercel.com
 - Git Push: `git push origin production`
 
 ### Logs
+
 - Railway: Dashboard → App → Logs
 - Vercel: Dashboard → Deployments → Logs
 
 ### Rebuild
+
 - Railway: Force rebuild no dashboard
 - Vercel: Redeploy in dashboard
 
@@ -283,4 +305,3 @@ Após estar live:
 **Complexidade: Fácil ✅**
 
 **Resultado: Production Live 🎉**
-

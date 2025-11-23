@@ -3,6 +3,7 @@
 ## 📊 Status Geral do Codebase
 
 ### ✅ Backend
+
 - [x] Sem hardcodes críticos
 - [x] Configuração centralizada
 - [x] Variáveis de ambiente implementadas
@@ -18,6 +19,7 @@
 - [x] Build process OK
 
 ### ✅ Frontend
+
 - [x] Sem hardcodes de URL
 - [x] Variáveis de ambiente suportadas
 - [x] Config centralizado
@@ -32,6 +34,7 @@
 ## 🚀 PRÉ-DEPLOYMENT (LOCAL)
 
 ### Backend
+
 - [ ] Clonar repositório
 - [ ] Checkout branch `production`
 - [ ] `npm install`
@@ -42,6 +45,7 @@
 - [ ] Acessar `http://localhost:3000/api/v1/health/db` ✅
 
 ### Frontend
+
 - [ ] Clonar repositório
 - [ ] Checkout branch `production`
 - [ ] `npm install`
@@ -51,6 +55,7 @@
 - [ ] Verificar configurações carregadas
 
 ### Git
+
 - [ ] Todos os arquivos commitados
 - [ ] Branch `production` sincronizada
 - [ ] `.gitignore` correto
@@ -61,6 +66,7 @@
 ## 🔐 SEGURANÇA - GERAR CHAVES
 
 ### Executar Localmente (NO SEU COMPUTADOR)
+
 ```bash
 # Gerar JWT_SECRET (salvar este valor)
 node -e "console.log('JWT_SECRET=' + require('crypto').randomBytes(32).toString('hex'))"
@@ -73,6 +79,7 @@ node -e "console.log('DB_PASSWORD=' + require('crypto').randomBytes(32).toString
 ```
 
 ### ⚠️ IMPORTANTE
+
 - [ ] Guardar chaves em local SEGURO (1Password, LastPass)
 - [ ] NUNCA colocar em git
 - [ ] NUNCA compartilhar chaves
@@ -83,6 +90,7 @@ node -e "console.log('DB_PASSWORD=' + require('crypto').randomBytes(32).toString
 ## ☁️ INFRASTRUCTURE SETUP
 
 ### Railway PostgreSQL
+
 - [ ] Criar conta em railway.app
 - [ ] Criar projeto novo
 - [ ] Adicionar PostgreSQL database
@@ -94,13 +102,14 @@ node -e "console.log('DB_PASSWORD=' + require('crypto').randomBytes(32).toString
 - [ ] Testar conexão localmente
 
 ### Backend (Railway App)
+
 - [ ] Criar app no Railway
 - [ ] Conectar GitHub (branch production)
 - [ ] Adicionar environment variables:
   - [ ] NODE_ENV=production
   - [ ] API_PORT=3000
   - [ ] API_URL=https://seu-railway-app.railway.app
-  - [ ] DB_* (credenciais do PostgreSQL)
+  - [ ] DB\_\* (credenciais do PostgreSQL)
   - [ ] JWT_SECRET (gerado acima)
   - [ ] JWT_REFRESH_SECRET (gerado acima)
   - [ ] CORS_ORIGIN=https://seu-frontend.vercel.app
@@ -109,6 +118,7 @@ node -e "console.log('DB_PASSWORD=' + require('crypto').randomBytes(32).toString
 - [ ] Copiar URL final da API
 
 ### Frontend (Vercel)
+
 - [ ] Criar projeto em vercel.com
 - [ ] Conectar GitHub (branch production)
 - [ ] Adicionar environment variables:
@@ -124,11 +134,13 @@ node -e "console.log('DB_PASSWORD=' + require('crypto').randomBytes(32).toString
 ## 🔗 INTEGRAÇÃO (Conectar Frontend + Backend)
 
 ### Backend
+
 - [ ] CORS_ORIGIN atualizado com URL do frontend Vercel
 - [ ] Redeployer backend (Railway)
 - [ ] Testar: `curl -H "Origin: https://seu-frontend.vercel.app" https://seu-api.railway.app/api/v1/health`
 
-### Frontend  
+### Frontend
+
 - [ ] EXPO_PUBLIC_API_URL atualizado com URL Railway
 - [ ] Redeployer frontend (Vercel)
 - [ ] Abrir app
@@ -140,6 +152,7 @@ node -e "console.log('DB_PASSWORD=' + require('crypto').randomBytes(32).toString
 ## ✅ VALIDAÇÃO FINAL
 
 ### Backend
+
 ```bash
 # 1. Health check básico
 curl https://seu-railway-api.railway.app/api/v1/health
@@ -154,6 +167,7 @@ curl https://seu-railway-api.railway.app/api/v1/health/db
 ```
 
 ### Frontend
+
 ```bash
 # 1. Verificar página carrega
 https://seu-frontend.vercel.app
@@ -183,6 +197,7 @@ https://seu-frontend.vercel.app
 ## 🔍 MONITORAMENTO PÓS-DEPLOY
 
 ### Daily Checks (Primeiros 7 dias)
+
 - [ ] Health checks passando
 - [ ] Sem erros nos logs
 - [ ] Users conseguem fazer login
@@ -191,6 +206,7 @@ https://seu-frontend.vercel.app
 - [ ] Performance OK (< 2s por requisição)
 
 ### Weekly Checks
+
 - [ ] Verificar logs Railway
 - [ ] Verificar logs Vercel
 - [ ] Database size OK
@@ -198,6 +214,7 @@ https://seu-frontend.vercel.app
 - [ ] Rate limiting não atingido
 
 ### Monthly Checks
+
 - [ ] Backups do database
 - [ ] Renovar secrets JWT (ou planejar)
 - [ ] Review de performance
@@ -209,6 +226,7 @@ https://seu-frontend.vercel.app
 ## 📋 DOCUMENTAÇÃO
 
 ### Entregar ao Client
+
 - [ ] `.env.production` (template, sem valores)
 - [ ] Credentials seguras (separado)
 - [ ] URLs do projeto (Frontend + Backend)
@@ -216,6 +234,7 @@ https://seu-frontend.vercel.app
 - [ ] Contato de suporte
 
 ### Documentação Interna
+
 - [ ] DEPLOY_ANALYSIS.md
 - [ ] backend/DEPLOYMENT.md
 - [ ] frontend/DEPLOYMENT.md
@@ -228,18 +247,21 @@ https://seu-frontend.vercel.app
 ## 🎯 PRÓXIMOS PASSOS (Futuro)
 
 ### Após 1 Semana
+
 - [ ] Coletar feedback de users
 - [ ] Fix any issues encontrados
 - [ ] Otimizar performance
 - [ ] Adicionar monitoring/alertas avançados
 
 ### Após 1 Mês
+
 - [ ] Planejar v1.1 com novas features
 - [ ] Implementar CI/CD automático
 - [ ] Setup backup automático
 - [ ] Planejar scaling se necessário
 
 ### Segurança (Contínuo)
+
 - [ ] Rotação de secrets a cada 90 dias
 - [ ] Review de logs regularmente
 - [ ] Update de dependências
@@ -286,8 +308,7 @@ Quando todos os ✅ estiverem marcados:
 
 ---
 
-**Data do Deployment**: _________________  
-**Pessoa Responsável**: _________________  
+**Data do Deployment**: ********\_********  
+**Pessoa Responsável**: ********\_********  
 **Versão do Código**: production-v1.0.0  
 **Status**: 🟡 In Progress / 🟢 Complete
-

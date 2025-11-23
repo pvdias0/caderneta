@@ -3,6 +3,7 @@
 ## Os 3 Campos Principais
 
 ### 1️⃣ **Build Command**
+
 ```
 npm run build
 ```
@@ -13,6 +14,7 @@ npm run build
 ---
 
 ### 2️⃣ **Output Directory**
+
 ```
 dist
 ```
@@ -23,6 +25,7 @@ dist
 ---
 
 ### 3️⃣ **Install Command**
+
 ```
 npm install
 ```
@@ -62,7 +65,7 @@ npm install
 ```
 1. Install Command
    ↓ (instala node_modules)
-2. Build Command  
+2. Build Command
    ↓ (compila src → dist)
 3. Vercel usa /dist
    ↓
@@ -74,14 +77,17 @@ npm install
 ## 💡 Se der Erro
 
 ### Erro: "npm: command not found"
+
 → Seu `Install Command` está errado  
 → Deve ser: `npm install`
 
 ### Erro: "dist not found"
+
 → Seu `Output Directory` está errado  
 → Deve ser: `dist`
 
 ### Erro: "TypeScript compilation failed"
+
 → Seu `Build Command` está errado  
 → Deve ser: `npm run build`
 
@@ -90,7 +96,7 @@ npm install
 ## 🎯 Dica Final
 
 **Use EXATAMENTE esses valores** (sem quotes, sem espaços extras):
+
 - Build: `npm run build`
 - Output: `dist`
 - Install: `npm install`
-

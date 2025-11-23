@@ -1,6 +1,7 @@
 # 🚀 Guia de Deployment - Caderneta API
 
 ## 📋 Índice
+
 1. [Pre-Requisitos](#pre-requisitos)
 2. [Preparação Local](#preparação-local)
 3. [Railway Setup](#railway-setup-recomendado)
@@ -14,11 +15,13 @@
 ## 📋 Pre-Requisitos
 
 ### Contas Necessárias
+
 - [ ] GitHub account (para repositório)
 - [ ] Railway account (ou Vercel)
 - [ ] PostgreSQL Database gerenciado
 
 ### Ferramentas Locais
+
 ```bash
 # Node.js 18+
 node --version
@@ -38,6 +41,7 @@ npm install -g vercel
 ## 🔧 Preparação Local
 
 ### 1. Verificar compilação
+
 ```bash
 cd backend
 npm install
@@ -47,6 +51,7 @@ npm run build
 Deve gerar pasta `/dist` sem erros.
 
 ### 2. Testar em modo produção
+
 ```bash
 # Criar .env.production com todas as variáveis
 cp .env.example .env.production
@@ -65,6 +70,7 @@ NODE_ENV=production npm start
 ```
 
 ### 3. Verificar endpoints
+
 ```bash
 # Health check
 curl http://localhost:3000/api/v1/health
@@ -74,6 +80,7 @@ curl http://localhost:3000/api/v1/health/db
 ```
 
 ### 4. Git push (branch production)
+
 ```bash
 git checkout production
 git add .
@@ -251,6 +258,7 @@ GET https://seu-api.railway.app/api/v1/health/db
 ### Alertas Recomendados
 
 Configure em Railway/Vercel:
+
 - [ ] Deploy falhou
 - [ ] App crashed
 - [ ] High memory usage
@@ -336,13 +344,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Build
         run: |
           cd backend
           npm install
           npm run build
-      
+
       - name: Deploy to Railway
         run: |
           npx @railway/cli deploy
@@ -372,8 +380,8 @@ jobs:
 ## 📞 Suporte
 
 Para dúvidas:
+
 1. Verificar DEPLOY_ANALYSIS.md
 2. Checar logs (Railway ou Vercel)
 3. Testar endpoints com curl/Postman
 4. Verificar status de Database
-

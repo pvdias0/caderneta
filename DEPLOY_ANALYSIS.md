@@ -8,18 +8,21 @@ O codebase está **bem estruturado** para deploy em produção. A configuração
 
 ## ✅ Pontos Positivos
 
-### 1. **Configuração Centralizada** 
+### 1. **Configuração Centralizada**
+
 - ✅ `backend/src/config/index.ts` centraliza todas as variáveis
 - ✅ `backend/src/config/database.ts` com pool configurável
 - ✅ `frontend/config.ts` com suporte a múltiplos ambientes
 
 ### 2. **Variáveis de Ambiente**
+
 - ✅ Arquivo `.env.example` documentado
 - ✅ Suporte a `.env.local`, `.env.staging`, `.env.production`
 - ✅ Fallbacks sensatos para desenvolvimento
 - ✅ Todas as URLs são configuráveis
 
 ### 3. **Segurança**
+
 - ✅ Helmet.js para headers HTTP
 - ✅ Rate limiting ativo
 - ✅ CORS configurável por ambiente
@@ -27,12 +30,14 @@ O codebase está **bem estruturado** para deploy em produção. A configuração
 - ✅ Cookies HTTP-only
 
 ### 4. **Estrutura de Código**
+
 - ✅ Padrão MVC (Models, Controllers, Services, Routes)
 - ✅ Middleware bem organizado
 - ✅ Tipos TypeScript em todo código
 - ✅ Error handling centralizado
 
 ### 5. **Database**
+
 - ✅ Pool connection configurável
 - ✅ Health checks implementados
 - ✅ Graceful shutdown
@@ -43,6 +48,7 @@ O codebase está **bem estruturado** para deploy em produção. A configuração
 ## ⚠️ Pontos de Atenção
 
 ### 1. **Logging em Modo Development**
+
 ```typescript
 // ✅ Em produção, isso não deve expor informações sensíveis
 if (config.isDevelopment) {
@@ -51,15 +57,18 @@ if (config.isDevelopment) {
   res.status(500).json({ error: "Entre em contato com o suporte" });
 }
 ```
+
 **Status**: ✅ **OK** - Já implementado
 
 ### 2. **Vercel Serverless**
+
 ```
 ⚠️ IMPORTANTE: Vercel não é ideal para aplicações Express tradicionais
 com banco de dados sempre aberto.
 ```
 
 **Soluções possíveis:**
+
 1. **Vercel + PostgreSQL**: Use um banco gerenciado (Neon, Supabase, RDS)
 2. **Railway/Render**: Melhor para Express.js com banco próprio
 3. **Modificar para Serverless**: Usar Vercel Edge Functions
@@ -71,10 +80,12 @@ com banco de dados sempre aberto.
 ### Backend (API Express)
 
 - [ ] **Database Connection Pool**
+
   - Pool máximo reduzido em serverless
   - Usar connection pooler externo (PgBouncer)
 
 - [ ] **Environment Variables**
+
   - [ ] `NODE_ENV=production`
   - [ ] `DB_HOST` - PostgreSQL gerenciado
   - [ ] `DB_USER`, `DB_PASSWORD` - Credenciais seguras
@@ -84,6 +95,7 @@ com banco de dados sempre aberto.
   - [ ] `API_URL` - URL de produção
 
 - [ ] **Dependências**
+
   - [ ] Remover `tsx` (dev-only)
   - [ ] Manter apenas `node` na produção
   - [ ] Compilar TypeScript antes do deploy
@@ -98,35 +110,41 @@ com banco de dados sempre aberto.
 ## 🚀 Plano de Deploy Vercel
 
 ### Opção 1: Vercel + Railway (RECOMENDADO)
+
 ```
 Backend:  Vercel Functions + Railway (PostgreSQL)
 Frontend: Vercel
 ```
 
 **Vantagens:**
+
 - ✅ Express funciona bem
 - ✅ Database gerenciado (Railway)
 - ✅ Escalável
 - ✅ Sempre conectado
 
 ### Opção 2: Vercel Neon (Alternativa)
+
 ```
 Backend:  Vercel Functions + Neon (PostgreSQL)
 Frontend: Vercel
 ```
 
 **Vantagens:**
+
 - ✅ Neon específico para serverless
 - ✅ Connection pooling automático
 - ✅ Sem custos de infra
 
 ### Opção 3: Railway (Tudo - MAIS SIMPLES)
+
 ```
 Backend:  Railway App + PostgreSQL
 Frontend: Vercel
 ```
 
 **Vantagens:**
+
 - ✅ Sem mudanças no código
 - ✅ Express funciona nativamente
 - ✅ PostgreSQL incluso
@@ -137,6 +155,7 @@ Frontend: Vercel
 ## 📝 Arquivos que Precisam de Ajustes
 
 ### 1. `vercel.json` (NOVO)
+
 ```json
 {
   "version": 2,
@@ -154,6 +173,7 @@ Frontend: Vercel
 ```
 
 ### 2. `.vercelignore` (NOVO)
+
 ```
 node_modules
 .env.local
@@ -164,6 +184,7 @@ dist
 ```
 
 ### 3. Modificar `package.json` scripts
+
 ```json
 {
   "scripts": {
@@ -173,9 +194,11 @@ dist
   }
 }
 ```
+
 **Status**: ✅ Já está correto
 
 ### 4. Ajustar `.env.production`
+
 ```dotenv
 NODE_ENV=production
 API_PORT=3000
@@ -205,6 +228,7 @@ RATE_LIMIT_MAX_REQUESTS=100
 ## 🔧 Passo a Passo Deploy
 
 ### Fase 1: Preparação Local
+
 ```bash
 # 1. Compile TypeScript
 npm run build
@@ -217,6 +241,7 @@ cat .env.production
 ```
 
 ### Fase 2: Git & Repository
+
 ```bash
 # 1. Faça commit na branch production
 git checkout production
@@ -228,6 +253,7 @@ git push origin production
 ```
 
 ### Fase 3: Vercel Setup (Opção 1: Vercel Functions)
+
 ```bash
 # 1. Instale CLI
 npm install -g vercel
@@ -240,6 +266,7 @@ vercel --prod
 ```
 
 ### Fase 3B: Railway Setup (Opção 3: RECOMENDADO)
+
 ```bash
 # 1. Sign up em railway.app
 # 2. Connect GitHub repository
@@ -267,13 +294,13 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ## 📊 Comparação de Plataformas
 
-| Critério | Vercel Functions | Railway | Render |
-|----------|------------------|---------|--------|
-| Express | ⚠️ Limitado | ✅ Excelente | ✅ Excelente |
-| PostgreSQL | ⚠️ Externo | ✅ Incluso | ✅ Incluso |
-| Custo Startup | ✅ Gratuito | 💰 $5/mês | 💰 Pago |
-| Escalabilidade | ✅ Automática | ✅ Boa | ✅ Boa |
-| Conexões DB | ⚠️ Pooling externo | ✅ Nativo | ✅ Nativo |
+| Critério       | Vercel Functions   | Railway      | Render       |
+| -------------- | ------------------ | ------------ | ------------ |
+| Express        | ⚠️ Limitado        | ✅ Excelente | ✅ Excelente |
+| PostgreSQL     | ⚠️ Externo         | ✅ Incluso   | ✅ Incluso   |
+| Custo Startup  | ✅ Gratuito        | 💰 $5/mês    | 💰 Pago      |
+| Escalabilidade | ✅ Automática      | ✅ Boa       | ✅ Boa       |
+| Conexões DB    | ⚠️ Pooling externo | ✅ Nativo    | ✅ Nativo    |
 
 **RECOMENDAÇÃO**: Railway para primeira versão (mais simples)
 
@@ -304,6 +331,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ## 🎯 Conclusão
 
 O codebase está **production-ready** com:
+
 - ✅ Configuração centralizada
 - ✅ Sem hardcodes
 - ✅ Variáveis de ambiente flexíveis
@@ -311,4 +339,3 @@ O codebase está **production-ready** com:
 - ✅ Error handling robusto
 
 **Próximo passo**: Escolher plataforma (Railway) e seguir checklist de deployment.
-
