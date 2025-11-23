@@ -6,7 +6,8 @@
   "build": {
     "preview": {
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "withoutCredentials": false
       }
     },
     "production": {
@@ -14,6 +15,9 @@
         "buildType": "app-bundle"
       }
     }
+  },
+  "credentials": {
+    "manager": "local"
   },
   "submit": {
     "production": {}
