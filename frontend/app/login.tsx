@@ -163,7 +163,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>🔒 Seus dados são seguros com HTTP-only cookies</Text>
+          <Text style={styles.footerText}>🔒 Seus dados são seguros com nosso sistema </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

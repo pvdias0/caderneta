@@ -1,0 +1,15 @@
+node_modules
+.env.local
+.env.staging
+.git
+.gitignore
+.DS_Store
+dist
+*.log
+.prettierignore
+.eslintignore
+README.md
+LICENSE
+src
+package-lock.json
+tsconfig.json
