@@ -22,7 +22,7 @@ export const config = {
   isProduction: ENV === "production",
 
   // API
-  apiUrl: API_URL || "http://localhost:3000",
+  apiUrl: API_URL || "https://caderneta-backend.onrender.com",
 
   // Timeout
   apiTimeout: parseInt(process.env.EXPO_PUBLIC_API_TIMEOUT || "30000", 10),

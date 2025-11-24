@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from 'react';
 import {
   View,
   TextInput,
@@ -9,7 +9,7 @@ import {
   Platform,
   ActivityIndicator,
   ScrollView,
-} from "react-native";
+} from 'react-native';
 import { useAuth } from "../context/auth.context";
 import { useRouter } from "expo-router";
 
