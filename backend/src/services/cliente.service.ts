@@ -277,7 +277,9 @@ export class ClienteService {
       // 1. Deletar compras
       const deleteComprasQuery = `
         DELETE FROM compra
-        WHERE id_cliente = ANY($1)
+        WHERE id_conta IN (
+          SELECT id_conta FROM conta WHERE id_cliente = ANY($1)
+        )
       `;
       console.log("   [1] Deletando compras...");
       await client.query(deleteComprasQuery, [clienteIds]);
