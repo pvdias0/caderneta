@@ -220,12 +220,17 @@ export class ClienteController {
       const usuarioId = getUsuarioId(req);
       let { ids } = req.body;
 
+      console.log("🗑️ DELETE /api/v1/clientes/bulk/delete");
+      console.log("   Usuário:", usuarioId);
+      console.log("   IDs recebidos:", ids, "Tipo:", typeof ids, "Array?:", Array.isArray(ids));
+
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });
         return;
       }
 
       if (!Array.isArray(ids) || ids.length === 0) {
+        console.error("❌ IDs inválidos:", ids);
         res.status(400).json({ error: "Lista de IDs inválida" });
         return;
       }
@@ -238,12 +243,16 @@ export class ClienteController {
         return id;
       });
 
+      console.log("   IDs após conversão:", ids);
+
       // Validar que todos os IDs são números válidos
       if (!ids.every((id: any) => typeof id === "number" && !isNaN(id))) {
+        console.error("❌ IDs contêm valores inválidos");
         res.status(400).json({ error: "Todos os IDs devem ser números válidos" });
         return;
       }
 
+      console.log("   Chamando clienteService.deleteClientes...");
       await clienteService.deleteClientes(ids, usuarioId);
 
       res.status(200).json({
@@ -255,6 +264,7 @@ export class ClienteController {
       res.status(400).json({
         error: "Falha ao deletar clientes",
         message: (error as any).message,
+        details: (error as any).toString(),
       });
     }
   }
