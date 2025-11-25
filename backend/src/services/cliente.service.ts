@@ -269,16 +269,41 @@ export class ClienteService {
       throw new Error("Lista de clientes inválida");
     }
 
-    const query = `
-      DELETE FROM cliente
-      WHERE id_cliente = ANY($1) AND id_usuario = $2
-    `;
-
+    const client = await pool.connect();
     try {
-      await pool.query(query, [clienteIds, usuarioId]);
+      // Iniciar transação
+      await client.query("BEGIN");
+
+      // 1. Deletar compras (que acionam triggers de ajuste de conta)
+      const deleteComprasQuery = `
+        DELETE FROM compra
+        WHERE id_cliente = ANY($1)
+      `;
+      await client.query(deleteComprasQuery, [clienteIds]);
+
+      // 2. Deletar contas do cliente
+      const deleteContasQuery = `
+        DELETE FROM conta
+        WHERE id_cliente = ANY($1)
+      `;
+      await client.query(deleteContasQuery, [clienteIds]);
+
+      // 3. Deletar cliente
+      const deleteClienteQuery = `
+        DELETE FROM cliente
+        WHERE id_cliente = ANY($1) AND id_usuario = $2
+      `;
+      await client.query(deleteClienteQuery, [clienteIds, usuarioId]);
+
+      // Confirmar transação
+      await client.query("COMMIT");
     } catch (error) {
+      // Reverter transação em caso de erro
+      await client.query("ROLLBACK");
       console.error("Erro ao deletar clientes:", error);
       throw new Error("Falha ao deletar clientes");
+    } finally {
+      client.release();
     }
   }
 

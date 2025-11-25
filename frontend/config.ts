@@ -7,11 +7,13 @@
 const ENV = process.env.EXPO_PUBLIC_ENV || "development";
 
 // URL da API
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL ;
 
 // Validar URL da API
 if (!API_URL) {
   console.error("❌ EXPO_PUBLIC_API_URL não configurada no .env");
+} else {
+  console.log(`✅ API URL configurada: ${API_URL}`);
 }
 
 export const config = {
