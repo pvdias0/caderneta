@@ -274,17 +274,7 @@ export class ClienteService {
       // Iniciar transação
       await client.query("BEGIN");
 
-      console.log("   [0] Desabilitando triggers...");
-      // Desabilitar triggers para evitar problemas com nomes de colunas
-      await client.query("ALTER TABLE compra DISABLE TRIGGER trg_compra_ad");
-      await client.query("ALTER TABLE compra DISABLE TRIGGER trg_compra_ai");
-      await client.query("ALTER TABLE compra DISABLE TRIGGER trg_compra_au");
-      await client.query("ALTER TABLE pagamento DISABLE TRIGGER trg_pagamento_ad");
-      await client.query("ALTER TABLE pagamento DISABLE TRIGGER trg_pagamento_ai");
-      await client.query("ALTER TABLE pagamento DISABLE TRIGGER trg_pagamento_au");
-      console.log("   ✅ Triggers desabilitados");
-
-      // 1. Deletar compras (sem triggers)
+      // 1. Deletar compras
       const deleteComprasQuery = `
         DELETE FROM compra
         WHERE ID_Cliente = ANY($1)
@@ -293,7 +283,7 @@ export class ClienteService {
       await client.query(deleteComprasQuery, [clienteIds]);
       console.log("   ✅ Compras deletadas");
 
-      // 2. Deletar pagamentos (sem triggers)
+      // 2. Deletar pagamentos
       const deletePagementosQuery = `
         DELETE FROM pagamento
         WHERE ID_Conta IN (
@@ -322,23 +312,17 @@ export class ClienteService {
       await client.query(deleteClienteQuery, [clienteIds, usuarioId]);
       console.log("   ✅ Cliente deletado");
 
-      // Reabilitar triggers
-      console.log("   [5] Reabilitando triggers...");
-      await client.query("ALTER TABLE compra ENABLE TRIGGER trg_compra_ad");
-      await client.query("ALTER TABLE compra ENABLE TRIGGER trg_compra_ai");
-      await client.query("ALTER TABLE compra ENABLE TRIGGER trg_compra_au");
-      await client.query("ALTER TABLE pagamento ENABLE TRIGGER trg_pagamento_ad");
-      await client.query("ALTER TABLE pagamento ENABLE TRIGGER trg_pagamento_ai");
-      await client.query("ALTER TABLE pagamento ENABLE TRIGGER trg_pagamento_au");
-      console.log("   ✅ Triggers reabilitados");
-
       // Confirmar transação
       await client.query("COMMIT");
       console.log("   ✅ Transação confirmada");
     } catch (error) {
       // Reverter transação em caso de erro
       console.error("   ❌ Erro na transação, fazendo ROLLBACK");
-      await client.query("ROLLBACK");
+      try {
+        await client.query("ROLLBACK");
+      } catch (rollbackError) {
+        console.error("Erro ao fazer ROLLBACK:", rollbackError);
+      }
       console.error("Erro ao deletar clientes:", error);
       throw new Error("Falha ao deletar clientes");
     } finally {
