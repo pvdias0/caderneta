@@ -23,8 +23,8 @@ export const config = {
 
   // Servidor
   server: {
-    port: parseInt(process.env.API_PORT || '3000', 10),
-    apiUrl: process.env.API_URL || 'http://localhost:3000',
+    port: parseInt(process.env.API_PORT || '8080', 10),
+    apiUrl: process.env.API_URL || 'https://caderneta-backend.onrender.com',
   },
 
   // Banco de Dados
@@ -46,7 +46,7 @@ export const config = {
 
   // CORS
   cors: {
-    origin: (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',').map(url => url.trim()),
+    origin: '*',
     credentials: true,
   },
 

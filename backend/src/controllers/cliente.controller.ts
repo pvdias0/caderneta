@@ -218,7 +218,11 @@ export class ClienteController {
   async deletarClientes(req: Request, res: Response): Promise<void> {
     try {
       const usuarioId = getUsuarioId(req);
-      const { ids } = req.body;
+      let { ids } = req.body;
+
+      console.log("🗑️ DELETE /api/v1/clientes/bulk/delete");
+      console.log("   Usuário:", usuarioId);
+      console.log("   IDs recebidos:", ids, "Tipo:", typeof ids, "Array?:", Array.isArray(ids));
 
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });
@@ -226,16 +230,29 @@ export class ClienteController {
       }
 
       if (!Array.isArray(ids) || ids.length === 0) {
+        console.error("❌ IDs inválidos:", ids);
         res.status(400).json({ error: "Lista de IDs inválida" });
         return;
       }
 
-      // Validar que todos os IDs são números
-      if (!ids.every((id) => typeof id === "number")) {
-        res.status(400).json({ error: "Todos os IDs devem ser números" });
+      // Converter strings para números se necessário
+      ids = ids.map((id: any) => {
+        if (typeof id === "string") {
+          return parseInt(id, 10);
+        }
+        return id;
+      });
+
+      console.log("   IDs após conversão:", ids);
+
+      // Validar que todos os IDs são números válidos
+      if (!ids.every((id: any) => typeof id === "number" && !isNaN(id))) {
+        console.error("❌ IDs contêm valores inválidos");
+        res.status(400).json({ error: "Todos os IDs devem ser números válidos" });
         return;
       }
 
+      console.log("   Chamando clienteService.deleteClientes...");
       await clienteService.deleteClientes(ids, usuarioId);
 
       res.status(200).json({
@@ -247,6 +264,7 @@ export class ClienteController {
       res.status(400).json({
         error: "Falha ao deletar clientes",
         message: (error as any).message,
+        details: (error as any).toString(),
       });
     }
   }

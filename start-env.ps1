@@ -14,17 +14,17 @@ $envConfig = @{
     'local' = @{
         NODE_ENV = 'development'
         EXPO_ENV = 'development'
-        API_URL = 'http://localhost:3000'
+        API_URL = 'http://localhost:8081'
     }
     'staging' = @{
         NODE_ENV = 'staging'
         EXPO_ENV = 'staging'
-        API_URL = 'https://api-staging.seu-dominio.com'
+        API_URL = 'https://caderneta-backend.onrender.com'
     }
     'production' = @{
         NODE_ENV = 'production'
         EXPO_ENV = 'production'
-        API_URL = 'https://api.seu-dominio.com'
+        API_URL = 'https://caderneta-backend.onrender.com'
     }
 }
 
