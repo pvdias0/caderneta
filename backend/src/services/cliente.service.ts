@@ -279,26 +279,34 @@ export class ClienteService {
         DELETE FROM compra
         WHERE ID_Cliente = ANY($1)
       `;
+      console.log("   [1] Deletando compras...");
       await client.query(deleteComprasQuery, [clienteIds]);
+      console.log("   ✅ Compras deletadas");
 
       // 2. Deletar contas do cliente
       const deleteContasQuery = `
         DELETE FROM conta
         WHERE ID_Cliente = ANY($1)
       `;
+      console.log("   [2] Deletando contas...");
       await client.query(deleteContasQuery, [clienteIds]);
+      console.log("   ✅ Contas deletadas");
 
       // 3. Deletar cliente
       const deleteClienteQuery = `
         DELETE FROM cliente
         WHERE ID_Cliente = ANY($1) AND ID_Usuario = $2
       `;
+      console.log("   [3] Deletando cliente...");
       await client.query(deleteClienteQuery, [clienteIds, usuarioId]);
+      console.log("   ✅ Cliente deletado");
 
       // Confirmar transação
       await client.query("COMMIT");
+      console.log("   ✅ Transação confirmada");
     } catch (error) {
       // Reverter transação em caso de erro
+      console.error("   ❌ Erro na transação, fazendo ROLLBACK");
       await client.query("ROLLBACK");
       console.error("Erro ao deletar clientes:", error);
       throw new Error("Falha ao deletar clientes");
