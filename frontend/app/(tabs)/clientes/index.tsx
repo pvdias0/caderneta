@@ -215,7 +215,10 @@ export default function ClientesScreen() {
             toggleClienteSelection(item.id_cliente);
           } else {
             // Navegar para a página de detalhes do cliente
-            router.push(`/cliente?id=${item.id_cliente}` as any);
+            router.push({
+              pathname: "/cliente",
+              params: { id: String(item.id_cliente) }
+            });
           }
         }}
       >

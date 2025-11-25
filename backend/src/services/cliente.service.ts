@@ -47,8 +47,8 @@ export class ClienteService {
         c.nome,
         c.email,
         c.telefone,
-        c.data_criacao,
-        c.ultima_atualizacao,
+        c.datacriacao,
+        c.ultimaatualizacao,
         COALESCE(ct.saldo_devedor, 0) as saldo_devedor
       FROM cliente c
       LEFT JOIN conta ct ON c.id_cliente = ct.id_cliente
