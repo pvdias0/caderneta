@@ -143,45 +143,62 @@ export default function ClientesScreen() {
 
   const handleDeleteClientes = async () => {
     if (selectedClientes.size === 0) {
-      Alert.alert("Aviso", "Selecione ao menos um cliente para deletar");
+      if (typeof window !== "undefined") {
+        window.alert(`Selecione ao menos um cliente para deletar`);
+      } else {
+        Alert.alert("Aviso", "Selecione ao menos um cliente para deletar");
+      }
       return;
     }
 
-    Alert.alert("Confirmar", `Deletar ${selectedClientes.size} cliente(s)?`, [
-      { text: "Cancelar", onPress: () => {} },
-      {
-        text: "Deletar",
-        onPress: async () => {
-          try {
-            const ids = Array.from(selectedClientes);
+    const confirmDelete = typeof window !== "undefined" 
+      ? window.confirm(`Deletar ${selectedClientes.size} cliente(s)?`)
+      : true;
 
-            // Remover localmente primeiro (otimistic update)
-            const clientesAtualizados = clientes.filter(
-              (cliente) => !ids.includes(cliente.id_cliente)
-            );
-            setClientes(clientesAtualizados);
-            setSelectedClientes(new Set());
-            setDeleteMode(false);
+    if (!confirmDelete) return;
 
-            // Depois enviar para o servidor
-            const response = await apiService.deleteClientes(ids);
+    try {
+      const ids = Array.from(selectedClientes);
 
-            if (response.status !== 200) {
-              // Se falhar, recarregar a lista
-              Alert.alert("Erro", response.error || "Erro ao deletar clientes");
-              await loadClientes();
-            } else {
-              Alert.alert("Sucesso", "Clientes deletados com sucesso");
-            }
-          } catch (error) {
-            console.error("❌ Erro ao deletar clientes:", error);
-            Alert.alert("Erro", "Erro ao deletar clientes");
-            // Recarregar em caso de erro
-            await loadClientes();
-          }
-        },
-      },
-    ]);
+      // Remover localmente primeiro (otimistic update)
+      const clientesAtualizados = clientes.filter(
+        (cliente) => !ids.includes(cliente.id_cliente)
+      );
+      setClientes(clientesAtualizados);
+      setSelectedClientes(new Set());
+      setDeleteMode(false);
+
+      // Depois enviar para o servidor
+      const response = await apiService.deleteClientes(ids);
+
+      if (response.status !== 200) {
+        // Se falhar, recarregar a lista
+        const errorMsg = response.error || "Erro ao deletar clientes";
+        if (typeof window !== "undefined") {
+          window.alert(`Erro: ${errorMsg}`);
+        } else {
+          Alert.alert("Erro", errorMsg);
+        }
+        await loadClientes();
+      } else {
+        const successMsg = "Clientes deletados com sucesso";
+        if (typeof window !== "undefined") {
+          window.alert(successMsg);
+        } else {
+          Alert.alert("Sucesso", successMsg);
+        }
+      }
+    } catch (error) {
+      console.error("❌ Erro ao deletar clientes:", error);
+      const errorMsg = "Erro ao deletar clientes";
+      if (typeof window !== "undefined") {
+        window.alert(errorMsg);
+      } else {
+        Alert.alert("Erro", errorMsg);
+      }
+      // Recarregar em caso de erro
+      await loadClientes();
+    }
   };
 
   const renderClienteItem = ({ item }: { item: Cliente }) => {
