@@ -277,21 +277,21 @@ export class ClienteService {
       // 1. Deletar compras (que acionam triggers de ajuste de conta)
       const deleteComprasQuery = `
         DELETE FROM compra
-        WHERE id_cliente = ANY($1)
+        WHERE ID_Cliente = ANY($1)
       `;
       await client.query(deleteComprasQuery, [clienteIds]);
 
       // 2. Deletar contas do cliente
       const deleteContasQuery = `
         DELETE FROM conta
-        WHERE id_cliente = ANY($1)
+        WHERE ID_Cliente = ANY($1)
       `;
       await client.query(deleteContasQuery, [clienteIds]);
 
       // 3. Deletar cliente
       const deleteClienteQuery = `
         DELETE FROM cliente
-        WHERE id_cliente = ANY($1) AND id_usuario = $2
+        WHERE ID_Cliente = ANY($1) AND ID_Usuario = $2
       `;
       await client.query(deleteClienteQuery, [clienteIds, usuarioId]);
 
