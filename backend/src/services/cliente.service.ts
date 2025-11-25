@@ -274,7 +274,17 @@ export class ClienteService {
       // Iniciar transação
       await client.query("BEGIN");
 
-      // 1. Deletar compras (que acionam triggers de ajuste de conta)
+      console.log("   [0] Desabilitando triggers...");
+      // Desabilitar triggers para evitar problemas com nomes de colunas
+      await client.query("ALTER TABLE compra DISABLE TRIGGER trg_compra_ad");
+      await client.query("ALTER TABLE compra DISABLE TRIGGER trg_compra_ai");
+      await client.query("ALTER TABLE compra DISABLE TRIGGER trg_compra_au");
+      await client.query("ALTER TABLE pagamento DISABLE TRIGGER trg_pagamento_ad");
+      await client.query("ALTER TABLE pagamento DISABLE TRIGGER trg_pagamento_ai");
+      await client.query("ALTER TABLE pagamento DISABLE TRIGGER trg_pagamento_au");
+      console.log("   ✅ Triggers desabilitados");
+
+      // 1. Deletar compras (sem triggers)
       const deleteComprasQuery = `
         DELETE FROM compra
         WHERE ID_Cliente = ANY($1)
@@ -283,23 +293,44 @@ export class ClienteService {
       await client.query(deleteComprasQuery, [clienteIds]);
       console.log("   ✅ Compras deletadas");
 
-      // 2. Deletar contas do cliente
+      // 2. Deletar pagamentos (sem triggers)
+      const deletePagementosQuery = `
+        DELETE FROM pagamento
+        WHERE ID_Conta IN (
+          SELECT ID_Conta FROM conta WHERE ID_Cliente = ANY($1)
+        )
+      `;
+      console.log("   [2] Deletando pagamentos...");
+      await client.query(deletePagementosQuery, [clienteIds]);
+      console.log("   ✅ Pagamentos deletados");
+
+      // 3. Deletar contas do cliente
       const deleteContasQuery = `
         DELETE FROM conta
         WHERE ID_Cliente = ANY($1)
       `;
-      console.log("   [2] Deletando contas...");
+      console.log("   [3] Deletando contas...");
       await client.query(deleteContasQuery, [clienteIds]);
       console.log("   ✅ Contas deletadas");
 
-      // 3. Deletar cliente
+      // 4. Deletar cliente
       const deleteClienteQuery = `
         DELETE FROM cliente
         WHERE ID_Cliente = ANY($1) AND ID_Usuario = $2
       `;
-      console.log("   [3] Deletando cliente...");
+      console.log("   [4] Deletando cliente...");
       await client.query(deleteClienteQuery, [clienteIds, usuarioId]);
       console.log("   ✅ Cliente deletado");
+
+      // Reabilitar triggers
+      console.log("   [5] Reabilitando triggers...");
+      await client.query("ALTER TABLE compra ENABLE TRIGGER trg_compra_ad");
+      await client.query("ALTER TABLE compra ENABLE TRIGGER trg_compra_ai");
+      await client.query("ALTER TABLE compra ENABLE TRIGGER trg_compra_au");
+      await client.query("ALTER TABLE pagamento ENABLE TRIGGER trg_pagamento_ad");
+      await client.query("ALTER TABLE pagamento ENABLE TRIGGER trg_pagamento_ai");
+      await client.query("ALTER TABLE pagamento ENABLE TRIGGER trg_pagamento_au");
+      console.log("   ✅ Triggers reabilitados");
 
       // Confirmar transação
       await client.query("COMMIT");
