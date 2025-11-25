@@ -274,43 +274,12 @@ export class ClienteService {
       // Iniciar transação
       await client.query("BEGIN");
 
-      // 1. Deletar compras
-      const deleteComprasQuery = `
-        DELETE FROM compra
-        WHERE id_conta IN (
-          SELECT id_conta FROM conta WHERE id_cliente = ANY($1)
-        )
-      `;
-      console.log("   [1] Deletando compras...");
-      await client.query(deleteComprasQuery, [clienteIds]);
-      console.log("   ✅ Compras deletadas");
-
-      // 2. Deletar pagamentos
-      const deletePagementosQuery = `
-        DELETE FROM pagamento
-        WHERE id_conta IN (
-          SELECT id_conta FROM conta WHERE id_cliente = ANY($1)
-        )
-      `;
-      console.log("   [2] Deletando pagamentos...");
-      await client.query(deletePagementosQuery, [clienteIds]);
-      console.log("   ✅ Pagamentos deletados");
-
-      // 3. Deletar contas do cliente
-      const deleteContasQuery = `
-        DELETE FROM conta
-        WHERE id_cliente = ANY($1)
-      `;
-      console.log("   [3] Deletando contas...");
-      await client.query(deleteContasQuery, [clienteIds]);
-      console.log("   ✅ Contas deletadas");
-
-      // 4. Deletar cliente
+      // Deletar cliente
       const deleteClienteQuery = `
         DELETE FROM cliente
         WHERE id_cliente = ANY($1) AND id_usuario = $2
       `;
-      console.log("   [4] Deletando cliente...");
+      console.log("  Deletando cliente...");
       await client.query(deleteClienteQuery, [clienteIds, usuarioId]);
       console.log("   ✅ Cliente deletado");
 
