@@ -13,16 +13,16 @@ export class ClienteService {
     const query = `
       SELECT 
         c.id_cliente,
-        c.Nome,
-        c.Email,
-        c.Telefone,
-        c.DataCriacao,
-        c.UltimaAtualizacao,
-        COALESCE(ct.Saldo_Devedor, 0) as saldo_devedor
+        c.nome,
+        c.email,
+        c.telefone,
+        c.datacriacao,
+        c.ultimaatualizacao,
+        COALESCE(ct.saldo_devedor, 0) as saldo_devedor
       FROM cliente c
       LEFT JOIN conta ct ON c.id_cliente = ct.id_cliente
       WHERE c.id_usuario = $1
-      ORDER BY c.Nome ASC
+      ORDER BY c.nome ASC
     `;
 
     try {
@@ -105,15 +105,15 @@ export class ClienteService {
     }
 
     const query = `
-      INSERT INTO cliente (ID_Usuario, Nome, Email, Telefone, DataCriacao, UltimaAtualizacao)
+      INSERT INTO cliente (id_usuario, nome, email, telefone, datacriacao, ultimaatualizacao)
       VALUES ($1, $2, $3, $4, NOW(), NOW())
       RETURNING 
         id_cliente,
         nome,
         email,
         telefone,
-        data_criacao,
-        ultima_atualizacao,
+        datacriacao,
+        ultimaatualizacao,
         0 as saldo_devedor
     `;
 
@@ -187,24 +187,24 @@ export class ClienteService {
     let paramCount = 1;
 
     if (data.nome !== undefined) {
-      updateFields.push(`Nome = $${paramCount}`);
+      updateFields.push(`nome = $${paramCount}`);
       updateValues.push(data.nome.trim());
       paramCount++;
     }
 
     if (data.email !== undefined) {
-      updateFields.push(`Email = $${paramCount}`);
+      updateFields.push(`email = $${paramCount}`);
       updateValues.push(data.email || null);
       paramCount++;
     }
 
     if (data.telefone !== undefined) {
-      updateFields.push(`Telefone = $${paramCount}`);
+      updateFields.push(`telefone = $${paramCount}`);
       updateValues.push(data.telefone || null);
       paramCount++;
     }
 
-    updateFields.push(`UltimaAtualizacao = NOW()`);
+    updateFields.push(`ultimaatualizacao = NOW()`);
 
     const query = `
       UPDATE cliente
@@ -215,8 +215,8 @@ export class ClienteService {
         nome,
         email,
         telefone,
-        data_criacao,
-        ultima_atualizacao,
+        datacriacao,
+        ultimaatualizacao,
         (SELECT COALESCE(saldo_devedor, 0) FROM conta WHERE id_cliente = $${paramCount}) as saldo_devedor
     `;
 
@@ -344,7 +344,7 @@ export class ClienteService {
     }
 
     const query = `
-      SELECT COALESCE(c.Saldo_Devedor, 0) as total
+      SELECT COALESCE(c.saldo_devedor, 0) as total
       FROM conta c
       WHERE c.id_cliente = $1
     `;
@@ -363,10 +363,10 @@ export class ClienteService {
    */
   async getTotalAReceberGeral(usuarioId: number): Promise<number> {
     const query = `
-      SELECT COALESCE(SUM(c.Saldo_Devedor), 0) as total
+      SELECT COALESCE(SUM(c.saldo_devedor), 0) as total
       FROM conta c
       INNER JOIN cliente cli ON c.id_cliente = cli.id_cliente
-      WHERE cli.ID_Usuario = $1
+      WHERE cli.id_usuario = $1
     `;
 
     try {
@@ -395,7 +395,7 @@ export class ClienteService {
   ): Promise<boolean> {
     const query = `
       SELECT id_cliente FROM cliente
-      WHERE Email = $1 AND ID_Usuario = $2
+      WHERE email = $1 AND id_usuario = $2
     `;
 
     try {
