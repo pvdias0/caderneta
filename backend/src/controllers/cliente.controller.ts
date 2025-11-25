@@ -6,6 +6,7 @@ import clienteService from "../services/cliente.service.js";
  */
 function getUsuarioId(req: Request): number | null {
   const usuarioId = (req as any).user?.id || (req as any).usuarioId;
+  console.log("getUsuarioId():", usuarioId);
   return usuarioId ? Number(usuarioId) : null;
 }
 
