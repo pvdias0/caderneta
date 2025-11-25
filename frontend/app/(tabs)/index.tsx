@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -45,11 +45,21 @@ export default function HomeScreen() {
     }
   }, []);
 
+  // Recarregar quando a tela ganha foco
   useFocusEffect(
     useCallback(() => {
       carregarTotalAReceber();
     }, [carregarTotalAReceber])
   );
+
+  // Atualizar automaticamente a cada 5 segundos quando a tela está ativa
+  useEffect(() => {
+    const interval = setInterval(() => {
+      carregarTotalAReceber();
+    }, 5000); // 5 segundos
+
+    return () => clearInterval(interval);
+  }, [carregarTotalAReceber]);
 
   const handleLogout = async () => {
     try {
