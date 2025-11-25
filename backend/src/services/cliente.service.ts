@@ -12,17 +12,17 @@ export class ClienteService {
   async getAllClientes(usuarioId: number): Promise<Cliente[]> {
     const query = `
       SELECT 
-        c.id_cliente,
-        c.nome,
-        c.email,
-        c.telefone,
-        c.datacriacao,
-        c.ultimaatualizacao,
-        COALESCE(ct.saldo_devedor, 0) as saldo_devedor
+        c.ID_Cliente,
+        c.Nome,
+        c.Email,
+        c.Telefone,
+        c.DataCriacao,
+        c.UltimaAtualizacao,
+        COALESCE(ct.Saldo_Devedor, 0) as saldo_devedor
       FROM cliente c
-      LEFT JOIN conta ct ON c.id_cliente = ct.id_cliente
-      WHERE c.id_usuario = $1
-      ORDER BY c.nome ASC
+      LEFT JOIN conta ct ON c.ID_Cliente = ct.ID_Cliente
+      WHERE c.ID_Usuario = $1
+      ORDER BY c.Nome ASC
     `;
 
     try {
@@ -43,16 +43,16 @@ export class ClienteService {
   ): Promise<Cliente | null> {
     const query = `
       SELECT 
-        c.id_cliente,
-        c.nome,
-        c.email,
-        c.telefone,
-        c.datacriacao,
-        c.ultimaatualizacao,
-        COALESCE(ct.saldo_devedor, 0) as saldo_devedor
+        c.ID_Cliente,
+        c.Nome,
+        c.Email,
+        c.Telefone,
+        c.DataCriacao,
+        c.UltimaAtualizacao,
+        COALESCE(ct.Saldo_Devedor, 0) as saldo_devedor
       FROM cliente c
-      LEFT JOIN conta ct ON c.id_cliente = ct.id_cliente
-      WHERE c.id_cliente = $1 AND c.id_usuario = $2
+      LEFT JOIN conta ct ON c.ID_Cliente = ct.ID_Cliente
+      WHERE c.ID_Cliente = $1 AND c.ID_Usuario = $2
     `;
 
     try {
@@ -105,15 +105,15 @@ export class ClienteService {
     }
 
     const query = `
-      INSERT INTO cliente (id_usuario, nome, email, telefone, datacriacao, ultimaatualizacao)
+      INSERT INTO cliente (ID_Usuario, Nome, Email, Telefone, DataCriacao, UltimaAtualizacao)
       VALUES ($1, $2, $3, $4, NOW(), NOW())
       RETURNING 
-        id_cliente,
-        nome,
-        email,
-        telefone,
-        datacriacao,
-        ultimaatualizacao,
+        ID_Cliente,
+        Nome,
+        Email,
+        Telefone,
+        DataCriacao,
+        UltimaAtualizacao,
         0 as saldo_devedor
     `;
 
@@ -166,7 +166,7 @@ export class ClienteService {
 
       // Verificar se email já existe para outro cliente deste usuário
       const emailExists = await pool.query(
-        "SELECT id_cliente FROM cliente WHERE email = $1 AND id_usuario = $2 AND id_cliente != $3",
+        "SELECT ID_Cliente FROM cliente WHERE Email = $1 AND ID_Usuario = $2 AND ID_Cliente != $3",
         [data.email, usuarioId, clienteId]
       );
       if (emailExists.rows.length > 0) {
@@ -187,37 +187,37 @@ export class ClienteService {
     let paramCount = 1;
 
     if (data.nome !== undefined) {
-      updateFields.push(`nome = $${paramCount}`);
+      updateFields.push(`Nome = $${paramCount}`);
       updateValues.push(data.nome.trim());
       paramCount++;
     }
 
     if (data.email !== undefined) {
-      updateFields.push(`email = $${paramCount}`);
+      updateFields.push(`Email = $${paramCount}`);
       updateValues.push(data.email || null);
       paramCount++;
     }
 
     if (data.telefone !== undefined) {
-      updateFields.push(`telefone = $${paramCount}`);
+      updateFields.push(`Telefone = $${paramCount}`);
       updateValues.push(data.telefone || null);
       paramCount++;
     }
 
-    updateFields.push(`ultimaatualizacao = NOW()`);
+    updateFields.push(`UltimaAtualizacao = NOW()`);
 
     const query = `
       UPDATE cliente
       SET ${updateFields.join(", ")}
-      WHERE id_cliente = $${paramCount} AND id_usuario = $${paramCount + 1}
+      WHERE ID_Cliente = $${paramCount} AND ID_Usuario = $${paramCount + 1}
       RETURNING 
-        id_cliente,
-        nome,
-        email,
-        telefone,
-        datacriacao,
-        ultimaatualizacao,
-        (SELECT COALESCE(saldo_devedor, 0) FROM conta WHERE id_cliente = $${paramCount}) as saldo_devedor
+        ID_Cliente,
+        Nome,
+        Email,
+        Telefone,
+        DataCriacao,
+        UltimaAtualizacao,
+        (SELECT COALESCE(Saldo_Devedor, 0) FROM conta WHERE ID_Cliente = $${paramCount}) as saldo_devedor
     `;
 
     try {
@@ -250,7 +250,7 @@ export class ClienteService {
 
     const query = `
       DELETE FROM cliente
-      WHERE id_cliente = $1 AND id_usuario = $2
+      WHERE ID_Cliente = $1 AND ID_Usuario = $2
     `;
 
     try {
@@ -321,9 +321,9 @@ export class ClienteService {
     }
 
     const query = `
-      SELECT COALESCE(c.saldo_devedor, 0) as total
+      SELECT COALESCE(c.Saldo_Devedor, 0) as total
       FROM conta c
-      WHERE c.id_cliente = $1
+      WHERE c.ID_Cliente = $1
     `;
 
     try {
@@ -340,10 +340,10 @@ export class ClienteService {
    */
   async getTotalAReceberGeral(usuarioId: number): Promise<number> {
     const query = `
-      SELECT COALESCE(SUM(c.saldo_devedor), 0) as total
+      SELECT COALESCE(SUM(c.Saldo_Devedor), 0) as total
       FROM conta c
-      INNER JOIN cliente cli ON c.id_cliente = cli.id_cliente
-      WHERE cli.id_usuario = $1
+      INNER JOIN cliente cli ON c.ID_Cliente = cli.ID_Cliente
+      WHERE cli.ID_Usuario = $1
     `;
 
     try {
@@ -371,8 +371,8 @@ export class ClienteService {
     usuarioId: number
   ): Promise<boolean> {
     const query = `
-      SELECT id_cliente FROM cliente
-      WHERE email = $1 AND id_usuario = $2
+      SELECT ID_Cliente FROM cliente
+      WHERE Email = $1 AND ID_Usuario = $2
     `;
 
     try {
