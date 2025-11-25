@@ -218,7 +218,7 @@ export class ClienteController {
   async deletarClientes(req: Request, res: Response): Promise<void> {
     try {
       const usuarioId = getUsuarioId(req);
-      const { ids } = req.body;
+      let { ids } = req.body;
 
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });
@@ -230,9 +230,17 @@ export class ClienteController {
         return;
       }
 
-      // Validar que todos os IDs são números
-      if (!ids.every((id) => typeof id === "number")) {
-        res.status(400).json({ error: "Todos os IDs devem ser números" });
+      // Converter strings para números se necessário
+      ids = ids.map((id: any) => {
+        if (typeof id === "string") {
+          return parseInt(id, 10);
+        }
+        return id;
+      });
+
+      // Validar que todos os IDs são números válidos
+      if (!ids.every((id: any) => typeof id === "number" && !isNaN(id))) {
+        res.status(400).json({ error: "Todos os IDs devem ser números válidos" });
         return;
       }
 
