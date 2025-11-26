@@ -12,6 +12,8 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { styles } from "./styles";
 import apiService from "../../services/api";
+import { io } from "socket.io-client";
+import { config } from "../../config";
 
 /**
  * Página de Home/Dashboard
@@ -45,21 +47,46 @@ export default function HomeScreen() {
     }
   }, []);
 
-  // Recarregar quando a tela ganha foco
+  // Configurar WebSocket para receber atualizações em tempo real
+  useEffect(() => {
+    if (!user?.id) return;
+
+    console.log("🔌 Conectando ao WebSocket...");
+    const newSocket = io(config.apiUrl);
+
+    newSocket.on("connect", () => {
+      console.log("✅ WebSocket conectado");
+      // Entrar na sala do usuário
+      newSocket.emit("entrar-sala-usuario", user.id);
+      console.log(`👤 Entrou na sala: usuario-${user.id}`);
+    });
+
+    newSocket.on("total-atualizado", (novoTotal: number) => {
+      console.log("📡 Total atualizado via WebSocket:", novoTotal);
+      setTotalAReceber(novoTotal);
+      setLoadingTotal(false);
+    });
+
+    newSocket.on("disconnect", () => {
+      console.log("❌ WebSocket desconectado");
+    });
+
+    newSocket.on("connect_error", (error) => {
+      console.error("❌ Erro de conexão WebSocket:", error);
+    });
+
+    return () => {
+      console.log("🔌 Desconectando WebSocket...");
+      newSocket.disconnect();
+    };
+  }, [user?.id]);
+
+  // Recarregar quando a tela ganha foco (mantém carregamento inicial)
   useFocusEffect(
     useCallback(() => {
       carregarTotalAReceber();
     }, [carregarTotalAReceber])
   );
-
-  // Atualizar automaticamente a cada 5 segundos quando a tela está ativa
-  useEffect(() => {
-    const interval = setInterval(() => {
-      carregarTotalAReceber();
-    }, 5000); // 5 segundos
-
-    return () => clearInterval(interval);
-  }, [carregarTotalAReceber]);
 
   const handleLogout = async () => {
     try {

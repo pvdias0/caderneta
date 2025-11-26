@@ -20,7 +20,6 @@ function RootLayoutNav() {
     <Stack
       screenOptions={{
         headerShown: false,
-        animationEnabled: true,
       }}
     >
       {isAuthenticated ? (
@@ -37,7 +36,6 @@ function RootLayoutNav() {
           <Stack.Screen
             name="login"
             options={{
-              animationEnabled: false,
               headerShown: false,
             }}
           />

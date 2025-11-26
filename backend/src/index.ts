@@ -1,4 +1,6 @@
 import express, { Express, Request, Response, NextFunction } from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -16,6 +18,35 @@ import movimentoRoutes from "./routes/movimento.routes.js";
 import pdfRoutes from "./routes/pdf.routes.js";
 
 const app: Express = express();
+const httpServer = createServer(app);
+
+// ==================== SOCKET.IO ====================
+export const io = new Server(httpServer, {
+  cors: {
+    origin: config.cors.origin,
+    credentials: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("🔌 Cliente conectado:", socket.id);
+
+  // Cliente entra na sala do seu usuário
+  socket.on("entrar-sala-usuario", (usuarioId: number) => {
+    socket.join(`usuario-${usuarioId}`);
+    console.log(`👤 Usuário ${usuarioId} entrou na sala`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Cliente desconectado:", socket.id);
+  });
+});
+
+// Função para notificar mudança no total a receber
+export function notificarTotalAReceberAtualizado(usuarioId: number, novoTotal: number) {
+  io.to(`usuario-${usuarioId}`).emit("total-atualizado", novoTotal);
+  console.log(`📡 Notificado usuário ${usuarioId}: novo total = R$ ${novoTotal}`);
+}
 
 // ==================== MIDDLEWARE ====================
 
@@ -141,8 +172,8 @@ async function startServer() {
       console.warn("⚠️ Aviso: Banco de dados não disponível em staging");
     }
 
-    // Iniciar servidor
-    app.listen(config.server.port, "0.0.0.0", () => {
+    // Iniciar servidor HTTP com Socket.io
+    httpServer.listen(config.server.port, "0.0.0.0", () => {
       console.log(`\n${"=".repeat(60)}`);
       console.log(`🚀 SERVIDOR CADERNETA INICIADO`);
       console.log(`${"=".repeat(60)}`);
@@ -159,6 +190,7 @@ async function startServer() {
       console.log(
         `✅ DB check: http://localhost:${config.server.port}/api/v1/health/db`
       );
+      console.log(`🔌 WebSocket ativo em ws://localhost:${config.server.port}`);
       console.log(`${"=".repeat(60)}\n`);
     });
   } catch (error) {

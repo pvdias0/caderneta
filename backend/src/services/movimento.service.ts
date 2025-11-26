@@ -1,5 +1,7 @@
 import pool from "../config/database.js";
 import { MovimentoCompleto } from "../types/movimento.js";
+import { notificarTotalAReceberAtualizado } from "../index.js";
+import ClienteService from "./cliente.service.js";
 
 export class MovimentoService {
   /**
@@ -189,10 +191,16 @@ export class MovimentoService {
       }
 
       // Retornar compra com itens
-      return {
+      const resultado = {
         ...compra,
         itens: itemsInsertidos,
       };
+
+      // Notificar atualização do total
+      const novoTotal = await ClienteService.getTotalAReceberGeral(usuarioId);
+      notificarTotalAReceberAtualizado(usuarioId, novoTotal);
+
+      return resultado;
     } catch (error) {
       console.error("Erro ao criar compra com itens:", error);
       throw new Error("Falha ao criar compra com itens");
@@ -237,7 +245,13 @@ export class MovimentoService {
       `;
 
       const result = await pool.query(query, [contaId, valorCompra]);
-      return result.rows[0];
+      const compra = result.rows[0];
+
+      // Notificar atualização do total
+      const novoTotal = await ClienteService.getTotalAReceberGeral(usuarioId);
+      notificarTotalAReceberAtualizado(usuarioId, novoTotal);
+
+      return compra;
     } catch (error) {
       console.error("Erro ao criar compra:", error);
       throw new Error("Falha ao criar compra");
@@ -286,7 +300,13 @@ export class MovimentoService {
       `;
 
       const result = await pool.query(query, [contaId, valorPagamento]);
-      return result.rows[0];
+      const pagamento = result.rows[0];
+
+      // Notificar atualização do total
+      const novoTotal = await ClienteService.getTotalAReceberGeral(usuarioId);
+      notificarTotalAReceberAtualizado(usuarioId, novoTotal);
+
+      return pagamento;
     } catch (error) {
       console.error("Erro ao criar pagamento:", error);
       throw new Error("Falha ao criar pagamento");
@@ -355,7 +375,13 @@ export class MovimentoService {
       }
 
       const result = await pool.query(query, params);
-      return result.rows[0];
+      const compra = result.rows[0];
+
+      // Notificar atualização do total
+      const novoTotal = await ClienteService.getTotalAReceberGeral(usuarioId);
+      notificarTotalAReceberAtualizado(usuarioId, novoTotal);
+
+      return compra;
     } catch (error) {
       console.error("Erro ao atualizar compra:", error);
       throw new Error("Falha ao atualizar compra");
@@ -424,7 +450,13 @@ export class MovimentoService {
       }
 
       const result = await pool.query(query, params);
-      return result.rows[0];
+      const pagamento = result.rows[0];
+
+      // Notificar atualização do total
+      const novoTotal = await ClienteService.getTotalAReceberGeral(usuarioId);
+      notificarTotalAReceberAtualizado(usuarioId, novoTotal);
+
+      return pagamento;
     } catch (error) {
       console.error("Erro ao atualizar pagamento:", error);
       throw new Error("Falha ao atualizar pagamento");
@@ -494,6 +526,10 @@ export class MovimentoService {
       `;
 
       await pool.query(query, [compraId]);
+
+      // Notificar atualização do total
+      const novoTotal = await ClienteService.getTotalAReceberGeral(usuarioId);
+      notificarTotalAReceberAtualizado(usuarioId, novoTotal);
     } catch (error) {
       console.error("Erro ao deletar compra:", error);
       throw new Error("Falha ao deletar compra");
@@ -534,6 +570,10 @@ export class MovimentoService {
       `;
 
       await pool.query(query, [pagamentoId]);
+
+      // Notificar atualização do total
+      const novoTotal = await ClienteService.getTotalAReceberGeral(usuarioId);
+      notificarTotalAReceberAtualizado(usuarioId, novoTotal);
     } catch (error) {
       console.error("Erro ao deletar pagamento:", error);
       throw new Error("Falha ao deletar pagamento");
@@ -641,7 +681,13 @@ export class MovimentoService {
         );
       }
 
-      return compraResult.rows[0];
+      const compra = compraResult.rows[0];
+
+      // Notificar atualização do total
+      const novoTotal = await ClienteService.getTotalAReceberGeral(usuarioId);
+      notificarTotalAReceberAtualizado(usuarioId, novoTotal);
+
+      return compra;
     } catch (error) {
       console.error("Erro ao atualizar compra com itens:", error);
       throw new Error("Falha ao atualizar compra com itens");
