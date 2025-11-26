@@ -43,9 +43,14 @@ io.on("connection", (socket) => {
 });
 
 // Função para notificar mudança no total a receber
-export function notificarTotalAReceberAtualizado(usuarioId: number, novoTotal: number) {
+export function notificarTotalAReceberAtualizado(
+  usuarioId: number,
+  novoTotal: number
+) {
   io.to(`usuario-${usuarioId}`).emit("total-atualizado", novoTotal);
-  console.log(`📡 Notificado usuário ${usuarioId}: novo total = R$ ${novoTotal}`);
+  console.log(
+    `📡 Notificado usuário ${usuarioId}: novo total = R$ ${novoTotal}`
+  );
 }
 
 // ==================== MIDDLEWARE ====================
