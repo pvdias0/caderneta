@@ -635,49 +635,53 @@ export default function ClienteDetailScreen() {
   };
 
   const handleDeleteMovimento = (movimento: Movimento) => {
-    Alert.alert(
-      "Confirmar",
-      `Deletar este ${movimento.tipo === "COMPRA" ? "compra" : "pagamento"}?`,
-      [
-        { text: "Cancelar", onPress: () => {} },
-        {
-          text: "Deletar",
-          onPress: async () => {
-            try {
-              let response;
-              if (movimento.tipo === "COMPRA") {
-                response = await apiService.deleteCompra(
-                  clienteId,
-                  movimento.id_compra || 0
-                );
-              } else {
-                response = await apiService.deletePagamento(
-                  clienteId,
-                  movimento.id_pagamento || 0
-                );
-              }
+    const tipoLabel = movimento.tipo === "COMPRA" ? "compra" : "pagamento";
+    const confirmDelete = 
+      typeof window !== "undefined"
+        ? window.confirm(`Deletar este ${tipoLabel}?`)
+        : true;
 
-              if (response.status === 200) {
-                Alert.alert(
-                  "Sucesso",
-                  `${movimento.tipo} deletado(a) com sucesso`
-                );
-                await loadClienteDetails();
-                await loadMovimentos();
-              } else {
-                Alert.alert(
-                  "Erro",
-                  response.error || `Erro ao deletar ${movimento.tipo}`
-                );
-              }
-            } catch (error) {
-              console.error(`Erro ao deletar ${movimento.tipo}:`, error);
-              Alert.alert("Erro", `Erro ao deletar ${movimento.tipo}`);
-            }
-          },
-        },
-      ]
-    );
+    if (!confirmDelete) return;
+
+    // Função para mostrar alerta
+    const showAlert = (title: string, message: string) => {
+      if (typeof window !== "undefined") {
+        window.alert(`${title}\n${message}`);
+      } else {
+        Alert.alert(title, message);
+      }
+    };
+
+    (async () => {
+      try {
+        let response;
+        if (movimento.tipo === "COMPRA") {
+          response = await apiService.deleteCompra(
+            clienteId,
+            movimento.id_compra || 0
+          );
+        } else {
+          response = await apiService.deletePagamento(
+            clienteId,
+            movimento.id_pagamento || 0
+          );
+        }
+
+        if (response.status === 200) {
+          showAlert("Sucesso", `${movimento.tipo} deletado(a) com sucesso`);
+          await loadClienteDetails();
+          await loadMovimentos();
+        } else {
+          showAlert(
+            "Erro",
+            response.error || `Erro ao deletar ${movimento.tipo}`
+          );
+        }
+      } catch (error) {
+        console.error(`Erro ao deletar ${movimento.tipo}:`, error);
+        showAlert("Erro", `Erro ao deletar ${movimento.tipo}`);
+      }
+    })();
   };
 
   const renderMovimentoItem = ({ item }: { item: Movimento }) => {
