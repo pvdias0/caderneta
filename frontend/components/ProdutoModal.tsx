@@ -76,7 +76,7 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
     if (produto) {
       setNome(produto.nome);
       // Converte o valor numérico para formato de string com 2 casas decimais
-      const valorFormatado = (produto.valor_produto).toFixed(2).replace(".", ",");
+      const valorFormatado = produto.valor_produto.toFixed(2).replace(".", ",");
       setValor(valorFormatado);
       setQuantidade(produto.quantidade_estoque.toString());
     } else {
