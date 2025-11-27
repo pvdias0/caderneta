@@ -1,6 +1,6 @@
-import bcrypt from 'bcryptjs';
-import pool from '../config/database.js';
-import { IUser, ITokenPayload } from '../types/auth.js';
+import bcrypt from "bcryptjs";
+import pool from "../config/database.js";
+import { IUser, ITokenPayload } from "../types/auth.js";
 
 /**
  * Serviço de usuários - Gerencia login, registro e operações de usuário
@@ -17,7 +17,10 @@ export async function hashPassword(password: string): Promise<string> {
 /**
  * Compara senha com hash
  */
-export async function comparePassword(password: string, hash: string): Promise<boolean> {
+export async function comparePassword(
+  password: string,
+  hash: string
+): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
 
@@ -27,7 +30,7 @@ export async function comparePassword(password: string, hash: string): Promise<b
 export async function findUserByEmail(email: string): Promise<IUser | null> {
   try {
     const result = await pool.query(
-      'SELECT id, nome_usuario, email, datacriacao, ultimaatualizacao FROM usuarios WHERE email = $1',
+      "SELECT id, nome_usuario, email, datacriacao, ultimaatualizacao FROM usuarios WHERE email = $1",
       [email]
     );
 
@@ -37,7 +40,7 @@ export async function findUserByEmail(email: string): Promise<IUser | null> {
 
     return result.rows[0];
   } catch (error) {
-    console.error('❌ Erro ao buscar usuário por email:', error);
+    console.error("❌ Erro ao buscar usuário por email:", error);
     throw error;
   }
 }
@@ -45,10 +48,12 @@ export async function findUserByEmail(email: string): Promise<IUser | null> {
 /**
  * Buscar usuário por nome de usuário
  */
-export async function findUserByUsername(nome_usuario: string): Promise<IUser | null> {
+export async function findUserByUsername(
+  nome_usuario: string
+): Promise<IUser | null> {
   try {
     const result = await pool.query(
-      'SELECT id, nome_usuario, email, datacriacao, ultimaatualizacao FROM usuarios WHERE nome_usuario = $1',
+      "SELECT id, nome_usuario, email, datacriacao, ultimaatualizacao FROM usuarios WHERE nome_usuario = $1",
       [nome_usuario]
     );
 
@@ -58,7 +63,7 @@ export async function findUserByUsername(nome_usuario: string): Promise<IUser | 
 
     return result.rows[0];
   } catch (error) {
-    console.error('❌ Erro ao buscar usuário por nome:', error);
+    console.error("❌ Erro ao buscar usuário por nome:", error);
     throw error;
   }
 }
@@ -69,7 +74,7 @@ export async function findUserByUsername(nome_usuario: string): Promise<IUser | 
 export async function findUserById(id: number): Promise<IUser | null> {
   try {
     const result = await pool.query(
-      'SELECT id, nome_usuario, email, datacriacao, ultimaatualizacao FROM usuarios WHERE id = $1',
+      "SELECT id, nome_usuario, email, datacriacao, ultimaatualizacao FROM usuarios WHERE id = $1",
       [id]
     );
 
@@ -79,7 +84,7 @@ export async function findUserById(id: number): Promise<IUser | null> {
 
     return result.rows[0];
   } catch (error) {
-    console.error('❌ Erro ao buscar usuário por ID:', error);
+    console.error("❌ Erro ao buscar usuário por ID:", error);
     throw error;
   }
 }
@@ -90,7 +95,7 @@ export async function findUserById(id: number): Promise<IUser | null> {
 export async function findUserWithPassword(email: string): Promise<any | null> {
   try {
     const result = await pool.query(
-      'SELECT id, nome_usuario, email, senha, datacriacao, ultimaatualizacao FROM usuarios WHERE email = $1',
+      "SELECT id, nome_usuario, email, senha, datacriacao, ultimaatualizacao FROM usuarios WHERE email = $1",
       [email]
     );
 
@@ -100,7 +105,7 @@ export async function findUserWithPassword(email: string): Promise<any | null> {
 
     return result.rows[0];
   } catch (error) {
-    console.error('❌ Erro ao buscar usuário com senha:', error);
+    console.error("❌ Erro ao buscar usuário com senha:", error);
     throw error;
   }
 }
@@ -117,12 +122,12 @@ export async function createUser(
     // Validar se usuário já existe
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
-      throw new Error('Email já cadastrado');
+      throw new Error("Email já cadastrado");
     }
 
     const existingUsername = await findUserByUsername(nome_usuario);
     if (existingUsername) {
-      throw new Error('Nome de usuário já existe');
+      throw new Error("Nome de usuário já existe");
     }
 
     // Hash da senha
@@ -138,7 +143,7 @@ export async function createUser(
 
     return result.rows[0];
   } catch (error) {
-    console.error('❌ Erro ao criar usuário:', error);
+    console.error("❌ Erro ao criar usuário:", error);
     throw error;
   }
 }
@@ -171,7 +176,7 @@ export async function validateLogin(
       nome_usuario: user.nome_usuario,
     };
   } catch (error) {
-    console.error('❌ Erro ao validar login:', error);
+    console.error("❌ Erro ao validar login:", error);
     throw error;
   }
 }
@@ -182,10 +187,54 @@ export async function validateLogin(
 export async function updateLastLogin(id: number): Promise<void> {
   try {
     await pool.query(
-      'UPDATE usuarios SET ultimaatualizacao = NOW() WHERE id = $1',
+      "UPDATE usuarios SET ultimaatualizacao = NOW() WHERE id = $1",
       [id]
     );
   } catch (error) {
-    console.error('❌ Erro ao atualizar último acesso:', error);
+    console.error("❌ Erro ao atualizar último acesso:", error);
+  }
+}
+
+/**
+ * Mudar senha do usuário
+ */
+export async function changePassword(
+  id: number,
+  senhaAtual: string,
+  novaSenha: string
+): Promise<void> {
+  try {
+    // Obter usuário com senha
+    const result = await pool.query(
+      "SELECT id, senha FROM usuarios WHERE id = $1",
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error("Usuário não encontrado");
+    }
+
+    const user = result.rows[0];
+
+    // Validar senha atual
+    const senhaValida = await comparePassword(senhaAtual, user.senha);
+
+    if (!senhaValida) {
+      throw new Error("Senha atual incorreta");
+    }
+
+    // Hash da nova senha
+    const novaSenhaHash = await hashPassword(novaSenha);
+
+    // Atualizar senha
+    await pool.query(
+      "UPDATE usuarios SET senha = $1, ultimaatualizacao = NOW() WHERE id = $2",
+      [novaSenhaHash, id]
+    );
+
+    console.log(`✅ Senha alterada para usuário ID: ${id}`);
+  } catch (error) {
+    console.error("❌ Erro ao mudar senha:", error);
+    throw error;
   }
 }

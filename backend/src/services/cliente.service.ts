@@ -73,7 +73,7 @@ export class ClienteService {
   ): Promise<Cliente> {
     const { nome, email, telefone } = data;
 
-    // Validações
+    // Validações básicas (apenas formato, sem queries)
     if (!nome || nome.trim().length === 0) {
       throw new Error("Nome do cliente é obrigatório");
     }
@@ -90,12 +90,6 @@ export class ClienteService {
 
       if (email.length > 150) {
         throw new Error("Email não pode exceder 150 caracteres");
-      }
-
-      // Verificar se email já existe para este usuário
-      const emailExists = await this.emailExistsForUser(email, usuarioId);
-      if (emailExists) {
-        throw new Error("Email já cadastrado para este usuário");
       }
     }
 
@@ -127,6 +121,10 @@ export class ClienteService {
 
       return result.rows[0];
     } catch (error) {
+      // Se erro for de constraint de email duplicado, tratamos
+      if ((error as any).constraint === "cliente_email_unique") {
+        throw new Error("Email já cadastrado para este usuário");
+      }
       console.error("Erro ao criar cliente:", error);
       throw new Error("Falha ao criar cliente");
     }
@@ -140,12 +138,6 @@ export class ClienteService {
     usuarioId: number,
     data: UpdateClienteDTO
   ): Promise<Cliente> {
-    // Verificar se cliente existe e pertence ao usuário
-    const cliente = await this.getClienteById(clienteId, usuarioId);
-    if (!cliente) {
-      throw new Error("Cliente não encontrado");
-    }
-
     // Validações
     if (data.nome !== undefined) {
       if (!data.nome || data.nome.trim().length === 0) {
@@ -162,15 +154,6 @@ export class ClienteService {
       }
       if (data.email.length > 150) {
         throw new Error("Email não pode exceder 150 caracteres");
-      }
-
-      // Verificar se email já existe para outro cliente deste usuário
-      const emailExists = await pool.query(
-        "SELECT id_cliente FROM cliente WHERE email = $1 AND id_usuario = $2 AND id_cliente != $3",
-        [data.email, usuarioId, clienteId]
-      );
-      if (emailExists.rows.length > 0) {
-        throw new Error("Email já cadastrado para outro cliente");
       }
     }
 
@@ -233,6 +216,9 @@ export class ClienteService {
 
       return result.rows[0];
     } catch (error) {
+      if ((error as any).constraint === "cliente_email_unique") {
+        throw new Error("Email já cadastrado para outro cliente");
+      }
       console.error("Erro ao atualizar cliente:", error);
       throw new Error("Falha ao atualizar cliente");
     }
@@ -242,19 +228,17 @@ export class ClienteService {
    * Deletar um cliente
    */
   async deleteCliente(clienteId: number, usuarioId: number): Promise<void> {
-    // Verificar se cliente existe e pertence ao usuário
-    const cliente = await this.getClienteById(clienteId, usuarioId);
-    if (!cliente) {
-      throw new Error("Cliente não encontrado");
-    }
-
     const query = `
       DELETE FROM cliente
       WHERE id_cliente = $1 AND id_usuario = $2
     `;
 
     try {
-      await pool.query(query, [clienteId, usuarioId]);
+      const result = await pool.query(query, [clienteId, usuarioId]);
+
+      if (result.rowCount === 0) {
+        throw new Error("Cliente não encontrado");
+      }
     } catch (error) {
       console.error("Erro ao deletar cliente:", error);
       throw new Error("Falha ao deletar cliente");

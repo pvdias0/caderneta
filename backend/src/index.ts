@@ -16,6 +16,7 @@ import clienteRoutes from "./routes/cliente.routes.js";
 import produtoRoutes from "./routes/produto.routes.js";
 import movimentoRoutes from "./routes/movimento.routes.js";
 import pdfRoutes from "./routes/pdf.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 
 const app: Express = express();
 const httpServer = createServer(app);
@@ -51,6 +52,20 @@ export function notificarTotalAReceberAtualizado(
   console.log(
     `📡 Notificado usuário ${usuarioId}: novo total = R$ ${novoTotal}`
   );
+}
+
+// Função para notificar mudança no saldo de um cliente específico
+export function notificarSaldoClienteAtualizado(
+  usuarioId: number,
+  clienteId: number,
+  novoSaldo: number
+) {
+  io.to(`usuario-${usuarioId}`).emit("saldo-cliente-atualizado", {
+    cliente_id: clienteId,
+    saldo_devedor: novoSaldo,
+    timestamp: new Date().toISOString(),
+  });
+  console.log(`📡 Cliente ${clienteId}: saldo atualizado para R$ ${novoSaldo}`);
 }
 
 // ==================== MIDDLEWARE ====================
@@ -129,6 +144,9 @@ app.get("/api/v1/health/db", async (req: Request, res: Response) => {
 
 // Rotas de autenticação
 app.use("/api/v1/auth", authRoutes);
+
+// Rotas de dashboard
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 // Rotas de clientes
 app.use("/api/v1/clientes", clienteRoutes);

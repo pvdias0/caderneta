@@ -27,11 +27,8 @@ const poolConfig: PoolConfig = {
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   application_name: `caderneta-${process.env.NODE_ENV || "dev"}`,
-  // SSL para produção/staging
-  ssl:
-    process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging"
-      ? { rejectUnauthorized: false }
-      : false,
+  // SSL requerido para Neon (sempre ativar)
+  ssl: { rejectUnauthorized: false },
 };
 
 // Validar que todas as variáveis necessárias estão definidas
