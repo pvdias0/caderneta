@@ -13,6 +13,7 @@ export interface ProdutoCardProps {
   isSelected?: boolean;
   onSelect?: (produtoId: number, isSelected: boolean) => void;
   showCheckbox?: boolean;
+  onEdit?: (produto: IProduto) => void;
 }
 
 export const ProdutoCard: React.FC<ProdutoCardProps> = ({
@@ -20,6 +21,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
   isSelected = false,
   onSelect,
   showCheckbox = false,
+  onEdit,
 }) => {
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat("pt-BR", {
@@ -69,6 +71,15 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
               </Text>
             </View>
           </View>
+          {!showCheckbox && (
+            <TouchableOpacity
+              onPress={() => onEdit?.(produto)}
+              style={styles.editButton}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="pencil" size={20} color="#ff9800" />
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Informações do produto */}
@@ -154,6 +165,11 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+  },
+  editButton: {
+    padding: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
   nome: {
     fontSize: 16,

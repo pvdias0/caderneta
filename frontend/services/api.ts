@@ -382,6 +382,35 @@ class ApiService {
       novaSenha,
     });
   }
+
+  /**
+   * Gerar extrato em PDF - GET /api/v1/clientes/:clienteId/extrato
+   * Retorna o blob do PDF para download
+   */
+  async gerarExtratoCliente(clienteId: number): Promise<Blob> {
+    const url = `${API_URL}/api/v1/clientes/${clienteId}/extrato`;
+    const headers: Record<string, string> = {};
+
+    if (this.accessToken) {
+      headers["Authorization"] = `Bearer ${this.accessToken}`;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha ao gerar extrato");
+      }
+
+      return await response.blob();
+    } catch (error) {
+      console.error("Erro ao gerar extrato:", error);
+      throw error;
+    }
+  }
 }
 
 // Exportar instância única (singleton)

@@ -153,6 +153,11 @@ export default function ProdutosPage() {
     setShowModal(true);
   };
 
+  const handleEditProduto = (produto: IProduto) => {
+    setSelectedProduto(produto);
+    setShowModal(true);
+  };
+
   const handleModalSuccess = () => {
     loadProdutos();
   };
@@ -225,6 +230,7 @@ export default function ProdutosPage() {
                 showCheckbox={selectionMode}
                 isSelected={selectedIds.has(item.id_produto)}
                 onSelect={handleSelectProduto}
+                onEdit={handleEditProduto}
               />
             )}
             contentContainerStyle={styles.listContent}

@@ -143,7 +143,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
         // Editar compra com itens
         await apiService.request(
           "PUT",
-          `/api/v1/clientes/${clienteId}/movimentos/compra/${editingCompra.id_compra}/itens`,
+          `/api/v1/clientes/${clienteId}/movimentos/compra/${editingCompra.id_compra}/com-`,
           data
         );
         Alert.alert("Sucesso", "Compra atualizada com sucesso");
@@ -206,163 +206,37 @@ const ClienteDetailsScreenComponent: React.FC = () => {
     try {
       setGeneratingPDF(true);
 
-      const html = gerarHTMLExtrato();
-      await Print.printToFileAsync({
-        html,
-      });
+      // Baixar PDF do backend
+      const pdfBlob = await apiService.gerarExtratoCliente(clienteId);
 
-      Alert.alert("Sucesso", "PDF gerado com sucesso!");
+      // Converter blob para base64 URI
+      const reader = new FileReader();
+      reader.readAsDataURL(pdfBlob);
+
+      reader.onloadend = async () => {
+        try {
+          const uri = reader.result as string;
+
+          // Exibir com Print
+          await Print.printAsync({
+            uri,
+          });
+
+          Alert.alert("Sucesso", "Extrato gerado com sucesso!");
+        } catch (error) {
+          console.error("Erro ao exibir PDF:", error);
+          Alert.alert("Erro", "Não foi possível exibir o extrato");
+        } finally {
+          setGeneratingPDF(false);
+        }
+      };
     } catch (error) {
-      console.error("Erro ao gerar PDF:", error);
-      Alert.alert("Erro", "Não foi possível gerar o PDF");
-    } finally {
+      console.error("Erro ao gerar extrato:", error);
+      Alert.alert("Erro", "Não foi possível gerar o extrato");
       setGeneratingPDF(false);
     }
   };
 
-  const gerarHTMLExtrato = (): string => {
-    if (!cliente) return "";
-
-    const dataAtual = new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date());
-
-    const movimentosHTML = movimentos
-      .map(
-        (mov) =>
-          `<tr>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${new Intl.DateTimeFormat(
-              "pt-BR"
-            ).format(new Date(mov.data_movimento))}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${
-              mov.tipo === "COMPRA" ? "Compra" : "Pagamento"
-            }</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${formatCurrency(
-              mov.valor
-            )}</td>
-          </tr>`
-      )
-      .join("");
-
-    const saldoFinal = cliente.saldo_devedor;
-
-    return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8" />
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              padding: 20px;
-              background: white;
-            }
-            .header {
-              text-align: center;
-              margin-bottom: 30px;
-              border-bottom: 2px solid #333;
-              padding-bottom: 20px;
-            }
-            h1 {
-              margin: 0;
-              font-size: 24px;
-              color: #333;
-            }
-            .cliente-info {
-              background: #f5f5f5;
-              padding: 15px;
-              border-radius: 5px;
-              margin-bottom: 20px;
-            }
-            .cliente-info p {
-              margin: 5px 0;
-              font-size: 14px;
-            }
-            .cliente-info strong {
-              color: #333;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 20px;
-            }
-            th {
-              background: #e91e63;
-              color: white;
-              padding: 10px;
-              text-align: left;
-              font-weight: bold;
-            }
-            .saldo-section {
-              background: #f0f0f0;
-              padding: 15px;
-              border-radius: 5px;
-              text-align: right;
-            }
-            .saldo-label {
-              font-size: 14px;
-              color: #666;
-            }
-            .saldo-value {
-              font-size: 24px;
-              font-weight: bold;
-              color: #e91e63;
-              margin-top: 5px;
-            }
-            .footer {
-              text-align: center;
-              margin-top: 30px;
-              padding-top: 20px;
-              border-top: 1px solid #ccc;
-              font-size: 12px;
-              color: #999;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Extrato da Conta</h1>
-          </div>
-          
-          <div class="cliente-info">
-            <p><strong>Cliente:</strong> ${cliente.nome}</p>
-            <p><strong>Email:</strong> ${cliente.email || "N/A"}</p>
-            <p><strong>Telefone:</strong> ${cliente.telefone || "N/A"}</p>
-            <p><strong>Data de Geração:</strong> ${dataAtual}</p>
-          </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Tipo</th>
-                <th>Valor</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${
-                movimentosHTML ||
-                "<tr><td colspan='3' style='padding: 20px; text-align: center; color: #999;'>Nenhum movimento registrado</td></tr>"
-              }
-            </tbody>
-          </table>
-
-          <div class="saldo-section">
-            <div class="saldo-label">Saldo Devedor</div>
-            <div class="saldo-value">${formatCurrency(saldoFinal)}</div>
-          </div>
-
-          <div class="footer">
-            <p>Este documento foi gerado automaticamente pelo sistema Caderneta</p>
-          </div>
-        </body>
-      </html>
-    `;
-  };
 
   if (loading) {
     return (

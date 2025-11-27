@@ -65,8 +65,10 @@ export class MovimentoService {
                 ic.id_compra,
                 ic.id_produto,
                 ic.quantidade,
-                ic.valor_unitario
+                ic.valor_unitario,
+                p.nome AS nome_produto
               FROM item_compra ic
+              LEFT JOIN produto p ON ic.id_produto = p.id_produto
               WHERE ic.id_compra = $1
               ORDER BY ic.id_item_compra
             `;
@@ -123,6 +125,40 @@ export class MovimentoService {
       ]);
       if (validation.rows.length === 0) {
         throw new Error("Conta não encontrada ou não pertence ao usuário");
+      }
+
+      // Validar estoque dos produtos antes de criar a compra
+      for (const item of itens) {
+        const produtoQuery = `
+          SELECT id_produto, quantidade_estoque, nome
+          FROM produto
+          WHERE id_produto = $1 AND id_usuario = $2
+        `;
+
+        const produtoResult = await pool.query(produtoQuery, [
+          item.id_produto,
+          usuarioId,
+        ]);
+
+        if (produtoResult.rows.length === 0) {
+          throw new Error(`Produto com ID ${item.id_produto} não encontrado`);
+        }
+
+        const produto = produtoResult.rows[0];
+
+        // Verificar se quantidade em estoque é 0
+        if (produto.quantidade_estoque === 0) {
+          throw new Error(
+            `Produto "${produto.nome}" não possui quantidade disponível em estoque (quantidade = 0)`
+          );
+        }
+
+        // Verificar se há quantidade suficiente em estoque
+        if (produto.quantidade_estoque < item.quantidade) {
+          throw new Error(
+            `Produto "${produto.nome}" possui apenas ${produto.quantidade_estoque} unidade(s) em estoque, mas foi solicitado ${item.quantidade}`
+          );
+        }
       }
 
       // Calcular valor total da compra
@@ -485,31 +521,7 @@ export class MovimentoService {
         throw new Error("Compra não encontrada ou não pertence ao usuário");
       }
 
-      // Buscar itens da compra para devolver ao estoque
-      const itensQuery = `
-        SELECT id_produto, quantidade
-        FROM item_compra
-        WHERE id_compra = $1
-      `;
-
-      const itensResult = await pool.query(itensQuery, [compraId]);
-
-      // Devolver quantidade ao estoque para cada item
-      for (const item of itensResult.rows) {
-        const updateEstoqueQuery = `
-          UPDATE produto
-          SET quantidade_estoque = quantidade_estoque + $1,
-              ultimaatualizacao = NOW()
-          WHERE id_produto = $2
-        `;
-
-        await pool.query(updateEstoqueQuery, [
-          item.quantidade,
-          item.id_produto,
-        ]);
-      }
-
-      // Deletar itens da compra
+      // Deletar itens da compra (SEM afetar o estoque)
       await pool.query(`DELETE FROM item_compra WHERE id_compra = $1`, [
         compraId,
       ]);
@@ -613,12 +625,7 @@ export class MovimentoService {
 
       const contaId = validation.rows[0].id_conta;
 
-      // Calcular o valor total da compra
-      const valorTotal = itens.reduce((total, item) => {
-        return total + item.quantidade * item.valor_unitario;
-      }, 0);
-
-      // Obter os itens antigos para devolução de estoque
+      // Obter os itens antigos ANTES de validar o novo estoque
       const oldItensQuery = `
         SELECT ic.id_produto, ic.quantidade
         FROM item_compra ic
@@ -626,10 +633,61 @@ export class MovimentoService {
       `;
       const oldItensResult = await pool.query(oldItensQuery, [compraId]);
 
+      // Criar mapa de quantidades antigas por produto
+      const oldQtdByProduct: { [key: number]: number } = {};
+      for (const oldItem of oldItensResult.rows) {
+        oldQtdByProduct[oldItem.id_produto] =
+          (oldQtdByProduct[oldItem.id_produto] || 0) + oldItem.quantidade;
+      }
+
+      // Validar estoque dos produtos, considerando quantidades devolvidas
+      for (const item of itens) {
+        const produtoQuery = `
+          SELECT id_produto, quantidade_estoque, nome
+          FROM produto
+          WHERE id_produto = $1 AND id_usuario = $2
+        `;
+
+        const produtoResult = await pool.query(produtoQuery, [
+          item.id_produto,
+          usuarioId,
+        ]);
+
+        if (produtoResult.rows.length === 0) {
+          throw new Error(`Produto com ID ${item.id_produto} não encontrado`);
+        }
+
+        const produto = produtoResult.rows[0];
+
+        // Calcular estoque disponível após devolver as quantidades antigas
+        const estoqueDisponivel =
+          produto.quantidade_estoque +
+          (oldQtdByProduct[item.id_produto] || 0);
+
+        // Verificar se a nova quantidade solicitada é 0
+        if (item.quantidade === 0) {
+          throw new Error(
+            `Produto "${produto.nome}" não pode ter quantidade 0`
+          );
+        }
+
+        // Verificar se há quantidade suficiente em estoque
+        if (estoqueDisponivel < item.quantidade) {
+          throw new Error(
+            `Produto "${produto.nome}" possui apenas ${estoqueDisponivel} unidade(s) disponível(is) em estoque, mas foi solicitado ${item.quantidade}`
+          );
+        }
+      }
+
+      // Calcular o valor total da compra
+      const valorTotal = itens.reduce((total, item) => {
+        return total + item.quantidade * item.valor_unitario;
+      }, 0);
+
       // Retornar estoque dos itens antigos
       for (const oldItem of oldItensResult.rows) {
         await pool.query(
-          `UPDATE produto SET quantidade_estoque = quantidade_estoque + $1 WHERE id_produto = $2`,
+          `UPDATE produto SET quantidade_estoque = quantidade_estoque + $1, ultimaatualizacao = NOW() WHERE id_produto = $2`,
           [oldItem.quantidade, oldItem.id_produto]
         );
       }
@@ -660,34 +718,43 @@ export class MovimentoService {
       ]);
 
       // Inserir novos itens
+      const itemsInsertidos = [];
       for (const item of itens) {
         const insertItemQuery = `
           INSERT INTO item_compra (id_compra, id_produto, quantidade, valor_unitario, datacriacao, ultimaatualizacao)
           VALUES ($1, $2, $3, $4, NOW(), NOW())
-          RETURNING id_item_compra
+          RETURNING id_item_compra, id_compra, id_produto, quantidade, valor_unitario
         `;
 
-        await pool.query(insertItemQuery, [
+        const itemResult = await pool.query(insertItemQuery, [
           compraId,
           item.id_produto,
           item.quantidade,
           item.valor_unitario,
         ]);
 
+        itemsInsertidos.push(itemResult.rows[0]);
+
         // Descontar estoque
         await pool.query(
-          `UPDATE produto SET quantidade_estoque = quantidade_estoque - $1 WHERE id_produto = $2`,
+          `UPDATE produto SET quantidade_estoque = quantidade_estoque - $1, ultimaatualizacao = NOW() WHERE id_produto = $2`,
           [item.quantidade, item.id_produto]
         );
       }
 
       const compra = compraResult.rows[0];
 
+      // Retornar compra com itens
+      const resultado = {
+        ...compra,
+        itens: itemsInsertidos,
+      };
+
       // Notificar atualização do total
       const novoTotal = await ClienteService.getTotalAReceberGeral(usuarioId);
       notificarTotalAReceberAtualizado(usuarioId, novoTotal);
 
-      return compra;
+      return resultado;
     } catch (error) {
       console.error("Erro ao atualizar compra com itens:", error);
       throw new Error("Falha ao atualizar compra com itens");

@@ -5,6 +5,7 @@ export interface Cliente {
   telefone?: string;
   datacriacao: Date;
   ultimaatualizacao: Date;
+  saldo_devedor?: number;
 }
 
 export interface CreateClienteDTO {

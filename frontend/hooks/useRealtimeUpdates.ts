@@ -7,6 +7,7 @@ type UpdateCallback =
 
 /**
  * Hook para escutar atualizações em tempo real via WebSocket (Socket.io)
+ * Dispara callback quando houver mudanças nos dados do usuário
  */
 export const useRealtimeUpdates = (
   usuarioId: number | null,
@@ -17,7 +18,9 @@ export const useRealtimeUpdates = (
   useEffect(() => {
     if (!socket || !isConnected || !usuarioId) return;
 
-    // Entrar na sala do usuário
+    console.log(`🔌 Configurando Socket.io para usuário: ${usuarioId}`);
+
+    // Entrar na sala específica do usuário
     socket.emit("entrar-sala-usuario", usuarioId);
     console.log(`👤 Entrando na sala: usuario-${usuarioId}`);
 
@@ -27,29 +30,40 @@ export const useRealtimeUpdates = (
       saldo_devedor: number;
       timestamp: string;
     }) => {
-      console.log("💰 Saldo atualizado em tempo real:", data);
-      if (onUpdate && onUpdate.length > 0) {
-        (onUpdate as (clienteId: number, novoSaldo: number) => void)(
-          data.cliente_id,
-          data.saldo_devedor
-        );
-      } else if (onUpdate) {
+      console.log("💰 [Socket.io] Saldo atualizado em tempo real:", data);
+      
+      // Se callback aceita parâmetros, chamar com clienteId
+      if (onUpdate && typeof onUpdate === 'function') {
+        const fnLength = onUpdate.length;
+        if (fnLength > 0) {
+          (onUpdate as (clienteId: number, novoSaldo: number) => void)(
+            data.cliente_id,
+            data.saldo_devedor
+          );
+        } else {
+          // Sem parâmetros, forçar reload geral
+          (onUpdate as () => void)();
+        }
+      }
+    };
+
+    // Escutar atualizações de total a receber (afeta dashboard)
+    const handleTotalAtualizado = (novoTotal: number) => {
+      console.log("📊 [Socket.io] Total a receber atualizado em tempo real:", novoTotal);
+      
+      // Sempre forçar atualização do dashboard quando total muda
+      if (onUpdate) {
         (onUpdate as () => void)();
       }
     };
 
-    // Escutar atualizações de total a receber
-    const handleTotalAtualizado = (novoTotal: number) => {
-      console.log("📊 Total a receber atualizado em tempo real:", novoTotal);
-      if (onUpdate) {
-        (onUpdate as () => void)(); // Chamar sem parâmetros para forçar reload do dashboard
-      }
-    };
-
+    // Registrar listeners
     socket.on("saldo-cliente-atualizado", handleSaldoAtualizado);
     socket.on("total-atualizado", handleTotalAtualizado);
 
+    // Cleanup: remover listeners ao desmontar
     return () => {
+      console.log("🧹 Removendo listeners Socket.io");
       socket.off("saldo-cliente-atualizado", handleSaldoAtualizado);
       socket.off("total-atualizado", handleTotalAtualizado);
     };

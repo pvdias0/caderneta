@@ -346,6 +346,28 @@ export class MovimentoController {
         usuarioId
       );
 
+      // Buscar saldo atualizado do cliente
+      const clienteAtualizado = await clienteService.getClienteById(
+        Number(clienteId),
+        usuarioId
+      );
+
+      // Notificar sobre atualização de saldo
+      if (clienteAtualizado) {
+        const saldoDevedor = (clienteAtualizado as any).saldo_devedor || 0;
+        notificarSaldoClienteAtualizado(
+          usuarioId,
+          Number(clienteId),
+          parseFloat(saldoDevedor)
+        );
+      }
+
+      // Notificar sobre atualização do total a receber
+      const totalAReceber = await clienteService.getTotalAReceberGeral(
+        usuarioId
+      );
+      notificarTotalAReceberAtualizado(usuarioId, totalAReceber);
+
       res.status(200).json({
         success: true,
         data: compra,

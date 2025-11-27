@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
 import clienteService from "../services/cliente.service.js";
+import {
+  notificarTotalAReceberAtualizado,
+  notificarSaldoClienteAtualizado,
+} from "../index.js";
 
 /**
  * Helper para obter usuarioId do request
@@ -116,6 +120,10 @@ export class ClienteController {
         id_cliente: Number(novoCliente.id_cliente),
       };
 
+      // 📡 Notificar em tempo real - novo cliente criado
+      // Emitir evento para atualizar o dashboard (contagem de clientes ativos)
+      notificarTotalAReceberAtualizado(usuarioId, (novoCliente as any).saldo_devedor || 0);
+
       res.status(201).json({
         success: true,
         data: clienteConvertido,
@@ -166,6 +174,13 @@ export class ClienteController {
         }
       );
 
+      // 📡 Notificar em tempo real - cliente atualizado
+      notificarSaldoClienteAtualizado(
+        usuarioId,
+        Number(id),
+        (clienteAtualizado as any).saldo_devedor || 0
+      );
+
       res.status(200).json({
         success: true,
         data: clienteAtualizado,
@@ -199,6 +214,10 @@ export class ClienteController {
       }
 
       await clienteService.deleteCliente(Number(id), usuarioId);
+
+      // 📡 Notificar em tempo real - cliente deletado
+      // Emitir evento para atualizar o dashboard
+      notificarTotalAReceberAtualizado(usuarioId, 0);
 
       res.status(200).json({
         success: true,
@@ -255,6 +274,11 @@ export class ClienteController {
 
       console.log("   Chamando clienteService.deleteClientes...");
       await clienteService.deleteClientes(ids, usuarioId);
+
+      // 📡 Notificar em tempo real - clientes deletados
+      // Emitir evento para atualizar o dashboard (contagem de clientes ativos)
+      console.log(`📡 ${ids.length} cliente(s) deletado(s), notificando usuário ${usuarioId}`);
+      notificarTotalAReceberAtualizado(usuarioId, 0);
 
       res.status(200).json({
         success: true,

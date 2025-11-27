@@ -115,7 +115,7 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
             {movimento.itens.map((item, index) => (
               <View key={index} style={styles.itemRow}>
                 <Text style={styles.itemText} numberOfLines={1}>
-                  • {item.id_produto}
+                  • {item.nome_produto || `Produto ${item.id_produto}`}
                 </Text>
                 <Text style={styles.itemText}>
                   {item.quantidade}x {formatCurrency(item.valor_unitario)}

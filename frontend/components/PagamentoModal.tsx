@@ -15,6 +15,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { IMovimento } from "../types/movimento";
 
 export interface PagamentoModalProps {
@@ -34,12 +35,15 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
 }) => {
   const [valor, setValor] = useState("");
   const [data, setData] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (pagamento) {
       // Editar pagamento existente
-      setValor((pagamento.valor / 100).toFixed(2).replace(".", ","));
+      // valor já vem em reais do backend (numeric(12,2)), não precisa dividir por 100
+      const valorDisplay = pagamento.valor || 0;
+      setValor(Number(valorDisplay).toFixed(2).replace(".", ","));
       setData(new Date(pagamento.data_movimento));
     } else {
       // Novo pagamento
@@ -69,6 +73,19 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
 
   const handlePriceChange = (text: string) => {
     setValor(formatPrice(text));
+  };
+
+  const handleDateChange = (event: any, selectedDate: Date | undefined) => {
+    if (Platform.OS === "android") {
+      setShowDatePicker(false);
+    }
+    if (selectedDate) {
+      setData(selectedDate);
+    }
+  };
+
+  const closeDatePicker = () => {
+    setShowDatePicker(false);
   };
 
   const validateForm = (): boolean => {
@@ -150,9 +167,36 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
             {/* Data */}
             <View style={styles.formGroup}>
               <Text style={styles.label}>Data do Pagamento</Text>
-              <Text style={styles.dateButtonText}>
-                {formatDisplayDate(data)}
-              </Text>
+              <TouchableOpacity
+                style={styles.dateButton}
+                onPress={() => setShowDatePicker(true)}
+                disabled={loading}
+              >
+                <Ionicons name="calendar" size={20} color="#e91e63" />
+                <Text style={styles.dateButtonText}>
+                  {formatDisplayDate(data)}
+                </Text>
+              </TouchableOpacity>
+
+              {showDatePicker && (
+                <View style={styles.datePickerContainer}>
+                  <DateTimePicker
+                    value={data}
+                    mode="date"
+                    display={Platform.OS === "ios" ? "spinner" : "default"}
+                    onChange={handleDateChange}
+                    textColor="#333"
+                  />
+                  {Platform.OS === "ios" && (
+                    <TouchableOpacity
+                      style={styles.datePickerClose}
+                      onPress={closeDatePicker}
+                    >
+                      <Text style={styles.datePickerCloseText}>Confirmar</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
             </View>
           </ScrollView>
 
@@ -276,6 +320,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     fontWeight: "500",
+  },
+  datePickerContainer: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: "#f9f9f9",
+  },
+  datePickerClose: {
+    backgroundColor: "#e91e63",
+    paddingVertical: 12,
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "#e0e0e0",
+  },
+  datePickerCloseText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
   },
   footer: {
     flexDirection: "row",

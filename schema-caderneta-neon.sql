@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
+\restrict BdkBNpxoI3lV2q04ZBOfnytumT3rB8uCqcu2KZeXbpdEtfbXYr7aZZTX0QhmHpv
+
 -- Dumped from database version 17.5 (aa1f746)
--- Dumped by pg_dump version 17.5
+-- Dumped by pg_dump version 18.0
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1156,4 +1158,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE cloud_admin IN SCHEMA public GRANT ALL ON TABL
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict BdkBNpxoI3lV2q04ZBOfnytumT3rB8uCqcu2KZeXbpdEtfbXYr7aZZTX0QhmHpv
 

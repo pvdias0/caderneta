@@ -10,6 +10,7 @@ export interface IItemCompra {
   valor_unitario: number;
   datacriacao?: string;
   ultimaatualizacao?: string;
+  nome_produto?: string; // Nome do produto para exibição
 }
 
 export interface IMovimento {

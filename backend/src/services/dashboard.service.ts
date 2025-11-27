@@ -66,28 +66,24 @@ export async function getDashboardStats(
           )
         : 0;
 
-    // 3. Clientes Ativos (com movimento nos últimos 30 dias)
+    // 3. Clientes Ativos (todos os clientes cadastrados = clientes ativos)
     const clientesAtivosResult = await pool.query(
       `SELECT COUNT(DISTINCT c.id_cliente) as total
        FROM cliente c
-       INNER JOIN conta ct ON c.id_cliente = ct.id_cliente
-       INNER JOIN compra cp ON ct.id_conta = cp.id_conta
-       WHERE c.id_usuario = $1
-       AND cp.data_compra >= NOW() - INTERVAL '30 days'`,
+       WHERE c.id_usuario = $1`,
       [usuarioId]
     );
 
     const clientesAtivos = parseInt(clientesAtivosResult.rows[0].total || "0");
 
     // 4. Clientes Ativos do mês passado (para calcular variação)
+    // Contar clientes que existiam no mês passado (aproximação usando criação)
     const clientesAtivosPassadoResult = await pool.query(
       `SELECT COUNT(DISTINCT c.id_cliente) as total
        FROM cliente c
-       INNER JOIN conta ct ON c.id_cliente = ct.id_cliente
-       INNER JOIN compra cp ON ct.id_conta = cp.id_conta
        WHERE c.id_usuario = $1
-       AND EXTRACT(MONTH FROM cp.data_compra) = $2
-       AND EXTRACT(YEAR FROM cp.data_compra) = $3`,
+       AND EXTRACT(MONTH FROM c.datacriacao) = $2
+       AND EXTRACT(YEAR FROM c.datacriacao) = $3`,
       [usuarioId, mesPassado, anoPassado]
     );
 
