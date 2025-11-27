@@ -67,6 +67,15 @@ case $option in
   2)
     echo -e "${YELLOW}🚀 Iniciando Frontend em $ENVIRONMENT...${NC}"
     cd frontend
+    
+    # Copiar o arquivo .env correto para .env.local
+    if [ -f ".env.$ENVIRONMENT" ]; then
+        cp ".env.$ENVIRONMENT" ".env.local"
+        echo -e "${GREEN}✅ Usando configuração de .env.$ENVIRONMENT${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Arquivo .env.$ENVIRONMENT não encontrado. Usando .env.local existente.${NC}"
+    fi
+    
     export EXPO_PUBLIC_ENV=$EXPO_ENV
     npx expo start
     ;;
@@ -75,10 +84,10 @@ case $option in
     echo -e "${BLUE}⚠️  Abra outro terminal e execute:${NC}"
     if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
       echo -e "  PowerShell:"
-      echo -e "    cd frontend; \$env:EXPO_PUBLIC_ENV='$EXPO_ENV'; npx expo start"
+      echo -e "    .\start-env.ps1 -Environment $ENVIRONMENT"
     else
       echo -e "  Bash:"
-      echo -e "    cd frontend && EXPO_PUBLIC_ENV=$EXPO_ENV npx expo start"
+      echo -e "    ./start-env.sh $ENVIRONMENT"
     fi
     echo ""
     cd backend

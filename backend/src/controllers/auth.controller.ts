@@ -4,7 +4,6 @@ import {
   createUser,
   findUserById,
   updateLastLogin,
-  changePassword,
 } from "../services/usuario.service.js";
 import {
   generateTokens,
@@ -229,72 +228,6 @@ export async function me(req: Request, res: Response): Promise<void> {
     console.error("❌ Erro ao obter dados do usuário:", error);
     res.status(500).json({
       error: "Erro ao obter dados do usuário",
-    });
-  }
-}
-
-/**
- * Mudar senha do usuário autenticado
- * POST /api/v1/auth/change-password
- */
-export async function changePasswordHandler(
-  req: Request,
-  res: Response
-): Promise<void> {
-  try {
-    if (!req.user) {
-      res.status(401).json({
-        error: "Não autenticado",
-      });
-      return;
-    }
-
-    const { senhaAtual, novaSenha } = req.body;
-
-    // Validar entrada
-    if (!senhaAtual || !novaSenha) {
-      res.status(400).json({
-        error: "Senha atual e nova senha são obrigatórias",
-      });
-      return;
-    }
-
-    // Validar comprimento mínimo
-    if (novaSenha.length < 6) {
-      res.status(400).json({
-        error: "A nova senha deve ter no mínimo 6 caracteres",
-      });
-      return;
-    }
-
-    // Mudar senha
-    await changePassword(req.user.id, senhaAtual, novaSenha);
-
-    console.log(`✅ Senha alterada para usuário ID: ${req.user.id}`);
-
-    res.status(200).json({
-      message: "Senha alterada com sucesso",
-    });
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message.includes("Senha atual incorreta")) {
-        res.status(401).json({
-          error: "Senha atual incorreta",
-        });
-        return;
-      }
-
-      if (error.message.includes("Usuário não encontrado")) {
-        res.status(404).json({
-          error: "Usuário não encontrado",
-        });
-        return;
-      }
-    }
-
-    console.error("❌ Erro ao mudar senha:", error);
-    res.status(500).json({
-      error: "Erro ao mudar senha",
     });
   }
 }

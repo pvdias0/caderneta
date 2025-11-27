@@ -12,7 +12,7 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-  KeyboardAvoidingView,
+  ScrollView,
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -137,15 +137,17 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
+      animationType="slide"
       onRequestClose={handleClose}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
-      >
+      <View style={styles.container}>
         <View style={styles.overlay}>
-          <View style={styles.modalContent}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            scrollEnabled={false}
+          >
+            <View style={styles.modalContent}>
             {/* Header */}
             <View style={styles.header}>
               <Text style={styles.title}>Mudar Senha</Text>
@@ -214,9 +216,10 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                 )}
               </TouchableOpacity>
             </View>
-          </View>
+            </View>
+          </ScrollView>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 };
@@ -224,14 +227,18 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-end",
-  },
-  overlay: {
-    flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
     backgroundColor: "#fff",

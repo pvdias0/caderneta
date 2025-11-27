@@ -374,16 +374,6 @@ class ApiService {
   }
 
   /**
-   * Mudar senha - POST /api/v1/auth/change-password
-   */
-  async changePassword(senhaAtual: string, novaSenha: string): Promise<any> {
-    return this.request("POST", "/api/v1/auth/change-password", {
-      senhaAtual,
-      novaSenha,
-    });
-  }
-
-  /**
    * Gerar extrato em PDF - GET /api/v1/clientes/:clienteId/extrato
    * Retorna o blob do PDF para download
    */

@@ -18,7 +18,6 @@ import { useAuth } from "../hooks/useAuth";
 import { apiService } from "../services/api";
 import { DashboardCard } from "../components/DashboardCard";
 import { IDashboardStats } from "../types/dashboard";
-import { ChangePasswordModal } from "../components/ChangePasswordModal";
 import { useRealtimeUpdates } from "../hooks/useRealtimeUpdates";
 
 export const HomeScreen: React.FC = () => {
@@ -29,7 +28,6 @@ export const HomeScreen: React.FC = () => {
   );
   const [loading, setLoading] = useState(false);
   const [expandedDashboard, setExpandedDashboard] = useState(false);
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   const loadDashboardData = async () => {
     try {
@@ -95,15 +93,6 @@ export const HomeScreen: React.FC = () => {
             <Text style={styles.userEmail}>{user?.email || ""}</Text>
           </View>
         </View>
-
-        {/* Botão Mudar Senha */}
-        <TouchableOpacity
-          style={styles.changePasswordButton}
-          onPress={() => setShowChangePasswordModal(true)}
-        >
-          <Ionicons name="key" size={16} color="#fff" />
-          <Text style={styles.changePasswordButtonText}>Mudar Senha</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Seção de Dashboard - Expansível */}
@@ -170,16 +159,6 @@ export const HomeScreen: React.FC = () => {
           </View>
         )}
       </View>
-
-      {/* Modal de Mudar Senha */}
-      <ChangePasswordModal
-        visible={showChangePasswordModal}
-        onClose={() => setShowChangePasswordModal(false)}
-        onSuccess={() => {
-          setShowChangePasswordModal(false);
-          Alert.alert("Sucesso", "Senha alterada com sucesso!");
-        }}
-      />
     </ScrollView>
   );
 };
@@ -221,20 +200,6 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 14,
     color: "#999",
-  },
-  changePasswordButton: {
-    backgroundColor: "#e91e63",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    borderRadius: 8,
-    gap: 8,
-  },
-  changePasswordButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
   },
   dashboardSection: {
     backgroundColor: "#fff",
