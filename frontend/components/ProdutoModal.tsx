@@ -42,10 +42,19 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
 
     if (numbers.length === 0) return "";
 
-    // Converte para número e divide por 100 para pegar centavos
-    const num = parseInt(numbers, 10);
-    const integerPart = Math.floor(num / 100);
-    const decimalPart = num % 100;
+    // Se tem menos de 3 dígitos, assume que está incompleto
+    // Se tem 3+ dígitos, divide por 100 para pegar centavos
+    let integerPart: number;
+    let decimalPart: number;
+
+    if (numbers.length <= 2) {
+      integerPart = 0;
+      decimalPart = parseInt(numbers, 10);
+    } else {
+      const num = parseInt(numbers, 10);
+      integerPart = Math.floor(num / 100);
+      decimalPart = num % 100;
+    }
 
     // Formata com separador de milhares e vírgula
     const formatted = integerPart
@@ -66,7 +75,9 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
   useEffect(() => {
     if (produto) {
       setNome(produto.nome);
-      setValor(formatPrice(produto.valor_produto.toString()));
+      // Converte o valor numérico para formato de string com 2 casas decimais
+      const valorFormatado = produto.valor_produto.toFixed(2).replace(".", ",");
+      setValor(valorFormatado);
       setQuantidade(produto.quantidade_estoque.toString());
     } else {
       setNome("");
