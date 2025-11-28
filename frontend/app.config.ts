@@ -30,7 +30,10 @@ export default {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.pvdias.caderneta"
+      bundleIdentifier: "com.pvdias.caderneta",
+      infoPlist: {
+      "ITSAppUsesNonExemptEncryption": false
+    }
     },
     android: {
       package: "com.pvdias.caderneta",
