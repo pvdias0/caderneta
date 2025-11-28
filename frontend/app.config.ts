@@ -30,6 +30,7 @@ export default {
     },
     ios: {
       supportsTablet: true,
+      bundleIdentifier: "com.pvdias.caderneta"
     },
     android: {
       package: "com.pvdias.caderneta",
