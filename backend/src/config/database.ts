@@ -29,7 +29,8 @@ const poolConfig: PoolConfig = {
   application_name: `caderneta-${process.env.NODE_ENV || "dev"}`,
   // SSL: ativar em produção/staging com host remoto, desativar para localhost
   ssl:
-    (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging") &&
+    (process.env.NODE_ENV === "production" ||
+      process.env.NODE_ENV === "staging") &&
     process.env.DB_HOST !== "localhost"
       ? true // Validação SSL ativada apenas para hosts remotos
       : false, // Localhost não precisa SSL
