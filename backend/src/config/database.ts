@@ -27,8 +27,12 @@ const poolConfig: PoolConfig = {
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   application_name: `caderneta-${process.env.NODE_ENV || "dev"}`,
-  // SSL requerido para Neon (sempre ativar)
-  ssl: { rejectUnauthorized: false },
+  // SSL: ativar em produção/staging com host remoto, desativar para localhost
+  ssl:
+    (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging") &&
+    process.env.DB_HOST !== "localhost"
+      ? true // Validação SSL ativada apenas para hosts remotos
+      : false, // Localhost não precisa SSL
 };
 
 // Validar que todas as variáveis necessárias estão definidas

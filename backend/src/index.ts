@@ -21,6 +21,9 @@ import dashboardRoutes from "./routes/dashboard.routes.js";
 const app: Express = express();
 const httpServer = createServer(app);
 
+// Confiar em proxy (Cloudflare, Nginx, etc)
+app.set("trust proxy", 1);
+
 // ==================== SOCKET.IO ====================
 export const io = new Server(httpServer, {
   cors: {
