@@ -107,6 +107,39 @@ export const ForgotPasswordScreen: React.FC = () => {
     }
   };
 
+  const handleCodeInput = (inputIndex: number, text: string) => {
+    const upperText = text.toUpperCase();
+    
+    if (upperText.length === 1) {
+      // Entrada normal de um caractere
+      switch (inputIndex) {
+        case 1:
+          setCode1(upperText);
+          break;
+        case 2:
+          setCode2(upperText);
+          break;
+        case 3:
+          setCode3(upperText);
+          break;
+        case 4:
+          setCode4(upperText);
+          break;
+        case 5:
+          setCode5(upperText);
+          break;
+      }
+    } else if (upperText.length > 1) {
+      // Cola de múltiplos caracteres
+      const chars = upperText.split("").slice(0, 5);
+      setCode1(chars[0] || "");
+      setCode2(chars[1] || "");
+      setCode3(chars[2] || "");
+      setCode4(chars[3] || "");
+      setCode5(chars[4] || "");
+    }
+  };
+
   const handleBack = () => {
     reset();
     setEmail("");
@@ -191,9 +224,9 @@ export const ForgotPasswordScreen: React.FC = () => {
                 placeholder="-"
                 placeholderTextColor="#ccc"
                 value={code1}
-                onChangeText={(text) => setCode1(text.slice(-1).toUpperCase())}
+                onChangeText={(text) => handleCodeInput(1, text)}
                 editable={!loading}
-                maxLength={1}
+                maxLength={5}
                 keyboardType="default"
                 autoCapitalize="characters"
               />
@@ -202,7 +235,7 @@ export const ForgotPasswordScreen: React.FC = () => {
                 placeholder="-"
                 placeholderTextColor="#ccc"
                 value={code2}
-                onChangeText={(text) => setCode2(text.slice(-1).toUpperCase())}
+                onChangeText={(text) => handleCodeInput(2, text)}
                 editable={!loading}
                 maxLength={1}
                 keyboardType="default"
@@ -213,7 +246,7 @@ export const ForgotPasswordScreen: React.FC = () => {
                 placeholder="-"
                 placeholderTextColor="#ccc"
                 value={code3}
-                onChangeText={(text) => setCode3(text.slice(-1).toUpperCase())}
+                onChangeText={(text) => handleCodeInput(3, text)}
                 editable={!loading}
                 maxLength={1}
                 keyboardType="default"
@@ -224,7 +257,7 @@ export const ForgotPasswordScreen: React.FC = () => {
                 placeholder="-"
                 placeholderTextColor="#ccc"
                 value={code4}
-                onChangeText={(text) => setCode4(text.slice(-1).toUpperCase())}
+                onChangeText={(text) => handleCodeInput(4, text)}
                 editable={!loading}
                 maxLength={1}
                 keyboardType="default"
@@ -235,7 +268,7 @@ export const ForgotPasswordScreen: React.FC = () => {
                 placeholder="-"
                 placeholderTextColor="#ccc"
                 value={code5}
-                onChangeText={(text) => setCode5(text.slice(-1).toUpperCase())}
+                onChangeText={(text) => handleCodeInput(5, text)}
                 editable={!loading}
                 maxLength={1}
                 keyboardType="default"
