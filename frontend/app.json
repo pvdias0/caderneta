@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "extra": {
       "apiUrl": "http://192.168.0.138:8080",
-       "eas": {
+      "eas": {
         "projectId": "1e4ffb1c-28e0-4f2d-9129-2142d5d2445a"
       }
     },
