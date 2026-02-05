@@ -22,7 +22,7 @@ export default {
     newArchEnabled: true,
     extra: {
       // URL da API conforme o ambiente
-      apiUrl: process.env.EXPO_PUBLIC_API_URL || "http://192.168.0.138:8080",
+      apiUrl: process.env.EXPO_PUBLIC_API_URL || "https://cadernetabackend.pvapps.com.br",
       environment: process.env.NODE_ENV || "development",
       eas: {
         "projectId": "1e4ffb1c-28e0-4f2d-9129-2142d5d2445a"

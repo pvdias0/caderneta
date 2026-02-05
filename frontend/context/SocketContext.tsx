@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import Constants from "expo-constants";
 
-const API_URL = Constants.expoConfig?.extra?.apiUrl || "http://localhost:8080";
+const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://cadernetabackend.pvapps.com.br";
 
 interface SocketContextType {
   socket: Socket | null;

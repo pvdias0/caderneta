@@ -104,7 +104,7 @@ export const HomeScreen: React.FC = () => {
         >
           <View style={styles.dashboardTitleContainer}>
             <Ionicons name="bar-chart" size={20} color="#e91e63" />
-            <Text style={styles.dashboardTitle}>Dashboard</Text>
+            <Text style={styles.dashboardTitle}>Métricas</Text>
           </View>
           <Ionicons
             name={expandedDashboard ? "chevron-up" : "chevron-down"}

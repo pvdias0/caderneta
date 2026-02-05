@@ -10,6 +10,9 @@ import {
   verifyRefreshToken,
   generateAccessToken,
 } from "../services/jwt.service.js";
+import passwordRecoveryService from "../services/password-recovery.service.js";
+import emailService from "../services/email.service.js";
+import config from "../config/index.js";
 import { ILoginRequest, IRegisterRequest } from "../types/auth.js";
 
 /**
@@ -228,6 +231,232 @@ export async function me(req: Request, res: Response): Promise<void> {
     console.error("❌ Erro ao obter dados do usuário:", error);
     res.status(500).json({
       error: "Erro ao obter dados do usuário",
+    });
+  }
+}
+
+/**
+ * Solicitar recuperação de senha
+ * POST /api/v1/auth/forgot-password
+ */
+export async function forgotPassword(req: Request, res: Response): Promise<void> {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({
+        error: "Email é obrigatório",
+      });
+      return;
+    }
+
+    // Buscar usuário
+    const user = await passwordRecoveryService.findUserByEmail(email);
+
+    if (!user) {
+      // Não revelar se o email existe ou não (segurança)
+      res.status(200).json({
+        message: "Se o email estiver registrado, você receberá um link para redefinir sua senha.",
+      });
+      return;
+    }
+
+    // Gerar token de reset
+    const resetToken = await passwordRecoveryService.createResetToken(user.id, email);
+
+    // Criar link de reset
+    const resetLink = `${config.server.apiUrl}/reset-password?email=${encodeURIComponent(email)}&token=${resetToken}`;
+
+    // Enviar email
+    const emailSent = await emailService.sendPasswordResetEmail(
+      email,
+      user.nome_usuario,
+      resetToken,
+      resetLink
+    );
+
+    if (!emailSent) {
+      console.warn("⚠️ Falha ao enviar email de recuperação");
+      // Ainda assim retorna sucesso para não revelar problemas de email
+    }
+
+    console.log(`📧 Email de recuperação enviado para: ${email}`);
+
+    res.status(200).json({
+      message: "Se o email estiver registrado, você receberá um link para redefinir sua senha.",
+    });
+  } catch (error) {
+    console.error("❌ Erro ao solicitar recuperação de senha:", error);
+    res.status(500).json({
+      error: "Erro ao processar solicitação de recuperação",
+    });
+  }
+}
+
+/**
+ * Validar token de recuperação
+ * GET /api/v1/auth/validate-reset-token
+ */
+export async function validateResetToken(req: Request, res: Response): Promise<void> {
+  try {
+    const { email, token } = req.query;
+
+    if (!email || !token) {
+      res.status(400).json({
+        error: "Email e token são obrigatórios",
+      });
+      return;
+    }
+
+    const userId = await passwordRecoveryService.validateResetToken(
+      email as string,
+      token as string
+    );
+
+    if (!userId) {
+      res.status(400).json({
+        error: "Token inválido ou expirado",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Token válido",
+      valid: true,
+    });
+  } catch (error) {
+    console.error("❌ Erro ao validar token:", error);
+    res.status(500).json({
+      error: "Erro ao validar token",
+    });
+  }
+}
+
+/**
+ * Redefinir senha com token
+ * POST /api/v1/auth/reset-password
+ */
+export async function resetPassword(req: Request, res: Response): Promise<void> {
+  try {
+    const { email, token, newPassword, confirmPassword } = req.body;
+
+    if (!email || !token || !newPassword || !confirmPassword) {
+      res.status(400).json({
+        error: "Email, token, nova senha e confirmação são obrigatórios",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      res.status(400).json({
+        error: "As senhas não correspondem",
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({
+        error: "A senha deve ter no mínimo 6 caracteres",
+      });
+      return;
+    }
+
+    const success = await passwordRecoveryService.resetPassword(email, token, newPassword);
+
+    if (!success) {
+      res.status(400).json({
+        error: "Não foi possível redefinir a senha. Verifique o email, token e tente novamente.",
+      });
+      return;
+    }
+
+    // Buscar usuário para enviar email de confirmação
+    const user = await passwordRecoveryService.findUserByEmail(email);
+    if (user) {
+      await emailService.sendPasswordChangedEmail(email, user.nome_usuario);
+    }
+
+    console.log(`✅ Senha redefinida com sucesso para: ${email}`);
+
+    res.status(200).json({
+      message: "Senha redefinida com sucesso!",
+    });
+  } catch (error) {
+    console.error("❌ Erro ao redefinir senha:", error);
+    res.status(500).json({
+      error: "Erro ao redefinir senha",
+    });
+  }
+}
+
+/**
+ * Alterar senha (usuário autenticado)
+ * POST /api/v1/auth/change-password
+ */
+export async function changePassword(req: Request, res: Response): Promise<void> {
+  try {
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      res.status(401).json({
+        error: "Usuário não autenticado",
+      });
+      return;
+    }
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      res.status(400).json({
+        error: "Senha antiga, nova senha e confirmação são obrigatórias",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      res.status(400).json({
+        error: "As novas senhas não correspondem",
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({
+        error: "A senha deve ter no mínimo 6 caracteres",
+      });
+      return;
+    }
+
+    if (oldPassword === newPassword) {
+      res.status(400).json({
+        error: "A nova senha deve ser diferente da senha antiga",
+      });
+      return;
+    }
+
+    const success = await passwordRecoveryService.changePassword(userId, oldPassword, newPassword);
+
+    if (!success) {
+      res.status(400).json({
+        error: "Senha antiga incorreta",
+      });
+      return;
+    }
+
+    // Buscar usuário para enviar email de confirmação
+    const user = await findUserById(userId);
+    if (user) {
+      await emailService.sendPasswordChangedEmail(user.email, user.nome_usuario);
+    }
+
+    console.log(`✅ Senha alterada com sucesso para usuário: ${userId}`);
+
+    res.status(200).json({
+      message: "Senha alterada com sucesso!",
+    });
+  } catch (error) {
+    console.error("❌ Erro ao alterar senha:", error);
+    res.status(500).json({
+      error: "Erro ao alterar senha",
     });
   }
 }

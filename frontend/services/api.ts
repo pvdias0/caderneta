@@ -5,7 +5,7 @@
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 
-const API_URL = Constants.expoConfig?.extra?.apiUrl || "http://localhost:8080";
+const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://cadernetabackend.pvapps.com.br";
 
 // Tipos para respostas da API
 export interface ApiResponse<T = any> {
