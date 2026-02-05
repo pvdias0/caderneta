@@ -57,9 +57,10 @@ class EmailService {
             <style>
               body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
               .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-              .header { background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
+              .header { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
               .content { padding: 20px; background: #f9f9f9; margin: 20px 0; border-radius: 8px; }
-              .button { display: inline-block; background: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+              .code-box { display: block; background: #fff; padding: 20px; border-left: 4px solid #e91e63; margin: 20px 0; text-align: center; }
+              .code { font-size: 32px; font-weight: bold; color: #e91e63; letter-spacing: 5px; font-family: 'Courier New', monospace; }
               .footer { font-size: 12px; color: #999; text-align: center; padding-top: 20px; border-top: 1px solid #eee; }
               .warning { color: #d32f2f; font-size: 12px; }
             </style>
@@ -74,18 +75,16 @@ class EmailService {
               <div class="content">
                 <p>Olá <strong>${nome}</strong>,</p>
                 
-                <p>Recebemos uma solicitação para redefinir sua senha. Se foi você, clique no botão abaixo para continuar:</p>
+                <p>Recebemos uma solicitação para redefinir sua senha. Use o código abaixo para continuar:</p>
                 
-                <center>
-                  <a href="${resetLink}" class="button">Redefinir Senha</a>
-                </center>
+                <div class="code-box">
+                  <p style="margin: 0; font-size: 14px; color: #666; margin-bottom: 10px;">Código de Verificação</p>
+                  <div class="code">${resetToken}</div>
+                </div>
                 
-                <p>Ou copie e cole este link no seu navegador:</p>
-                <p style="word-break: break-all; background: #fff; padding: 10px; border-left: 4px solid #4CAF50;">
-                  ${resetLink}
-                </p>
+                <p style="text-align: center; color: #666; font-size: 14px;">Copie e cole este código no aplicativo</p>
                 
-                <p class="warning">⚠️ Este link expira em 1 hora. Se não solicitou esta recuperação, ignore este email.</p>
+                <p class="warning">⚠️ Este código expira em 1 hora. Se não solicitou esta recuperação, ignore este email.</p>
               </div>
               
               <div class="footer">
@@ -100,7 +99,7 @@ class EmailService {
       return await this.send({
         to: email,
         toName: nome,
-        subject: 'Redefinir sua senha - Caderneta',
+        subject: 'Código de recuperação de senha - Caderneta',
         htmlContent,
       });
     } catch (error) {
@@ -122,9 +121,9 @@ class EmailService {
             <style>
               body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
               .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-              .header { background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
+              .header { background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; }
               .content { padding: 20px; background: #f9f9f9; margin: 20px 0; border-radius: 8px; }
-              .success { color: #4CAF50; font-weight: bold; }
+              .success { color: #e91e63; font-weight: bold; }
               .footer { font-size: 12px; color: #999; text-align: center; padding-top: 20px; border-top: 1px solid #eee; }
             </style>
           </head>
