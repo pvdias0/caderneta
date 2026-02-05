@@ -7,6 +7,8 @@ import Constants from "expo-constants";
 
 const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://cadernetabackend.pvapps.com.br";
 
+console.log('🌐 API_URL configurada:', API_URL);
+
 // Tipos para respostas da API
 export interface ApiResponse<T = any> {
   success?: boolean;
@@ -112,12 +114,16 @@ class ApiService {
       headers["Authorization"] = `Bearer ${this.accessToken}`;
     }
 
+    console.log(`🔵 Requisição: ${method} ${url}`);
+
     try {
       const response = await fetch(url, {
         method,
         headers,
         body: data ? JSON.stringify(data) : undefined,
       });
+
+      console.log(`📡 Resposta status: ${response.status}`);
 
       const responseData = await response.json();
 
@@ -132,12 +138,12 @@ class ApiService {
       }
 
       if (!response.ok) {
-        throw new Error(responseData.error || "Erro na requisição");
+        throw new Error(responseData.error || `HTTP ${response.status}`);
       }
 
       return responseData;
-    } catch (error) {
-      console.error(`Erro em ${method} ${endpoint}:`, error);
+    } catch (error: any) {
+      console.error(`❌ Erro em ${method} ${url}:`, error.message);
       throw error;
     }
   }

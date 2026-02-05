@@ -1,10 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { Stack } from "expo-router";
+import { useRouter } from "expo-router";
 import { useAuth } from "../hooks/useAuth";
 
 const RootLayoutNav: React.FC = () => {
-  const { isLoading } = useAuth();
+  const router = useRouter();
+  const { isLoading, isSignedIn } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (isSignedIn) {
+        router.replace("/(tabs)/home");
+      } else {
+        router.replace("/(auth)/login");
+      }
+    }
+  }, [isSignedIn, isLoading, router]);
 
   if (isLoading) {
     return (

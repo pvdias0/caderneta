@@ -16,7 +16,6 @@ import {
 } from "react-native";
 import { useAuth } from "../hooks/useAuth";
 import { useRouter } from "expo-router";
-import { ForgotPasswordModal } from "../components/ForgotPasswordModal";
 
 export const LoginScreen: React.FC = () => {
   const router = useRouter();
@@ -24,7 +23,6 @@ export const LoginScreen: React.FC = () => {
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !senha) {
@@ -45,6 +43,10 @@ export const LoginScreen: React.FC = () => {
 
   const handleRegister = () => {
     router.push("register" as any);
+  };
+
+  const handleForgotPassword = () => {
+    router.push("forgot-password" as any);
   };
 
   React.useEffect(() => {
@@ -101,31 +103,22 @@ export const LoginScreen: React.FC = () => {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => setShowForgotPasswordModal(true)}
-            disabled={isLoading}
-            style={styles.forgotPasswordContainer}
-          >
-            <Text style={styles.forgotPasswordLink}>Esqueci minha senha</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity onPress={handleRegister} disabled={isLoading}>
             <Text style={styles.registerLink}>
               Não tem conta?{" "}
               <Text style={styles.registerLinkBold}>Criar agora</Text>
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleForgotPassword}
+            disabled={isLoading}
+            style={styles.forgotPasswordContainer}
+          >
+            <Text style={styles.forgotPasswordLink}>Esqueci minha senha</Text>
+          </TouchableOpacity>
         </View>
       </View>
-
-      <ForgotPasswordModal
-        visible={showForgotPasswordModal}
-        onClose={() => setShowForgotPasswordModal(false)}
-        onSuccess={() => {
-          setShowForgotPasswordModal(false);
-          Alert.alert("Sucesso", "Sua senha foi redefinida com sucesso!");
-        }}
-      />
     </KeyboardAvoidingView>
   );
 };
@@ -140,6 +133,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
+    backgroundColor: "#fff",
   },
   emoji: {
     fontSize: 48,
@@ -204,13 +198,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   forgotPasswordContainer: {
-    marginTop: 12,
-    paddingVertical: 8,
+    marginTop: 10,
+    paddingVertical: 0,
+    alignItems: "center",
   },
   forgotPasswordLink: {
-    textAlign: "center",
-    color: "#2196F3",
+    color: "#e91e63",
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "700",
   },
 });

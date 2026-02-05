@@ -205,10 +205,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const logout = useCallback(async () => {
     try {
+      console.log("🚪 Iniciando logout...");
       await apiService.logout();
+      console.log("✅ Logout realizado com sucesso");
     } catch (error) {
-      console.error("Erro ao fazer logout:", error);
+      console.error("❌ Erro ao fazer logout:", error);
     } finally {
+      console.log("📤 Limpando estado de autenticação");
       dispatch({ type: "LOGOUT" });
     }
   }, []);

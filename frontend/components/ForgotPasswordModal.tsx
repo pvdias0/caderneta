@@ -137,7 +137,11 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
+            <ScrollView 
+              showsVerticalScrollIndicator={false} 
+              style={styles.scrollView}
+              contentContainerStyle={styles.scrollViewContent}
+            >
               {/* Step 1: Email */}
               {step === 'email' && (
                 <Animated.View entering={FadeIn.duration(300)}>
@@ -366,25 +370,28 @@ const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   container: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
   content: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '90%',
-    paddingTop: 16,
+    borderRadius: 16,
+    width: '100%',
+    maxHeight: '85%',
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
@@ -398,6 +405,9 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
   },
   stepContainer: {
     padding: 24,
