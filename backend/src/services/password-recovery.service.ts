@@ -18,14 +18,19 @@ interface PasswordResetToken {
 
 class PasswordRecoveryService {
   /**
-   * Gerar token de recuperação de senha
+   * Gerar código de recuperação de 5 caracteres (letras + números)
    */
   generateResetToken(): string {
-    return crypto.randomBytes(32).toString('hex');
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 5; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
   }
 
   /**
-   * Hash do token para armazenar com segurança
+   * Hash do código para armazenar com segurança
    */
   hashToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');

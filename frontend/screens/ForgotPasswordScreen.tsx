@@ -32,6 +32,11 @@ export const ForgotPasswordScreen: React.FC = () => {
 
   const [email, setEmail] = useState("");
   const [resetToken, setResetToken] = useState("");
+  const [code1, setCode1] = useState("");
+  const [code2, setCode2] = useState("");
+  const [code3, setCode3] = useState("");
+  const [code4, setCode4] = useState("");
+  const [code5, setCode5] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -55,14 +60,22 @@ export const ForgotPasswordScreen: React.FC = () => {
   };
 
   const handleValidateToken = async () => {
-    if (!resetToken) {
-      Alert.alert("Erro", "Por favor, insira o código de verificação");
+    const fullCode = `${code1}${code2}${code3}${code4}${code5}`;
+    
+    if (!fullCode || fullCode.length !== 5) {
+      Alert.alert("Erro", "Por favor, insira todos os 5 caracteres do código");
       return;
     }
 
-    const isValid = await validateResetToken(email, resetToken);
+    const isValid = await validateResetToken(email, fullCode);
     if (!isValid) {
       Alert.alert("Erro", error || "Código inválido ou expirado");
+      // Limpar os inputs ao erro
+      setCode1("");
+      setCode2("");
+      setCode3("");
+      setCode4("");
+      setCode5("");
     }
   };
 
@@ -165,23 +178,70 @@ export const ForgotPasswordScreen: React.FC = () => {
         {/* Step 2: Verify Token */}
         {step === "verify" && (
           <View style={styles.stepContainer}>
-            <Text style={styles.emoji}>✉️</Text>
+            <Ionicons name="mail-open" size={48} color="#e91e63" style={styles.icon} />
             <Text style={styles.title}>Verifique seu email</Text>
             <Text style={styles.subtitle}>
-              Enviamos um código para {email}
+              Enviamos um código de 5 caracteres para {email}
             </Text>
 
             <Text style={styles.label}>Código de Verificação</Text>
-            <TextInput
-              style={[styles.input, error && styles.inputError]}
-              placeholder="Digite o código recebido"
-              placeholderTextColor="#ccc"
-              value={resetToken}
-              onChangeText={setResetToken}
-              editable={!loading}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
+            <View style={styles.codeInputContainer}>
+              <TextInput
+                style={styles.codeInput}
+                placeholder="-"
+                placeholderTextColor="#ccc"
+                value={code1}
+                onChangeText={(text) => setCode1(text.slice(-1).toUpperCase())}
+                editable={!loading}
+                maxLength={1}
+                keyboardType="default"
+                autoCapitalize="characters"
+              />
+              <TextInput
+                style={styles.codeInput}
+                placeholder="-"
+                placeholderTextColor="#ccc"
+                value={code2}
+                onChangeText={(text) => setCode2(text.slice(-1).toUpperCase())}
+                editable={!loading}
+                maxLength={1}
+                keyboardType="default"
+                autoCapitalize="characters"
+              />
+              <TextInput
+                style={styles.codeInput}
+                placeholder="-"
+                placeholderTextColor="#ccc"
+                value={code3}
+                onChangeText={(text) => setCode3(text.slice(-1).toUpperCase())}
+                editable={!loading}
+                maxLength={1}
+                keyboardType="default"
+                autoCapitalize="characters"
+              />
+              <TextInput
+                style={styles.codeInput}
+                placeholder="-"
+                placeholderTextColor="#ccc"
+                value={code4}
+                onChangeText={(text) => setCode4(text.slice(-1).toUpperCase())}
+                editable={!loading}
+                maxLength={1}
+                keyboardType="default"
+                autoCapitalize="characters"
+              />
+              <TextInput
+                style={styles.codeInput}
+                placeholder="-"
+                placeholderTextColor="#ccc"
+                value={code5}
+                onChangeText={(text) => setCode5(text.slice(-1).toUpperCase())}
+                editable={!loading}
+                maxLength={1}
+                keyboardType="default"
+                autoCapitalize="characters"
+              />
+            </View>
 
             {error && (
               <Text style={styles.errorText}>❌ {error}</Text>
@@ -377,6 +437,24 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: "#d32f2f",
     backgroundColor: "#ffebee",
+  },
+  codeInputContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 20,
+  },
+  codeInput: {
+    borderWidth: 2,
+    borderColor: "#e91e63",
+    borderRadius: 8,
+    width: 50,
+    height: 50,
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#e91e63",
+    textAlign: "center",
   },
   passwordInputContainer: {
     flexDirection: "row",
