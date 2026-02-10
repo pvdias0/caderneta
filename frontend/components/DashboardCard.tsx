@@ -1,18 +1,18 @@
 /**
- * Componente de Card do Dashboard
- * Exibe um estatístico com ícone, título, valor e variação
+ * Dashboard Card - Modern & Juicy
  */
 
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 export interface DashboardCardProps {
   title: string;
   value: string | number;
   icon: keyof typeof Ionicons.glyphMap;
-  variation?: number; // percentual de variação (+ ou -)
-  color?: string; // cor do ícone e borda
+  variation?: number;
+  color?: string;
 }
 
 export const DashboardCard: React.FC<DashboardCardProps> = ({
@@ -20,32 +20,45 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   value,
   icon,
   variation = 0,
-  color = "#e91e63",
+  color = Colors.primary,
 }) => {
   const isPositive = variation >= 0;
-  const trendIcon = isPositive ? "trending-up" : "trending-down";
-  const trendColor = isPositive ? "#4caf50" : "#f44336";
 
   return (
-    <View style={[styles.card, { borderLeftColor: color }]}>
-      <View style={styles.header}>
-        <View style={[styles.iconContainer, { backgroundColor: `${color}20` }]}>
-          <Ionicons name={icon} size={24} color={color} />
+    <View style={styles.card}>
+      <View style={styles.row}>
+        <View style={[styles.iconCircle, { backgroundColor: `${color}15` }]}>
+          <Ionicons name={icon} size={22} color={color} />
+        </View>
+        <View style={styles.textContent}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={[styles.value, { color }]}>{value}</Text>
         </View>
         {variation !== 0 && (
-          <View style={styles.trendContainer}>
-            <Ionicons name={trendIcon} size={16} color={trendColor} />
-            <Text style={[styles.trendText, { color: trendColor }]}>
+          <View
+            style={[
+              styles.badge,
+              {
+                backgroundColor: isPositive ? Colors.successSoft : Colors.dangerSoft,
+              },
+            ]}
+          >
+            <Ionicons
+              name={isPositive ? "trending-up" : "trending-down"}
+              size={12}
+              color={isPositive ? Colors.success : Colors.danger}
+            />
+            <Text
+              style={[
+                styles.badgeText,
+                { color: isPositive ? Colors.success : Colors.danger },
+              ]}
+            >
               {isPositive ? "+" : ""}
               {variation}%
             </Text>
           </View>
         )}
-      </View>
-
-      <View style={styles.content}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.value}>{value}</Text>
       </View>
     </View>
   );
@@ -53,50 +66,48 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderLeftWidth: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    ...Shadows.sm,
   },
-  header: {
+  row: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
   },
-  iconContainer: {
+  iconCircle: {
     width: 48,
     height: 48,
-    borderRadius: 8,
+    borderRadius: BorderRadius.md,
     justifyContent: "center",
     alignItems: "center",
+    marginRight: Spacing.lg,
   },
-  trendContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  trendText: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  content: {
-    gap: 4,
+  textContent: {
+    flex: 1,
   },
   title: {
-    fontSize: 14,
-    color: "#999",
-    fontWeight: "500",
+    fontSize: FontSize.xs,
+    color: Colors.textTertiary,
+    fontWeight: FontWeight.medium,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 2,
   },
   value: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#333",
+    fontSize: FontSize.xl,
+    fontWeight: FontWeight.bold,
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.full,
+  },
+  badgeText: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.semibold,
   },
 });

@@ -1,12 +1,12 @@
 /**
- * Card de Produto
- * Exibe informações do produto com checkbox para seleção múltipla
+ * Card de Produto - Modern & Juicy
  */
 
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { IProduto } from "../types/produto";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 export interface ProdutoCardProps {
   produto: IProduto;
@@ -30,86 +30,64 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
     }).format(value);
   };
 
-  const handleToggleSelect = () => {
-    onSelect?.(produto.id_produto, !isSelected);
-  };
-
-  const estoqueBaixo = produto.quantidade_estoque <= 5;
+  const lowStock = produto.quantidade_estoque <= 5;
 
   return (
     <TouchableOpacity
-      onPress={showCheckbox ? handleToggleSelect : undefined}
+      onPress={showCheckbox ? () => onSelect?.(produto.id_produto, !isSelected) : undefined}
       activeOpacity={showCheckbox ? 0.7 : 1}
     >
       <View style={[styles.card, isSelected && styles.cardSelected]}>
-        {/* Header com nome e checkbox */}
-        <View style={styles.cardHeader}>
+        <View style={styles.row}>
           {showCheckbox && (
             <TouchableOpacity
-              onPress={handleToggleSelect}
-              style={styles.checkboxContainer}
+              onPress={() => onSelect?.(produto.id_produto, !isSelected)}
+              style={styles.checkWrap}
             >
-              <View
-                style={[styles.checkbox, isSelected && styles.checkboxChecked]}
-              >
-                {isSelected && (
-                  <Ionicons name="checkmark" size={16} color="#fff" />
-                )}
+              <View style={[styles.checkbox, isSelected && styles.checkboxActive]}>
+                {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
               </View>
             </TouchableOpacity>
           )}
-          <View style={styles.produtoInfo}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="cube" size={40} color="#ff9800" />
-            </View>
-            <View style={styles.textContainer}>
-              <Text style={styles.nome} numberOfLines={1}>
-                {produto.nome}
-              </Text>
-              <Text style={styles.valor}>
-                {formatCurrency(produto.valor_produto)}
-              </Text>
-            </View>
+
+          <View style={styles.iconCircle}>
+            <Ionicons name="cube" size={22} color={Colors.warning} />
           </View>
+
+          <View style={styles.info}>
+            <Text style={styles.name} numberOfLines={1}>
+              {produto.nome}
+            </Text>
+            <Text style={styles.price}>{formatCurrency(produto.valor_produto)}</Text>
+          </View>
+
           {!showCheckbox && (
             <TouchableOpacity
               onPress={() => onEdit?.(produto)}
-              style={styles.editButton}
+              style={styles.editBtn}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="pencil" size={20} color="#ff9800" />
+              <Ionicons name="pencil-outline" size={18} color={Colors.textTertiary} />
             </TouchableOpacity>
           )}
         </View>
 
-        {/* Informações do produto */}
-        <View style={styles.cardContent}>
-          {/* Quantidade em Estoque */}
-          <View
-            style={[
-              styles.estoqueContainer,
-              estoqueBaixo && styles.estoqueBaixoContainer,
-            ]}
-          >
-            <View style={styles.estoqueInfo}>
-              <Ionicons
-                name={estoqueBaixo ? "alert-circle" : "checkmark-circle"}
-                size={16}
-                color={estoqueBaixo ? "#f44336" : "#4caf50"}
-              />
-              <Text style={styles.estoqueLabel}>
-                {estoqueBaixo ? "Estoque baixo" : "Estoque"}
-              </Text>
-            </View>
-            <Text
+        {/* Stock badge */}
+        <View style={[styles.stockRow, lowStock && styles.stockRowLow]}>
+          <View style={styles.stockBadge}>
+            <View
               style={[
-                styles.estoqueValue,
-                estoqueBaixo && styles.estoqueBaixoValue,
+                styles.stockDot,
+                { backgroundColor: lowStock ? Colors.danger : Colors.success },
               ]}
-            >
-              {produto.quantidade_estoque} un.
+            />
+            <Text style={styles.stockLabel}>
+              {lowStock ? "Estoque baixo" : "Em estoque"}
             </Text>
           </View>
+          <Text style={[styles.stockValue, lowStock && { color: Colors.danger }]}>
+            {produto.quantidade_estoque} un.
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -118,103 +96,96 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    marginBottom: 12,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: "#ff9800",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
   },
   cardSelected: {
-    backgroundColor: "#fff8f0",
+    backgroundColor: Colors.warningSoft,
+    borderWidth: 1.5,
+    borderColor: Colors.warning,
   },
-  cardHeader: {
+  row: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
-    gap: 12,
+    marginBottom: Spacing.md,
   },
-  checkboxContainer: {
-    padding: 4,
+  checkWrap: {
+    marginRight: Spacing.md,
   },
   checkbox: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: "#e0e0e0",
+    borderColor: Colors.border,
     justifyContent: "center",
     alignItems: "center",
   },
-  checkboxChecked: {
-    backgroundColor: "#ff9800",
-    borderColor: "#ff9800",
+  checkboxActive: {
+    backgroundColor: Colors.warning,
+    borderColor: Colors.warning,
   },
-  produtoInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  iconContainer: {
-    marginRight: 12,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  editButton: {
-    padding: 8,
+  iconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.warningSoft,
     justifyContent: "center",
     alignItems: "center",
+    marginRight: Spacing.md,
   },
-  nome: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+  info: {
+    flex: 1,
+  },
+  name: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+    color: Colors.text,
     marginBottom: 2,
   },
-  valor: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#ff9800",
+  price: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.bold,
+    color: Colors.warning,
   },
-  cardContent: {
-    gap: 8,
+  editBtn: {
+    padding: Spacing.sm,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.sm,
   },
-  estoqueContainer: {
-    backgroundColor: "#f0f7f4",
-    borderRadius: 8,
-    padding: 12,
+  stockRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderLeftWidth: 3,
-    borderLeftColor: "#4caf50",
+    backgroundColor: Colors.successSoft,
+    borderRadius: BorderRadius.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
-  estoqueBaixoContainer: {
-    backgroundColor: "#fef5f5",
-    borderLeftColor: "#f44336",
+  stockRowLow: {
+    backgroundColor: Colors.dangerSoft,
   },
-  estoqueInfo: {
+  stockBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: Spacing.sm,
   },
-  estoqueLabel: {
-    fontSize: 12,
-    color: "#666",
-    fontWeight: "500",
+  stockDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
-  estoqueValue: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#4caf50",
+  stockLabel: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    fontWeight: FontWeight.medium,
   },
-  estoqueBaixoValue: {
-    color: "#f44336",
+  stockValue: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
+    color: Colors.success,
   },
 });

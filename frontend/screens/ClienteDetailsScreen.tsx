@@ -1,6 +1,5 @@
 /**
- * Tela de Detalhes do Cliente
- * Exibe informações do cliente, movimentos, e permite criar compras e pagamentos
+ * Tela de Detalhes do Cliente - Modern & Juicy
  */
 
 import React, { useState, useEffect } from "react";
@@ -13,7 +12,10 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
+  Platform,
+  StatusBar,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { apiService } from "../services/api";
@@ -24,17 +26,12 @@ import { PagamentoModal } from "../components/PagamentoModal";
 import { CompraModal } from "../components/CompraModal";
 import { ClienteModal } from "../components/ClienteModal";
 import * as Print from "expo-print";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 const ClienteDetailsScreenComponent: React.FC = () => {
   const { id } = useLocalSearchParams();
   const clienteId = parseInt(id as string, 10);
   const router = useRouter();
-  console.log(
-    "ClienteDetailsScreen loaded - ID from params:",
-    id,
-    "Parsed:",
-    clienteId
-  );
 
   const [cliente, setCliente] = useState<ICliente | null>(null);
   const [movimentos, setMovimentos] = useState<IMovimento[]>([]);
@@ -42,16 +39,11 @@ const ClienteDetailsScreenComponent: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [processingMovimento, setProcessingMovimento] = useState(false);
 
-  // Modals
   const [showClienteModal, setShowClienteModal] = useState(false);
   const [showPagamentoModal, setShowPagamentoModal] = useState(false);
   const [showCompraModal, setShowCompraModal] = useState(false);
-  const [editingPagamento, setEditingPagamento] = useState<IMovimento | null>(
-    null
-  );
+  const [editingPagamento, setEditingPagamento] = useState<IMovimento | null>(null);
   const [editingCompra, setEditingCompra] = useState<IMovimento | null>(null);
-
-  // PDF
   const [generatingPDF, setGeneratingPDF] = useState(false);
 
   const loadData = async () => {
@@ -72,19 +64,13 @@ const ClienteDetailsScreenComponent: React.FC = () => {
   };
 
   useEffect(() => {
-    if (clienteId) {
-      loadData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (clienteId) loadData();
   }, [clienteId]);
 
   const onRefresh = async () => {
-    try {
-      setRefreshing(true);
-      await loadData();
-    } finally {
-      setRefreshing(false);
-    }
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
   };
 
   const formatCurrency = (value: number): string => {
@@ -96,32 +82,24 @@ const ClienteDetailsScreenComponent: React.FC = () => {
     }).format(value);
   };
 
-  const handleSavePagamento = async (data: {
-    valor_pagamento: number;
-    data_pagamento?: string;
-  }) => {
+  const handleSavePagamento = async (data: { valor_pagamento: number; data_pagamento?: string }) => {
     try {
       setProcessingMovimento(true);
-
       if (editingPagamento) {
-        // Editar pagamento
         await apiService.request(
           "PUT",
           `/api/v1/clientes/${clienteId}/movimentos/pagamento/${editingPagamento.id_pagamento}`,
           data
         );
-        Alert.alert("Sucesso", "Pagamento atualizado com sucesso");
+        Alert.alert("Sucesso", "Pagamento atualizado");
       } else {
-        // Criar novo pagamento
         await apiService.createPagamento(clienteId, data);
-        Alert.alert("Sucesso", "Pagamento criado com sucesso");
+        Alert.alert("Sucesso", "Pagamento criado");
       }
-
       setShowPagamentoModal(false);
       setEditingPagamento(null);
       await loadData();
     } catch (error) {
-      console.error("Erro ao salvar pagamento:", error);
       Alert.alert("Erro", "Não foi possível salvar o pagamento");
     } finally {
       setProcessingMovimento(false);
@@ -130,34 +108,25 @@ const ClienteDetailsScreenComponent: React.FC = () => {
 
   const handleSaveCompra = async (data: {
     data_compra: string;
-    itens: {
-      id_produto: number;
-      quantidade: number;
-      valor_unitario: number;
-    }[];
+    itens: { id_produto: number; quantidade: number; valor_unitario: number }[];
   }) => {
     try {
       setProcessingMovimento(true);
-
       if (editingCompra) {
-        // Editar compra com itens
         await apiService.request(
           "PUT",
           `/api/v1/clientes/${clienteId}/movimentos/compra/${editingCompra.id_compra}/com-`,
           data
         );
-        Alert.alert("Sucesso", "Compra atualizada com sucesso");
+        Alert.alert("Sucesso", "Compra atualizada");
       } else {
-        // Criar nova compra com itens
         await apiService.createCompraComItens(clienteId, data);
-        Alert.alert("Sucesso", "Compra criada com sucesso");
+        Alert.alert("Sucesso", "Compra criada");
       }
-
       setShowCompraModal(false);
       setEditingCompra(null);
       await loadData();
     } catch (error) {
-      console.error("Erro ao salvar compra:", error);
       Alert.alert("Erro", "Não foi possível salvar a compra");
     } finally {
       setProcessingMovimento(false);
@@ -167,24 +136,15 @@ const ClienteDetailsScreenComponent: React.FC = () => {
   const handleDeleteMovimento = async (movimento: IMovimento) => {
     try {
       setProcessingMovimento(true);
-
       if (movimento.tipo === "COMPRA" && movimento.id_compra) {
-        await apiService.request(
-          "DELETE",
-          `/api/v1/clientes/${clienteId}/movimentos/compra/${movimento.id_compra}`
-        );
+        await apiService.request("DELETE", `/api/v1/clientes/${clienteId}/movimentos/compra/${movimento.id_compra}`);
       } else if (movimento.tipo === "PAGAMENTO" && movimento.id_pagamento) {
-        await apiService.request(
-          "DELETE",
-          `/api/v1/clientes/${clienteId}/movimentos/pagamento/${movimento.id_pagamento}`
-        );
+        await apiService.request("DELETE", `/api/v1/clientes/${clienteId}/movimentos/pagamento/${movimento.id_pagamento}`);
       }
-
-      Alert.alert("Sucesso", "Movimento deletado com sucesso");
+      Alert.alert("Sucesso", "Movimento deletado");
       await loadData();
     } catch (error) {
-      console.error("Erro ao deletar movimento:", error);
-      Alert.alert("Erro", "Não foi possível deletar o movimento");
+      Alert.alert("Erro", "Não foi possível deletar");
     } finally {
       setProcessingMovimento(false);
     }
@@ -202,172 +162,145 @@ const ClienteDetailsScreenComponent: React.FC = () => {
 
   const generateExtratoPDF = async () => {
     if (!cliente) return;
-
     try {
       setGeneratingPDF(true);
-
-      // Baixar PDF do backend
       const pdfBlob = await apiService.gerarExtratoCliente(clienteId);
-
-      // Converter blob para base64 URI
       const reader = new FileReader();
       reader.readAsDataURL(pdfBlob);
-
       reader.onloadend = async () => {
         try {
-          const uri = reader.result as string;
-
-          // Exibir com Print
-          await Print.printAsync({
-            uri,
-          });
-
-          Alert.alert("Sucesso", "Extrato gerado com sucesso!");
-        } catch (error) {
-          console.error("Erro ao exibir PDF:", error);
+          await Print.printAsync({ uri: reader.result as string });
+          Alert.alert("Sucesso", "Extrato gerado!");
+        } catch {
           Alert.alert("Erro", "Não foi possível exibir o extrato");
         } finally {
           setGeneratingPDF(false);
         }
       };
-    } catch (error) {
-      console.error("Erro ao gerar extrato:", error);
+    } catch {
       Alert.alert("Erro", "Não foi possível gerar o extrato");
       setGeneratingPDF(false);
     }
   };
 
-
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#e91e63" />
+      <View style={styles.centerBox}>
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
   if (!cliente) {
     return (
-      <View style={styles.container}>
+      <View style={styles.centerBox}>
+        <Ionicons name="alert-circle-outline" size={48} color={Colors.textTertiary} />
         <Text style={styles.errorText}>Cliente não encontrado</Text>
       </View>
     );
   }
 
+  const initial = (cliente.nome || "?").charAt(0).toUpperCase();
+  const hasDebt = cliente.saldo_devedor > 0;
+
   return (
     <View style={styles.container}>
-      {/* Cliente Info Card */}
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryDark} />
+
       <ScrollView
-        style={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />}
       >
-        <View style={styles.clienteCard}>
-          <View style={styles.cardHeader}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="#e91e63" />
+        {/* Profile Header */}
+        <LinearGradient
+          colors={[...Colors.gradientPrimary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
+        >
+          <View style={styles.headerNav}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.navBtn}>
+              <Ionicons name="arrow-back" size={22} color="#fff" />
             </TouchableOpacity>
-            <View style={styles.avatarContainer}>
-              <Ionicons name="person-circle" size={60} color="#e91e63" />
-            </View>
-            <View
-              style={[
-                styles.clienteInfoContent,
-                !cliente.email &&
-                  !cliente.telefone &&
-                  styles.clienteInfoContentCentered,
-              ]}
-            >
-              <Text style={styles.clienteName}>{cliente.nome}</Text>
-              <Text style={styles.clienteEmail}>{cliente.email}</Text>
-              {cliente.telefone && (
-                <Text style={styles.clientePhone}>{cliente.telefone}</Text>
-              )}
-            </View>
-          </View>
-
-          {/* Saldo */}
-          <View style={styles.saldoContainer}>
-            <View style={styles.saldoBox}>
-              <Text style={styles.saldoLabel}>Saldo Devedor</Text>
-              <Text
-                style={[
-                  styles.saldoValue,
-                  cliente.saldo_devedor > 0 && styles.saldoPositivo,
-                ]}
-              >
-                {formatCurrency(cliente.saldo_devedor)}
-              </Text>
-            </View>
-          </View>
-
-          {/* Botões de ação */}
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => setShowClienteModal(true)}
-            >
-              <Ionicons name="pencil" size={20} color="#e91e63" />
-              <Text style={styles.actionButtonText}>Editar</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => {
-                setEditingCompra(null);
-                setShowCompraModal(true);
-              }}
-            >
-              <Ionicons name="cart" size={20} color="#e91e63" />
-              <Text style={styles.actionButtonText}>Compra</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => {
-                setEditingPagamento(null);
-                setShowPagamentoModal(true);
-              }}
-            >
-              <Ionicons name="cash" size={20} color="#e91e63" />
-              <Text style={styles.actionButtonText}>Pagamento</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={generateExtratoPDF}
-              disabled={generatingPDF}
-            >
-              <Ionicons name="document" size={20} color="#e91e63" />
-              <Text style={styles.actionButtonText}>
-                {generatingPDF ? "..." : "PDF"}
-              </Text>
+            <TouchableOpacity onPress={() => setShowClienteModal(true)} style={styles.navBtn}>
+              <Ionicons name="create-outline" size={22} color="#fff" />
             </TouchableOpacity>
           </View>
+
+          <View style={styles.profileCenter}>
+            <View style={styles.avatarLarge}>
+              <Text style={styles.avatarLargeText}>{initial}</Text>
+            </View>
+            <Text style={styles.profileName}>{cliente.nome}</Text>
+            {cliente.email && <Text style={styles.profileDetail}>{cliente.email}</Text>}
+            {cliente.telefone && <Text style={styles.profileDetail}>{cliente.telefone}</Text>}
+          </View>
+
+          {/* Saldo Card */}
+          <View style={styles.saldoCard}>
+            <Text style={styles.saldoLabel}>Saldo Devedor</Text>
+            <Text style={[styles.saldoValue, hasDebt && { color: Colors.primary }]}>
+              {formatCurrency(cliente.saldo_devedor)}
+            </Text>
+          </View>
+        </LinearGradient>
+
+        {/* Action Buttons */}
+        <View style={styles.actionsRow}>
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={() => { setEditingCompra(null); setShowCompraModal(true); }}
+          >
+            <View style={[styles.actionCircle, { backgroundColor: Colors.dangerSoft }]}>
+              <Ionicons name="cart" size={20} color={Colors.danger} />
+            </View>
+            <Text style={styles.actionLabel}>Compra</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={() => { setEditingPagamento(null); setShowPagamentoModal(true); }}
+          >
+            <View style={[styles.actionCircle, { backgroundColor: Colors.successSoft }]}>
+              <Ionicons name="cash" size={20} color={Colors.success} />
+            </View>
+            <Text style={styles.actionLabel}>Pagamento</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionItem}
+            onPress={generateExtratoPDF}
+            disabled={generatingPDF}
+          >
+            <View style={[styles.actionCircle, { backgroundColor: Colors.infoSoft }]}>
+              <Ionicons name="document-text" size={20} color={Colors.info} />
+            </View>
+            <Text style={styles.actionLabel}>{generatingPDF ? "..." : "Extrato"}</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Movimentos Section */}
-        <View style={styles.movimentosSection}>
+        {/* Movimentos */}
+        <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="list" size={20} color="#e91e63" />
             <Text style={styles.sectionTitle}>Movimentos</Text>
             {movimentos.length > 0 && (
-              <Text style={styles.sectionSubtitle}>({movimentos.length})</Text>
+              <View style={styles.countBadge}>
+                <Text style={styles.countText}>{movimentos.length}</Text>
+              </View>
             )}
           </View>
 
           {movimentos.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Ionicons name="receipt" size={48} color="#ccc" />
+            <View style={styles.emptyBox}>
+              <Ionicons name="receipt-outline" size={48} color={Colors.border} />
               <Text style={styles.emptyText}>Nenhum movimento registrado</Text>
             </View>
           ) : (
-            <View style={styles.movimentosList}>
-              {movimentos.map((movimento, index) => (
+            <View style={styles.movList}>
+              {movimentos.map((mov, i) => (
                 <MovimentoCard
-                  key={index}
-                  movimento={movimento}
+                  key={i}
+                  movimento={mov}
                   onEdit={handleEditMovimento}
                   onDelete={handleDeleteMovimento}
                 />
@@ -382,30 +315,19 @@ const ClienteDetailsScreenComponent: React.FC = () => {
         visible={showClienteModal}
         cliente={cliente}
         onClose={() => setShowClienteModal(false)}
-        onSuccess={() => {
-          setShowClienteModal(false);
-          loadData();
-        }}
+        onSuccess={() => { setShowClienteModal(false); loadData(); }}
       />
-
       <PagamentoModal
         visible={showPagamentoModal}
         pagamento={editingPagamento || undefined}
-        onClose={() => {
-          setShowPagamentoModal(false);
-          setEditingPagamento(null);
-        }}
+        onClose={() => { setShowPagamentoModal(false); setEditingPagamento(null); }}
         onSave={handleSavePagamento}
         loading={processingMovimento}
       />
-
       <CompraModal
         visible={showCompraModal}
         compra={editingCompra || undefined}
-        onClose={() => {
-          setShowCompraModal(false);
-          setEditingCompra(null);
-        }}
+        onClose={() => { setShowCompraModal(false); setEditingCompra(null); }}
         onSave={handleSaveCompra}
         loading={processingMovimento}
       />
@@ -416,143 +338,145 @@ const ClienteDetailsScreenComponent: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.background,
   },
-  topHeader: {
+  centerBox: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.background,
+    gap: Spacing.md,
+  },
+  errorText: {
+    fontSize: FontSize.md,
+    color: Colors.textTertiary,
+  },
+  header: {
+    paddingTop: Platform.OS === "ios" ? 60 : 48,
+    paddingBottom: Spacing.xxl,
+    paddingHorizontal: Spacing.xl,
+    borderBottomLeftRadius: BorderRadius.xxl,
+    borderBottomRightRadius: BorderRadius.xxl,
+  },
+  headerNav: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginBottom: Spacing.xl,
+  },
+  navBtn: {
+    padding: Spacing.sm,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: BorderRadius.sm,
+  },
+  profileCenter: {
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    marginBottom: Spacing.xl,
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
-    flex: 1,
-    textAlign: "center",
-  },
-  content: {
-    flex: 1,
-  },
-  clienteCard: {
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-    padding: 16,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 20,
-    gap: 16,
-  },
-  avatarContainer: {
-    marginTop: 4,
-  },
-  clienteInfoContent: {
-    flex: 1,
-  },
-  clienteInfoContentCentered: {
+  avatarLarge: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "rgba(255,255,255,0.25)",
     justifyContent: "center",
-  },
-  clienteName: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
-    marginBottom: 4,
-  },
-  clienteEmail: {
-    fontSize: 13,
-    color: "#666",
-    marginBottom: 2,
-  },
-  clientePhone: {
-    fontSize: 13,
-    color: "#999",
-  },
-  saldoContainer: {
-    marginBottom: 16,
-  },
-  saldoBox: {
-    backgroundColor: "#f5f5f5",
-    borderRadius: 12,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: "#e91e63",
     alignItems: "center",
+    marginBottom: Spacing.md,
+  },
+  avatarLargeText: {
+    fontSize: FontSize.xxl,
+    fontWeight: FontWeight.bold,
+    color: Colors.textInverse,
+  },
+  profileName: {
+    fontSize: FontSize.xl,
+    fontWeight: FontWeight.bold,
+    color: Colors.textInverse,
+    marginBottom: Spacing.xs,
+  },
+  profileDetail: {
+    fontSize: FontSize.sm,
+    color: "rgba(255,255,255,0.8)",
+  },
+  saldoCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.xl,
+    alignItems: "center",
+    ...Shadows.lg,
   },
   saldoLabel: {
-    fontSize: 12,
-    color: "#999",
-    fontWeight: "500",
-    marginBottom: 4,
+    fontSize: FontSize.xs,
+    color: Colors.textTertiary,
+    fontWeight: FontWeight.medium,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: Spacing.xs,
   },
   saldoValue: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#e91e63",
+    fontSize: FontSize.xxxl,
+    fontWeight: FontWeight.heavy,
+    color: Colors.textSecondary,
+    letterSpacing: -0.5,
   },
-  saldoPositivo: {
-    color: "#e91e63",
-  },
-  actionButtons: {
+  actionsRow: {
     flexDirection: "row",
-    gap: 12,
-    justifyContent: "space-between",
+    justifyContent: "center",
+    gap: Spacing.xxxl,
+    paddingVertical: Spacing.xl,
+    marginTop: -Spacing.md,
   },
-  actionButton: {
-    flex: 1,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-    paddingVertical: 12,
+  actionItem: {
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
+    gap: Spacing.sm,
   },
-  actionButtonText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#333",
-    marginTop: 4,
+  actionCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  movimentosSection: {
-    padding: 16,
+  actionLabel: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textSecondary,
+  },
+  section: {
+    paddingHorizontal: Spacing.xl,
+    paddingBottom: Spacing.huge,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
-    gap: 8,
+    gap: Spacing.sm,
+    marginBottom: Spacing.lg,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#333",
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
   },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: "#999",
+  countBadge: {
+    backgroundColor: Colors.primarySoft,
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 2,
   },
-  movimentosList: {
-    gap: 12,
+  countText: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.bold,
+    color: Colors.primary,
   },
-  emptyContainer: {
+  emptyBox: {
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 40,
+    paddingVertical: Spacing.huge,
+    gap: Spacing.md,
   },
   emptyText: {
-    fontSize: 14,
-    color: "#999",
-    marginTop: 12,
+    fontSize: FontSize.md,
+    color: Colors.textTertiary,
   },
-  errorText: {
-    fontSize: 16,
-    color: "#f44336",
+  movList: {
+    gap: Spacing.xs,
   },
 });
 

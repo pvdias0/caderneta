@@ -1,12 +1,12 @@
 /**
- * Card de Movimento (Compra/Pagamento)
- * Exibe informações do movimento com opções de editar e deletar
+ * Card de Movimento (Compra/Pagamento) - Modern & Juicy
  */
 
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { IMovimento } from "../types/movimento";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 export interface MovimentoCardProps {
   movimento: IMovimento;
@@ -27,17 +27,18 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
   };
 
   const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
     return new Intl.DateTimeFormat("pt-BR", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
-    }).format(date);
+    }).format(new Date(dateString));
   };
 
   const isCompra = movimento.tipo === "COMPRA";
-  const iColor = isCompra ? "#f44336" : "#4caf50";
+  const typeColor = isCompra ? Colors.danger : Colors.success;
+  const typeBg = isCompra ? Colors.dangerSoft : Colors.successSoft;
   const typeLabel = isCompra ? "Compra" : "Pagamento";
+  const typeIcon = isCompra ? "cart" : "cash";
 
   const handleDelete = () => {
     Alert.alert(
@@ -56,174 +57,141 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
 
   return (
     <View style={styles.card}>
-      {/* Header: tipo e data */}
-      <View style={styles.cardHeader}>
-        <View style={styles.typeContainer}>
-          <View style={[styles.typeIcon, { backgroundColor: iColor }]}>
-            <Ionicons
-              name={isCompra ? "cart" : "cash"}
-              size={16}
-              color="#fff"
-            />
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.typeRow}>
+          <View style={[styles.typeBadge, { backgroundColor: typeBg }]}>
+            <Ionicons name={typeIcon as any} size={14} color={typeColor} />
+            <Text style={[styles.typeText, { color: typeColor }]}>{typeLabel}</Text>
           </View>
-          <View>
-            <Text style={styles.typeLabel}>{typeLabel}</Text>
-            <Text style={styles.dateText}>
-              {formatDate(movimento.data_movimento)}
-            </Text>
-          </View>
+          <Text style={styles.dateText}>{formatDate(movimento.data_movimento)}</Text>
         </View>
 
-        {/* Botões de ação */}
-        <View style={styles.actionButtons}>
+        <View style={styles.actions}>
           {onEdit && (
-            <TouchableOpacity
-              onPress={() => onEdit(movimento)}
-              style={styles.actionButton}
-            >
-              <Ionicons name="pencil" size={18} color="#1976d2" />
+            <TouchableOpacity onPress={() => onEdit(movimento)} style={styles.actionBtn}>
+              <Ionicons name="create-outline" size={16} color={Colors.info} />
             </TouchableOpacity>
           )}
           {onDelete && (
-            <TouchableOpacity
-              onPress={handleDelete}
-              style={styles.actionButton}
-            >
-              <Ionicons name="trash" size={18} color="#f44336" />
+            <TouchableOpacity onPress={handleDelete} style={styles.actionBtn}>
+              <Ionicons name="trash-outline" size={16} color={Colors.danger} />
             </TouchableOpacity>
           )}
         </View>
       </View>
 
-      {/* Detalhes */}
-      <View style={styles.cardContent}>
-        {/* Valor */}
-        <View style={styles.valueRow}>
-          <Text style={styles.valueLabel}>Valor</Text>
-          <Text style={[styles.valueAmount, { color: iColor }]}>
-            {formatCurrency(movimento.valor)}
-          </Text>
-        </View>
-
-        {/* Itens da compra (se houver) */}
-        {isCompra && movimento.itens && movimento.itens.length > 0 && (
-          <View style={styles.itensContainer}>
-            <Text style={styles.itensTitle}>
-              {movimento.itens.length} item
-              {movimento.itens.length !== 1 ? "ns" : ""}
-            </Text>
-            {movimento.itens.map((item, index) => (
-              <View key={index} style={styles.itemRow}>
-                <Text style={styles.itemText} numberOfLines={1}>
-                  • {item.nome_produto || `Produto ${item.id_produto}`}
-                </Text>
-                <Text style={styles.itemText}>
-                  {item.quantidade}x {formatCurrency(item.valor_unitario)}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
+      {/* Value */}
+      <View style={styles.valueRow}>
+        <Text style={styles.valueLabel}>Valor</Text>
+        <Text style={[styles.valueAmount, { color: typeColor }]}>
+          {isCompra ? "- " : "+ "}
+          {formatCurrency(movimento.valor)}
+        </Text>
       </View>
+
+      {/* Items */}
+      {isCompra && movimento.itens && movimento.itens.length > 0 && (
+        <View style={styles.itemsBox}>
+          {movimento.itens.map((item, index) => (
+            <View key={index} style={styles.itemRow}>
+              <Text style={styles.itemName} numberOfLines={1}>
+                {item.nome_produto || `Produto ${item.id_produto}`}
+              </Text>
+              <Text style={styles.itemQty}>
+                {Math.round(item.quantidade)} x {formatCurrency(item.valor_unitario)}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    marginBottom: 12,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: "#e91e63",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
   },
-  cardHeader: {
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
-  typeContainer: {
+  typeRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    flex: 1,
+    gap: Spacing.md,
   },
-  typeIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    justifyContent: "center",
+  typeBadge: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.full,
   },
-  typeLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 2,
+  typeText: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.semibold,
   },
   dateText: {
-    fontSize: 12,
-    color: "#999",
+    fontSize: FontSize.xs,
+    color: Colors.textTertiary,
   },
-  actionButtons: {
+  actions: {
     flexDirection: "row",
-    gap: 8,
+    gap: Spacing.xs,
   },
-  actionButton: {
-    padding: 8,
-    borderRadius: 6,
-    backgroundColor: "#f5f5f5",
-  },
-  cardContent: {
-    gap: 12,
+  actionBtn: {
+    padding: Spacing.sm,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.sm,
   },
   valueRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#f9f9f9",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 8,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   valueLabel: {
-    fontSize: 12,
-    color: "#999",
-    fontWeight: "500",
+    fontSize: FontSize.sm,
+    color: Colors.textTertiary,
+    fontWeight: FontWeight.medium,
   },
   valueAmount: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
   },
-  itensContainer: {
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    padding: 12,
-    borderLeftWidth: 3,
-    borderLeftColor: "#ff9800",
-  },
-  itensTitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#666",
-    marginBottom: 8,
+  itemsBox: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    paddingTop: Spacing.md,
+    gap: Spacing.sm,
   },
   itemRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 4,
-    gap: 8,
   },
-  itemText: {
-    fontSize: 12,
-    color: "#666",
+  itemName: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    flex: 1,
+    marginRight: Spacing.md,
+  },
+  itemQty: {
+    fontSize: FontSize.sm,
+    color: Colors.textTertiary,
+    fontWeight: FontWeight.medium,
   },
 });

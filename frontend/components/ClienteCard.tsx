@@ -1,12 +1,12 @@
 /**
- * Card de Cliente
- * Exibe informações do cliente com checkbox para seleção múltipla
+ * Card de Cliente - Modern & Juicy
  */
 
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ICliente } from "../types/cliente";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 export interface ClienteCardProps {
   cliente: ICliente;
@@ -28,62 +28,47 @@ export const ClienteCard: React.FC<ClienteCardProps> = ({
     }).format(value);
   };
 
-  const handleToggleSelect = () => {
-    onSelect?.(cliente.id_cliente, !isSelected);
-  };
+  const hasDebt = cliente.saldo_devedor > 0;
+  const initial = (cliente.nome || "?").charAt(0).toUpperCase();
 
   return (
     <View style={[styles.card, isSelected && styles.cardSelected]}>
-      {/* Header com nome e checkbox */}
-      <View style={styles.cardHeader}>
+      <View style={styles.row}>
         {showCheckbox && (
           <TouchableOpacity
-            onPress={handleToggleSelect}
-            style={styles.checkboxContainer}
+            onPress={() => onSelect?.(cliente.id_cliente, !isSelected)}
+            style={styles.checkWrap}
           >
-            <View
-              style={[styles.checkbox, isSelected && styles.checkboxChecked]}
-            >
-              {isSelected && (
-                <Ionicons name="checkmark" size={16} color="#fff" />
-              )}
+            <View style={[styles.checkbox, isSelected && styles.checkboxActive]}>
+              {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
             </View>
           </TouchableOpacity>
         )}
-        <View style={styles.clienteInfo}>
-          <View style={styles.avatarContainer}>
-            <Ionicons name="person-circle" size={40} color="#e91e63" />
-          </View>
-          <View style={styles.textContainer}>
-            <Text style={styles.nome} numberOfLines={1}>
-              {cliente.nome}
-            </Text>
-            <Text style={styles.email} numberOfLines={1}>
+
+        <View style={[styles.avatar, hasDebt && styles.avatarDebt]}>
+          <Text style={[styles.avatarText, hasDebt && styles.avatarTextDebt]}>
+            {initial}
+          </Text>
+        </View>
+
+        <View style={styles.info}>
+          <Text style={styles.name} numberOfLines={1}>
+            {cliente.nome}
+          </Text>
+          {cliente.email ? (
+            <Text style={styles.detail} numberOfLines={1}>
               {cliente.email}
             </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Informações do cliente */}
-      <View style={styles.cardContent}>
-        {/* Telefone */}
-        <View style={styles.infoRow}>
-          <Ionicons name="call" size={14} color="#999" />
-          <Text style={styles.infoText}>{cliente.telefone || "N/A"}</Text>
+          ) : cliente.telefone ? (
+            <Text style={styles.detail}>{cliente.telefone}</Text>
+          ) : null}
         </View>
 
-        {/* Saldo Devedor */}
-        <View style={styles.saldoContainer}>
-          <Text style={styles.saldoLabel}>Saldo Devedor</Text>
-          <Text
-            style={[
-              styles.saldoValue,
-              cliente.saldo_devedor > 0 && styles.saldoPositivo,
-            ]}
-          >
+        <View style={styles.saldoBox}>
+          <Text style={[styles.saldoValue, hasDebt && styles.saldoDebt]}>
             {formatCurrency(cliente.saldo_devedor)}
           </Text>
+          <Text style={styles.saldoLabel}>saldo</Text>
         </View>
       </View>
     </View>
@@ -92,97 +77,86 @@ export const ClienteCard: React.FC<ClienteCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    marginBottom: 12,
-    padding: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: "#e91e63",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
   },
   cardSelected: {
-    backgroundColor: "#fff3f7",
+    backgroundColor: Colors.primarySoft,
+    borderWidth: 1.5,
+    borderColor: Colors.primaryLight,
   },
-  cardHeader: {
+  row: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
-    gap: 12,
   },
-  checkboxContainer: {
-    padding: 4,
+  checkWrap: {
+    marginRight: Spacing.md,
   },
   checkbox: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: "#e0e0e0",
+    borderColor: Colors.border,
     justifyContent: "center",
     alignItems: "center",
   },
-  checkboxChecked: {
-    backgroundColor: "#e91e63",
-    borderColor: "#e91e63",
+  checkboxActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
-  clienteInfo: {
-    flexDirection: "row",
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.background,
+    justifyContent: "center",
     alignItems: "center",
+    marginRight: Spacing.md,
+  },
+  avatarDebt: {
+    backgroundColor: Colors.primarySoft,
+  },
+  avatarText: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Colors.textSecondary,
+  },
+  avatarTextDebt: {
+    color: Colors.primary,
+  },
+  info: {
     flex: 1,
+    marginRight: Spacing.md,
   },
-  avatarContainer: {
-    marginRight: 12,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  nome: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+  name: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+    color: Colors.text,
     marginBottom: 2,
   },
-  email: {
-    fontSize: 12,
-    color: "#999",
+  detail: {
+    fontSize: FontSize.sm,
+    color: Colors.textTertiary,
   },
-  cardContent: {
-    gap: 8,
-  },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  infoText: {
-    fontSize: 13,
-    color: "#666",
-  },
-  saldoContainer: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
-    padding: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderLeftWidth: 3,
-    borderLeftColor: "#e91e63",
-  },
-  saldoLabel: {
-    fontSize: 12,
-    color: "#999",
-    fontWeight: "500",
+  saldoBox: {
+    alignItems: "flex-end",
   },
   saldoValue: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#e91e63",
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.bold,
+    color: Colors.textSecondary,
   },
-  saldoPositivo: {
-    color: "#e91e63",
+  saldoDebt: {
+    color: Colors.primary,
+  },
+  saldoLabel: {
+    fontSize: FontSize.xs,
+    color: Colors.textTertiary,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
 });

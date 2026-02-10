@@ -1,8 +1,8 @@
 /**
- * Tela de Login
+ * Tela de Login - Modern & Juicy
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -13,9 +13,14 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Animated,
+  StatusBar,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../hooks/useAuth";
 import { useRouter } from "expo-router";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 export const LoginScreen: React.FC = () => {
   const router = useRouter();
@@ -23,33 +28,52 @@ export const LoginScreen: React.FC = () => {
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [senhaFocused, setSenhaFocused] = useState(false);
+
+  // Animations
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const logoScale = useRef(new Animated.Value(0.8)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.spring(logoScale, {
+        toValue: 1,
+        friction: 6,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const handleLogin = async () => {
     if (!email || !senha) {
       Alert.alert("Erro", "Por favor, preencha todos os campos");
       return;
     }
-
     try {
       await login(email, senha);
-      // Navegação é feita automaticamente via Expo Router quando isSignedIn muda
-    } catch (error) {
+    } catch (err) {
       Alert.alert(
         "Erro de Login",
-        error instanceof Error ? error.message : "Erro desconhecido"
+        err instanceof Error ? err.message : "Erro desconhecido"
       );
     }
   };
 
-  const handleRegister = () => {
-    router.push("register" as any);
-  };
-
-  const handleForgotPassword = () => {
-    router.push("forgot-password" as any);
-  };
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
       Alert.alert("Erro", error);
       clearError();
@@ -57,154 +81,282 @@ export const LoginScreen: React.FC = () => {
   }, [error, clearError]);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <View style={styles.content}>
-        <Text style={styles.emoji}>📚</Text>
-        <Text style={styles.title}>Caderneta</Text>
-        <Text style={styles.subtitle}>Sistema de Fiado Digitalizado</Text>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryDark} />
 
-        <View style={styles.formContainer}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="seu@email.com"
-            placeholderTextColor="#ccc"
-            value={email}
-            onChangeText={setEmail}
-            editable={!isLoading}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+      {/* Gradient Hero */}
+      <LinearGradient
+        colors={[...Colors.gradientPrimary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.hero}
+      >
+        <Animated.View
+          style={[styles.logoContainer, { transform: [{ scale: logoScale }] }]}
+        >
+          <View style={styles.logoCircle}>
+            <Ionicons name="book" size={36} color={Colors.primary} />
+          </View>
+        </Animated.View>
+        <Animated.Text style={[styles.heroTitle, { opacity: fadeAnim }]}>
+          Caderneta
+        </Animated.Text>
+        <Animated.Text style={[styles.heroSubtitle, { opacity: fadeAnim }]}>
+          Fiado digitalizado, simples e rápido
+        </Animated.Text>
+      </LinearGradient>
 
-          <Text style={styles.label}>Senha</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="••••••••"
-            placeholderTextColor="#ccc"
-            value={senha}
-            onChangeText={setSenha}
-            editable={!isLoading}
-            secureTextEntry
-          />
+      {/* Form Card */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.formWrapper}
+      >
+        <Animated.View
+          style={[
+            styles.formCard,
+            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+          ]}
+        >
+          {/* Email */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Email</Text>
+            <View
+              style={[
+                styles.inputContainer,
+                emailFocused && styles.inputFocused,
+              ]}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color={emailFocused ? Colors.primary : Colors.textTertiary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="seu@email.com"
+                placeholderTextColor={Colors.textTertiary}
+                value={email}
+                onChangeText={setEmail}
+                editable={!isLoading}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
+              />
+            </View>
+          </View>
 
+          {/* Senha */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Senha</Text>
+            <View
+              style={[
+                styles.inputContainer,
+                senhaFocused && styles.inputFocused,
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color={senhaFocused ? Colors.primary : Colors.textTertiary}
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="••••••••"
+                placeholderTextColor={Colors.textTertiary}
+                value={senha}
+                onChangeText={setSenha}
+                editable={!isLoading}
+                secureTextEntry={!showPassword}
+                onFocus={() => setSenhaFocused(true)}
+                onBlur={() => setSenhaFocused(false)}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={Colors.textTertiary}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Forgot Password */}
           <TouchableOpacity
-            style={[styles.button, isLoading && styles.buttonDisabled]}
+            onPress={() => router.push("forgot-password" as any)}
+            disabled={isLoading}
+            style={styles.forgotContainer}
+          >
+            <Text style={styles.forgotText}>Esqueci minha senha</Text>
+          </TouchableOpacity>
+
+          {/* Login Button */}
+          <TouchableOpacity
             onPress={handleLogin}
             disabled={isLoading}
+            activeOpacity={0.85}
+            style={styles.buttonWrapper}
           >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Entrar</Text>
-            )}
+            <LinearGradient
+              colors={
+                isLoading
+                  ? [Colors.textTertiary, Colors.textTertiary]
+                  : [...Colors.gradientPrimary]
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.button}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Text style={styles.buttonText}>Entrar</Text>
+                  <Ionicons name="arrow-forward" size={20} color="#fff" />
+                </>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleRegister} disabled={isLoading}>
-            <Text style={styles.registerLink}>
-              Não tem conta?{" "}
-              <Text style={styles.registerLinkBold}>Criar agora</Text>
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handleForgotPassword}
-            disabled={isLoading}
-            style={styles.forgotPasswordContainer}
-          >
-            <Text style={styles.forgotPasswordLink}>Esqueci minha senha</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </KeyboardAvoidingView>
+          {/* Register */}
+          <View style={styles.registerRow}>
+            <Text style={styles.registerText}>Não tem conta? </Text>
+            <TouchableOpacity
+              onPress={() => router.push("register" as any)}
+              disabled={isLoading}
+            >
+              <Text style={styles.registerLink}>Criar agora</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.background,
   },
-  content: {
-    flex: 1,
+  hero: {
+    paddingTop: Platform.OS === "ios" ? 70 : 56,
+    paddingBottom: 48,
+    alignItems: "center",
+    borderBottomLeftRadius: BorderRadius.xxl,
+    borderBottomRightRadius: BorderRadius.xxl,
+  },
+  logoContainer: {
+    marginBottom: Spacing.lg,
+  },
+  logoCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.surface,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
-    backgroundColor: "#fff",
+    ...Shadows.lg,
   },
-  emoji: {
-    fontSize: 48,
-    marginBottom: 16,
-    textAlign: "center",
+  heroTitle: {
+    fontSize: FontSize.xxxl,
+    fontWeight: FontWeight.heavy,
+    color: Colors.textInverse,
+    letterSpacing: -0.5,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 8,
-    textAlign: "center",
+  heroSubtitle: {
+    fontSize: FontSize.md,
+    color: "rgba(255,255,255,0.8)",
+    marginTop: Spacing.xs,
   },
-  subtitle: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 40,
-    textAlign: "center",
+  formWrapper: {
+    flex: 1,
+    marginTop: -Spacing.xl,
   },
-  formContainer: {
-    width: "100%",
-    maxWidth: 400,
+  formCard: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+    marginHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xxl,
+    ...Shadows.lg,
+  },
+  inputGroup: {
+    marginBottom: Spacing.lg,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 8,
-    color: "#333",
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.semibold,
+    color: Colors.text,
+    marginBottom: Spacing.sm,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.lg,
+    borderWidth: 1.5,
+    borderColor: "transparent",
+  },
+  inputFocused: {
+    borderColor: Colors.primaryLight,
+    backgroundColor: Colors.primarySoft,
+  },
+  inputIcon: {
+    marginRight: Spacing.md,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    marginBottom: 16,
-    fontSize: 14,
-    color: "#333",
+    flex: 1,
+    paddingVertical: Platform.OS === "ios" ? 16 : 14,
+    fontSize: FontSize.md,
+    color: Colors.text,
+  },
+  forgotContainer: {
+    alignSelf: "flex-end",
+    marginBottom: Spacing.xxl,
+  },
+  forgotText: {
+    fontSize: FontSize.sm,
+    color: Colors.primary,
+    fontWeight: FontWeight.medium,
+  },
+  buttonWrapper: {
+    borderRadius: BorderRadius.md,
+    overflow: "hidden",
+    ...Shadows.button,
+    marginBottom: Spacing.xxl,
   },
   button: {
-    backgroundColor: "#e91e63",
-    paddingVertical: 12,
-    borderRadius: 8,
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
+    justifyContent: "center",
+    paddingVertical: 16,
+    gap: Spacing.sm,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    color: Colors.textInverse,
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
   },
-  registerLink: {
-    textAlign: "center",
-    marginTop: 16,
-    color: "#666",
-    fontSize: 14,
-  },
-  registerLinkBold: {
-    color: "#e91e63",
-    fontWeight: "600",
-  },
-  forgotPasswordContainer: {
-    marginTop: 10,
-    paddingVertical: 0,
+  registerRow: {
+    flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
   },
-  forgotPasswordLink: {
-    color: "#e91e63",
-    fontSize: 14,
-    fontWeight: "700",
+  registerText: {
+    fontSize: FontSize.md,
+    color: Colors.textSecondary,
+  },
+  registerLink: {
+    fontSize: FontSize.md,
+    color: Colors.primary,
+    fontWeight: FontWeight.bold,
   },
 });

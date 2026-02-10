@@ -14,9 +14,11 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { IMovimento } from "../types/movimento";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 export interface PagamentoModalProps {
   visible: boolean;
@@ -210,17 +212,21 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
               <Text style={styles.cancelButtonText}>Cancelar</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[
-                styles.button,
-                styles.saveButton,
-                loading && styles.buttonDisabled,
-              ]}
+              style={styles.button}
               onPress={handleSave}
               disabled={loading}
+              activeOpacity={0.85}
             >
-              <Text style={styles.saveButtonText}>
-                {loading ? "Salvando..." : "Salvar"}
-              </Text>
+              <LinearGradient
+                colors={[...Colors.gradientPrimary]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[styles.saveGradient, loading && { opacity: 0.6 }]}
+              >
+                <Text style={styles.saveButtonText}>
+                  {loading ? "Salvando..." : "Salvar"}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
@@ -240,139 +246,140 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   content: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.xl,
     maxHeight: "90%",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingHorizontal: Spacing.xl,
+    paddingBottom: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: Colors.border,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
   },
   form: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.lg,
   },
   formGroup: {
-    marginBottom: 20,
+    marginBottom: Spacing.xl,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.semibold,
+    color: Colors.text,
+    marginBottom: Spacing.sm,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
-    borderRadius: 8,
-    paddingHorizontal: 12,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
     height: 48,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.background,
   },
   currencyPrefix: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#e91e63",
-    marginRight: 8,
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.bold,
+    color: Colors.primary,
+    marginRight: Spacing.sm,
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    color: "#333",
+    fontSize: FontSize.md,
+    color: Colors.text,
   },
   inputError: {
-    borderColor: "#f44336",
+    borderColor: Colors.danger,
   },
   errorText: {
-    fontSize: 12,
-    color: "#f44336",
-    marginTop: 4,
+    fontSize: FontSize.xs,
+    color: Colors.danger,
+    marginTop: Spacing.xs,
   },
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
-    borderRadius: 8,
-    paddingHorizontal: 12,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
     height: 48,
-    gap: 12,
+    gap: Spacing.md,
+    backgroundColor: Colors.background,
   },
   dateButtonText: {
-    fontSize: 16,
-    color: "#333",
-    fontWeight: "500",
+    fontSize: FontSize.md,
+    color: Colors.text,
+    fontWeight: FontWeight.medium,
   },
   datePickerContainer: {
-    marginTop: 12,
+    marginTop: Spacing.md,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
-    borderRadius: 8,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
     overflow: "hidden",
-    backgroundColor: "#f9f9f9",
+    backgroundColor: Colors.background,
   },
   datePickerClose: {
-    backgroundColor: "#e91e63",
-    paddingVertical: 12,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
     alignItems: "center",
-    borderTopWidth: 1,
-    borderTopColor: "#e0e0e0",
   },
   datePickerCloseText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
+    color: Colors.textInverse,
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
   },
   footer: {
     flexDirection: "row",
-    gap: 12,
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
+    borderTopColor: Colors.border,
   },
   button: {
     flex: 1,
     height: 48,
-    borderRadius: 8,
+    borderRadius: BorderRadius.md,
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden",
   },
   cancelButton: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: Colors.background,
   },
   cancelButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textSecondary,
   },
-  saveButton: {
-    backgroundColor: "#e91e63",
+  saveGradient: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: BorderRadius.md,
   },
   saveButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#fff",
-  },
-  buttonDisabled: {
-    opacity: 0.6,
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textInverse,
   },
 });

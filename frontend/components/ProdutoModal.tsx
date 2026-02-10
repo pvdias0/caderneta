@@ -14,9 +14,11 @@ import {
   ActivityIndicator,
   ScrollView,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { apiService } from "../services/api";
 import { IProduto } from "../types/produto";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 interface ProdutoModalProps {
   visible: boolean;
@@ -233,21 +235,25 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
             <Text style={styles.cancelButtonText}>Cancelar</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.button,
-              styles.saveButton,
-              loading && styles.buttonDisabled,
-            ]}
+            style={styles.button}
             onPress={handleSave}
             disabled={loading}
+            activeOpacity={0.85}
           >
-            {loading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Text style={styles.saveButtonText}>
-                {produto ? "Atualizar" : "Criar"}
-              </Text>
-            )}
+            <LinearGradient
+              colors={[...Colors.gradientPrimary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.saveGradient, loading && { opacity: 0.6 }]}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.saveButtonText}>
+                  {produto ? "Atualizar" : "Criar"}
+                </Text>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       </View>
@@ -258,109 +264,111 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.surface,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: Colors.border,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: Spacing.xl,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.semibold,
+    color: Colors.text,
+    marginBottom: Spacing.sm,
   },
   input: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: "#333",
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    fontSize: FontSize.md,
+    color: Colors.text,
   },
   inputWithPrefix: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f9f9f9",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
-    paddingHorizontal: 12,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
   },
   currencyPrefix: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#999",
-    marginRight: 4,
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.bold,
+    color: Colors.primary,
+    marginRight: Spacing.xs,
   },
   currencyInput: {
     flex: 1,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: "#333",
+    paddingVertical: Spacing.md,
+    fontSize: FontSize.md,
+    color: Colors.text,
   },
   suffix: {
-    fontSize: 14,
-    color: "#999",
-    marginLeft: 4,
+    fontSize: FontSize.md,
+    color: Colors.textTertiary,
+    marginLeft: Spacing.xs,
   },
   requiredNote: {
-    fontSize: 12,
-    color: "#999",
-    marginTop: 12,
+    fontSize: FontSize.xs,
+    color: Colors.textTertiary,
+    marginTop: Spacing.md,
   },
   footer: {
     flexDirection: "row",
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
+    borderTopColor: Colors.border,
   },
   button: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
+    height: 48,
+    borderRadius: BorderRadius.md,
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden",
   },
   cancelButton: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: Colors.background,
   },
   cancelButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textSecondary,
   },
-  saveButton: {
-    backgroundColor: "#ff9800",
+  saveGradient: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: BorderRadius.md,
   },
   saveButtonText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#fff",
-  },
-  buttonDisabled: {
-    opacity: 0.6,
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textInverse,
   },
 });

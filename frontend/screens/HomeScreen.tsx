@@ -1,9 +1,9 @@
 /**
- * Tela Inicial - Home
- * Exibe informações do usuário, estatísticas do dashboard e opção para mudar senha
+ * Tela Inicial - Home / Dashboard
+ * Modern & Juicy design with gradient header and animated cards
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -12,30 +12,50 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Animated,
+  StatusBar,
+  Platform,
+  RefreshControl,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../hooks/useAuth";
 import { apiService } from "../services/api";
 import { DashboardCard } from "../components/DashboardCard";
 import { IDashboardStats } from "../types/dashboard";
 import { useRealtimeUpdates } from "../hooks/useRealtimeUpdates";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 export const HomeScreen: React.FC = () => {
   const { user } = useAuth();
 
-  const [dashboardData, setDashboardData] = useState<IDashboardStats | null>(
-    null
-  );
+  const [dashboardData, setDashboardData] = useState<IDashboardStats | null>(null);
   const [loading, setLoading] = useState(false);
-  const [expandedDashboard, setExpandedDashboard] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const loadDashboardData = async () => {
     try {
       setLoading(true);
       const data = await apiService.getDashboardStats();
-
-      // Garantir que todos os valores são números válidos
-      const validatedData = {
+      setDashboardData({
         totalAReceber: Number(data?.totalAReceber) || 0,
         clientesAtivos: Number(data?.clientesAtivos) || 0,
         vendasMes: Number(data?.vendasMes) || 0,
@@ -46,208 +66,272 @@ export const HomeScreen: React.FC = () => {
           vendasMes: Number(data?.variacao?.vendasMes) || 0,
           ticketMedio: Number(data?.variacao?.ticketMedio) || 0,
         },
-      };
-
-      setDashboardData(validatedData);
+      });
     } catch (error) {
-      console.error("Erro ao carregar dados do dashboard:", error);
-      Alert.alert("Erro", "Não foi possível carregar os dados do dashboard");
+      console.error("Erro ao carregar dashboard:", error);
+      Alert.alert("Erro", "Não foi possível carregar os dados");
     } finally {
       setLoading(false);
     }
   };
 
-  // Callback para atualizar dashboard quando saldo muda
-  const handleSaldoAtualizado = () => {
-    // Recarregar dados do dashboard quando saldo de cliente mudar
-    loadDashboardData();
-  };
-
-  // Usar hook para escutar atualizações em tempo real
+  const handleSaldoAtualizado = () => loadDashboardData();
   useRealtimeUpdates(user?.id || null, handleSaldoAtualizado);
 
   useEffect(() => {
     loadDashboardData();
   }, []);
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadDashboardData();
+    setRefreshing(false);
+  };
+
   const formatCurrency = (value: number | undefined | null): string => {
-    const numValue = Number(value) || 0;
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
-    }).format(numValue);
+    }).format(Number(value) || 0);
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Bom dia";
+    if (hour < 18) return "Boa tarde";
+    return "Boa noite";
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Seção de Perfil do Usuário */}
-      <View style={styles.profileSection}>
-        <View style={styles.profileHeader}>
-          <View style={styles.avatarContainer}>
-            <Ionicons name="person-circle" size={60} color="#e91e63" />
-          </View>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>
-              {user?.nome_usuario || "Usuário"}
-            </Text>
-            <Text style={styles.userEmail}>{user?.email || ""}</Text>
-          </View>
-        </View>
-      </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryDark} />
 
-      {/* Seção de Dashboard - Expansível */}
-      <View style={styles.dashboardSection}>
-        <TouchableOpacity
-          style={styles.dashboardHeader}
-          onPress={() => setExpandedDashboard(!expandedDashboard)}
-          activeOpacity={0.7}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
+        }
+      >
+        {/* Gradient Profile Header */}
+        <LinearGradient
+          colors={[...Colors.gradientPrimary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
         >
-          <View style={styles.dashboardTitleContainer}>
-            <Ionicons name="bar-chart" size={20} color="#e91e63" />
-            <Text style={styles.dashboardTitle}>Métricas</Text>
-          </View>
-          <Ionicons
-            name={expandedDashboard ? "chevron-up" : "chevron-down"}
-            size={24}
-            color="#666"
-          />
-        </TouchableOpacity>
-
-        {expandedDashboard && (
-          <View style={styles.dashboardContent}>
-            {loading ? (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#e91e63" />
-                <Text style={styles.loadingText}>Carregando...</Text>
-              </View>
-            ) : dashboardData ? (
-              <>
-                <DashboardCard
-                  title="Total a Receber"
-                  value={formatCurrency(dashboardData.totalAReceber)}
-                  icon="cash"
-                  variation={dashboardData.variacao?.totalAReceber}
-                  color="#e91e63"
-                />
-                <DashboardCard
-                  title="Clientes Ativos"
-                  value={dashboardData.clientesAtivos}
-                  icon="people"
-                  variation={dashboardData.variacao?.clientesAtivos}
-                  color="#2196f3"
-                />
-                <DashboardCard
-                  title="Vendas no Mês"
-                  value={formatCurrency(dashboardData.vendasMes)}
-                  icon="trending-up"
-                  variation={dashboardData.variacao?.vendasMes}
-                  color="#4caf50"
-                />
-                <DashboardCard
-                  title="Ticket Médio"
-                  value={formatCurrency(dashboardData.ticketMedio)}
-                  icon="calculator"
-                  variation={dashboardData.variacao?.ticketMedio}
-                  color="#ff9800"
-                />
-              </>
-            ) : (
-              <Text style={styles.errorText}>
-                Não foi possível carregar os dados
+          <Animated.View style={[styles.profileRow, { opacity: fadeAnim }]}>
+            <View style={styles.avatarCircle}>
+              <Text style={styles.avatarText}>
+                {(user?.nome_usuario || "U").charAt(0).toUpperCase()}
               </Text>
-            )}
-          </View>
-        )}
-      </View>
-    </ScrollView>
+            </View>
+            <View style={styles.greetingContainer}>
+              <Text style={styles.greetingText}>{getGreeting()} 👋</Text>
+              <Text style={styles.userName}>{user?.nome_usuario || "Usuário"}</Text>
+            </View>
+          </Animated.View>
+
+          {/* Main Stat Card */}
+          {dashboardData && (
+            <Animated.View
+              style={[
+                styles.mainStatCard,
+                { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+              ]}
+            >
+              <Text style={styles.mainStatLabel}>Total a Receber</Text>
+              <Text style={styles.mainStatValue}>
+                {formatCurrency(dashboardData.totalAReceber)}
+              </Text>
+              {dashboardData.variacao?.totalAReceber !== 0 && (
+                <View style={styles.variationBadge}>
+                  <Ionicons
+                    name={
+                      dashboardData.variacao.totalAReceber >= 0
+                        ? "trending-up"
+                        : "trending-down"
+                    }
+                    size={14}
+                    color={
+                      dashboardData.variacao.totalAReceber >= 0
+                        ? Colors.success
+                        : Colors.danger
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.variationText,
+                      {
+                        color:
+                          dashboardData.variacao.totalAReceber >= 0
+                            ? Colors.success
+                            : Colors.danger,
+                      },
+                    ]}
+                  >
+                    {dashboardData.variacao.totalAReceber >= 0 ? "+" : ""}
+                    {dashboardData.variacao.totalAReceber}% este mês
+                  </Text>
+                </View>
+              )}
+            </Animated.View>
+          )}
+        </LinearGradient>
+
+        {/* Dashboard Cards */}
+        <View style={styles.cardsSection}>
+          <Text style={styles.sectionTitle}>Visão Geral</Text>
+
+          {loading && !dashboardData ? (
+            <View style={styles.loadingBox}>
+              <ActivityIndicator size="large" color={Colors.primary} />
+              <Text style={styles.loadingText}>Carregando dados...</Text>
+            </View>
+          ) : dashboardData ? (
+            <View style={styles.cardsGrid}>
+              <DashboardCard
+                title="Clientes Ativos"
+                value={dashboardData.clientesAtivos}
+                icon="people"
+                variation={dashboardData.variacao?.clientesAtivos}
+                color={Colors.info}
+              />
+              <DashboardCard
+                title="Vendas no Mês"
+                value={formatCurrency(dashboardData.vendasMes)}
+                icon="cart"
+                variation={dashboardData.variacao?.vendasMes}
+                color={Colors.success}
+              />
+              <DashboardCard
+                title="Ticket Médio"
+                value={formatCurrency(dashboardData.ticketMedio)}
+                icon="analytics"
+                variation={dashboardData.variacao?.ticketMedio}
+                color={Colors.warning}
+              />
+            </View>
+          ) : (
+            <View style={styles.emptyBox}>
+              <Ionicons name="analytics-outline" size={48} color={Colors.border} />
+              <Text style={styles.emptyText}>Nenhum dado disponível</Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
-    padding: 16,
+    backgroundColor: Colors.background,
   },
-  profileSection: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  header: {
+    paddingTop: Platform.OS === "ios" ? 60 : 48,
+    paddingBottom: Spacing.xxxl,
+    paddingHorizontal: Spacing.xl,
+    borderBottomLeftRadius: BorderRadius.xxl,
+    borderBottomRightRadius: BorderRadius.xxl,
   },
-  profileHeader: {
+  profileRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: Spacing.xxl,
   },
-  avatarContainer: {
-    marginRight: 16,
-  },
-  userInfo: {
-    flex: 1,
-  },
-  userName: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 14,
-    color: "#999",
-  },
-  dashboardSection: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    overflow: "hidden",
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  dashboardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  dashboardTitleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  dashboardTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-  },
-  dashboardContent: {
-    padding: 16,
-  },
-  loadingContainer: {
+  avatarCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "rgba(255,255,255,0.25)",
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 40,
+    marginRight: Spacing.lg,
+  },
+  avatarText: {
+    fontSize: FontSize.xl,
+    fontWeight: FontWeight.bold,
+    color: Colors.textInverse,
+  },
+  greetingContainer: {
+    flex: 1,
+  },
+  greetingText: {
+    fontSize: FontSize.sm,
+    color: "rgba(255,255,255,0.8)",
+    marginBottom: 2,
+  },
+  userName: {
+    fontSize: FontSize.xl,
+    fontWeight: FontWeight.bold,
+    color: Colors.textInverse,
+  },
+  mainStatCard: {
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.xl,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+  },
+  mainStatLabel: {
+    fontSize: FontSize.sm,
+    color: "rgba(255,255,255,0.8)",
+    fontWeight: FontWeight.medium,
+    marginBottom: Spacing.xs,
+  },
+  mainStatValue: {
+    fontSize: FontSize.xxxl,
+    fontWeight: FontWeight.heavy,
+    color: Colors.textInverse,
+    letterSpacing: -0.5,
+  },
+  variationBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.xs,
+    marginTop: Spacing.sm,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    borderRadius: BorderRadius.full,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    alignSelf: "flex-start",
+  },
+  variationText: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.semibold,
+  },
+  cardsSection: {
+    padding: Spacing.xl,
+    paddingBottom: Spacing.huge,
+  },
+  sectionTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
+    marginBottom: Spacing.lg,
+  },
+  cardsGrid: {
+    gap: Spacing.md,
+  },
+  loadingBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing.huge,
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    color: "#999",
+    fontSize: FontSize.sm,
+    color: Colors.textTertiary,
+    marginTop: Spacing.md,
   },
-  errorText: {
-    textAlign: "center",
-    color: "#f44336",
-    fontSize: 14,
-    paddingVertical: 20,
+  emptyBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing.huge,
+  },
+  emptyText: {
+    fontSize: FontSize.md,
+    color: Colors.textTertiary,
+    marginTop: Spacing.md,
   },
 });

@@ -15,9 +15,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { ICliente, ICreateClienteDTO } from "../types/cliente";
 import { apiService } from "../services/api";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 export interface ClienteModalProps {
   visible: boolean;
@@ -230,21 +232,25 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[
-                  styles.button,
-                  styles.submitButton,
-                  loading && styles.submitButtonDisabled,
-                ]}
                 onPress={handleSubmit}
                 disabled={loading}
+                activeOpacity={0.85}
+                style={[styles.button]}
               >
-                {loading ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Text style={styles.submitButtonText}>
-                    {isEditing ? "Atualizar" : "Criar"}
-                  </Text>
-                )}
+                <LinearGradient
+                  colors={[...Colors.gradientPrimary]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={[styles.submitGradient, loading && { opacity: 0.6 }]}
+                >
+                  {loading ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.submitButtonText}>
+                      {isEditing ? "Atualizar" : "Criar"}
+                    </Text>
+                  )}
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           </View>
@@ -261,91 +267,94 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 16,
+    padding: Spacing.lg,
   },
   modalContent: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.xl,
     width: "100%",
     maxWidth: 400,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.xl,
+    ...Shadows.lg,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 20,
-    paddingBottom: 12,
+    marginBottom: Spacing.xl,
+    paddingBottom: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: Colors.border,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
   },
   form: {
-    marginBottom: 20,
+    marginBottom: Spacing.xl,
   },
   formGroup: {
-    marginBottom: 16,
+    marginBottom: Spacing.lg,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 8,
-    color: "#333",
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.semibold,
+    marginBottom: Spacing.sm,
+    color: Colors.text,
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#fafafa",
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    backgroundColor: Colors.background,
+    height: 48,
   },
   inputIcon: {
-    marginRight: 8,
+    marginRight: Spacing.sm,
   },
   input: {
     flex: 1,
-    paddingVertical: 12,
-    fontSize: 14,
-    color: "#333",
+    fontSize: FontSize.md,
+    color: Colors.text,
   },
   buttonsContainer: {
     flexDirection: "row",
-    gap: 12,
+    gap: Spacing.md,
   },
   button: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
+    borderRadius: BorderRadius.md,
+    overflow: "hidden",
   },
   cancelButton: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: Colors.background,
+    paddingVertical: Spacing.md,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: BorderRadius.md,
   },
   cancelButtonText: {
-    color: "#666",
-    fontSize: 14,
-    fontWeight: "600",
+    color: Colors.textSecondary,
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
   },
-  submitButton: {
-    backgroundColor: "#e91e63",
-  },
-  submitButtonDisabled: {
-    opacity: 0.6,
+  submitGradient: {
+    paddingVertical: Spacing.md,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: BorderRadius.md,
   },
   submitButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
+    color: Colors.textInverse,
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
   },
 });

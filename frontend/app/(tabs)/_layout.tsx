@@ -2,20 +2,21 @@ import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../hooks/useAuth";
-import { TouchableOpacity, Alert } from "react-native";
+import { TouchableOpacity, Alert, Platform, View } from "react-native";
+
+const PINK = "#E91E63";
+const PINK_SOFT = "#FCE4EC";
+const GRAY = "#9CA3AF";
 
 export default function TabLayout() {
   const { logout } = useAuth();
 
   const handleLogout = async () => {
-    Alert.alert("Logout", "Deseja sair da aplicação?", [
-      {
-        text: "Cancelar",
-        onPress: () => {},
-        style: "cancel",
-      },
+    Alert.alert("Sair", "Deseja sair da aplicação?", [
+      { text: "Cancelar", style: "cancel" },
       {
         text: "Sair",
+        style: "destructive",
         onPress: async () => {
           try {
             await logout();
@@ -23,7 +24,6 @@ export default function TabLayout() {
             Alert.alert("Erro", "Erro ao fazer logout");
           }
         },
-        style: "destructive",
       },
     ]);
   };
@@ -31,28 +31,38 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#e91e63",
-        tabBarInactiveTintColor: "#999",
-        headerShown: true,
-        headerStyle: {
-          backgroundColor: "#f5f5f5",
-        },
-        headerTitleStyle: {
+        tabBarActiveTintColor: PINK,
+        tabBarInactiveTintColor: GRAY,
+        headerShown: false,
+        tabBarShowLabel: true,
+        tabBarLabelStyle: {
+          fontSize: 11,
           fontWeight: "600",
+          marginTop: -2,
         },
-        headerRight: () => (
-          <TouchableOpacity onPress={handleLogout} style={{ marginRight: 16 }}>
-            <Ionicons name="log-out" size={24} color="#e91e63" />
-          </TouchableOpacity>
-        ),
+        tabBarStyle: {
+          backgroundColor: "#fff",
+          borderTopWidth: 0,
+          height: Platform.OS === "ios" ? 88 : 64,
+          paddingBottom: Platform.OS === "ios" ? 28 : 8,
+          paddingTop: 8,
+          elevation: 20,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.06,
+          shadowRadius: 12,
+        },
+        tabBarItemStyle: {
+          gap: 2,
+        },
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="home" size={24} color={color} />
+          title: "Início",
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
           ),
         }}
       />
@@ -60,8 +70,8 @@ export default function TabLayout() {
         name="clientes"
         options={{
           title: "Clientes",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="people" size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? "people" : "people-outline"} size={24} color={color} />
           ),
         }}
       />
@@ -69,8 +79,8 @@ export default function TabLayout() {
         name="produtos"
         options={{
           title: "Produtos",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="cube" size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? "cube" : "cube-outline"} size={24} color={color} />
           ),
         }}
       />

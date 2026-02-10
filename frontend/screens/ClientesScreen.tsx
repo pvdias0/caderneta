@@ -1,6 +1,5 @@
 /**
- * Tela de Clientes
- * Lista todos os clientes, permite criar, editar e excluir
+ * Tela de Clientes - Modern & Juicy
  */
 
 import React, { useState, useEffect } from "react";
@@ -14,7 +13,10 @@ import {
   RefreshControl,
   Alert,
   ActivityIndicator,
+  Platform,
+  StatusBar,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { apiService } from "../services/api";
@@ -23,6 +25,7 @@ import { ClienteModal } from "../components/ClienteModal";
 import { ICliente } from "../types/cliente";
 import { useAuth } from "../hooks/useAuth";
 import { useRealtimeUpdates } from "../hooks/useRealtimeUpdates";
+import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
 
 const ClientesScreenComponent: React.FC = () => {
   const router = useRouter();
@@ -51,13 +54,10 @@ const ClientesScreenComponent: React.FC = () => {
     }
   };
 
-  // Hook para receber atualizações em tempo real
   const handleSaldoAtualizado = (clienteId: number, novoSaldo: number) => {
-    setClientes((prevClientes) =>
-      prevClientes.map((cliente) =>
-        cliente.id_cliente === clienteId
-          ? { ...cliente, saldo_devedor: novoSaldo }
-          : cliente
+    setClientes((prev) =>
+      prev.map((c) =>
+        c.id_cliente === clienteId ? { ...c, saldo_devedor: novoSaldo } : c
       )
     );
   };
@@ -73,41 +73,33 @@ const ClientesScreenComponent: React.FC = () => {
       setFilteredClientes(clientes || []);
       return;
     }
-
-    const query = searchQuery.toLowerCase();
-    const filtered = (clientes || []).filter(
-      (cliente) =>
-        cliente.nome.toLowerCase().includes(query) ||
-        cliente.email?.toLowerCase().includes(query) ||
-        cliente.telefone?.includes(query)
+    const q = searchQuery.toLowerCase();
+    setFilteredClientes(
+      (clientes || []).filter(
+        (c) =>
+          c.nome.toLowerCase().includes(q) ||
+          c.email?.toLowerCase().includes(q) ||
+          c.telefone?.includes(q)
+      )
     );
-
-    setFilteredClientes(filtered);
   }, [searchQuery, clientes]);
 
   const onRefresh = async () => {
-    try {
-      setRefreshing(true);
-      await loadClientes();
-    } finally {
-      setRefreshing(false);
-    }
+    setRefreshing(true);
+    await loadClientes();
+    setRefreshing(false);
   };
 
   const handleSelectClient = (clienteId: number, isSelected: boolean) => {
-    const newSelectedIds = new Set(selectedIds);
+    const newIds = new Set(selectedIds);
     if (isSelected) {
-      newSelectedIds.add(clienteId);
-      setSelectionMode(true); // Entra automaticamente no modo de seleção
+      newIds.add(clienteId);
+      setSelectionMode(true);
     } else {
-      newSelectedIds.delete(clienteId);
+      newIds.delete(clienteId);
     }
-    setSelectedIds(newSelectedIds);
-
-    // Sair do modo de seleção se não houver nenhum selecionado
-    if (newSelectedIds.size === 0) {
-      setSelectionMode(false);
-    }
+    setSelectedIds(newIds);
+    if (newIds.size === 0) setSelectionMode(false);
   };
 
   const handleCancelSelection = () => {
@@ -119,125 +111,97 @@ const ClientesScreenComponent: React.FC = () => {
     if (selectedIds.size === filteredClientes.length) {
       setSelectedIds(new Set());
     } else {
-      const allIds = new Set(filteredClientes.map((c) => c.id_cliente));
-      setSelectedIds(allIds);
+      setSelectedIds(new Set(filteredClientes.map((c) => c.id_cliente)));
     }
   };
 
   const handleDeleteSelected = async () => {
-    if (selectedIds.size === 0) {
-      Alert.alert("Aviso", "Selecione pelo menos um cliente para excluir");
-      return;
-    }
-
+    if (selectedIds.size === 0) return;
     Alert.alert(
       "Excluir Clientes",
-      `Tem certeza que deseja excluir ${selectedIds.size} cliente${
-        selectedIds.size !== 1 ? "s" : ""
-      }?`,
+      `Tem certeza que deseja excluir ${selectedIds.size} cliente${selectedIds.size !== 1 ? "s" : ""}?`,
       [
-        {
-          text: "Cancelar",
-          onPress: () => {},
-          style: "cancel",
-        },
+        { text: "Cancelar", style: "cancel" },
         {
           text: "Excluir",
+          style: "destructive",
           onPress: async () => {
             try {
               setDeleting(true);
-              const idsArray = Array.from(selectedIds);
-              await apiService.deleteClientes(idsArray);
-              Alert.alert(
-                "Sucesso",
-                `${selectedIds.size} cliente${
-                  selectedIds.size !== 1 ? "s" : ""
-                } excluído${selectedIds.size !== 1 ? "s" : ""} com sucesso`
-              );
+              await apiService.deleteClientes(Array.from(selectedIds));
+              Alert.alert("Sucesso", "Clientes excluídos com sucesso");
               setSelectionMode(false);
               setSelectedIds(new Set());
               await loadClientes();
             } catch (error) {
-              const errorMessage =
-                error instanceof Error
-                  ? error.message
-                  : "Erro ao excluir clientes";
-              Alert.alert("Erro", errorMessage);
+              Alert.alert("Erro", error instanceof Error ? error.message : "Erro ao excluir");
             } finally {
               setDeleting(false);
             }
           },
-          style: "destructive",
         },
       ]
     );
   };
 
-  const handleCreateCliente = () => {
-    setSelectedCliente(null);
-    setShowModal(true);
-  };
-
-  const handleModalSuccess = () => {
-    loadClientes();
-  };
-
-  const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <Ionicons name="people-outline" size={64} color="#ddd" />
-      <Text style={styles.emptyTitle}>Nenhum cliente cadastrado</Text>
-      <Text style={styles.emptyText}>
-        Clique no botão abaixo para cadastrar seu primeiro cliente
-      </Text>
-    </View>
-  );
-
   return (
     <View style={styles.container}>
-      {/* Header com Search e Selection Tools */}
-      <View style={styles.header}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryDark} />
+
+      {/* Header */}
+      <LinearGradient
+        colors={[...Colors.gradientPrimary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
         {!selectionMode ? (
-          <View style={styles.searchContainer}>
-            <Ionicons name="search" size={20} color="#999" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Buscar cliente..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholderTextColor="#ccc"
-            />
-            {searchQuery !== "" && (
-              <TouchableOpacity onPress={() => setSearchQuery("")}>
-                <Ionicons name="close-circle" size={20} color="#999" />
-              </TouchableOpacity>
-            )}
-          </View>
+          <>
+            <Text style={styles.headerTitle}>Clientes</Text>
+            <View style={styles.searchBar}>
+              <Ionicons name="search-outline" size={18} color={Colors.textTertiary} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Buscar cliente..."
+                placeholderTextColor={Colors.textTertiary}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+              {searchQuery !== "" && (
+                <TouchableOpacity onPress={() => setSearchQuery("")}>
+                  <Ionicons name="close-circle" size={18} color={Colors.textTertiary} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </>
         ) : (
-          <View style={styles.selectionHeader}>
+          <View style={styles.selectionBar}>
             <TouchableOpacity onPress={handleCancelSelection}>
-              <Ionicons name="close" size={24} color="#333" />
+              <Ionicons name="close" size={24} color="#fff" />
             </TouchableOpacity>
-            <Text style={styles.selectionTitle}>
+            <Text style={styles.selectionText}>
               {selectedIds.size} selecionado{selectedIds.size !== 1 ? "s" : ""}
             </Text>
             <TouchableOpacity onPress={handleSelectAll}>
-              <Text style={styles.selectAllButton}>
-                {selectedIds.size === filteredClientes.length
-                  ? "Desselecionar"
-                  : "Todos"}
+              <Text style={styles.selectAllBtn}>
+                {selectedIds.size === filteredClientes.length ? "Limpar" : "Todos"}
               </Text>
             </TouchableOpacity>
           </View>
         )}
-      </View>
+      </LinearGradient>
 
-      {/* Lista de Clientes */}
+      {/* List */}
       {loading && clientes.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#e91e63" />
+        <View style={styles.centerBox}>
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       ) : filteredClientes.length === 0 ? (
-        <View style={styles.emptyContainer}>{renderEmptyState()}</View>
+        <View style={styles.centerBox}>
+          <Ionicons name="people-outline" size={64} color={Colors.border} />
+          <Text style={styles.emptyTitle}>Nenhum cliente</Text>
+          <Text style={styles.emptyText}>Adicione seu primeiro cliente</Text>
+        </View>
       ) : (
         <FlatList
           data={filteredClientes}
@@ -245,23 +209,10 @@ const ClientesScreenComponent: React.FC = () => {
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => {
-                console.log(
-                  "Client pressed:",
-                  item.id_cliente,
-                  "Selection mode:",
-                  selectionMode
-                );
                 if (!selectionMode) {
-                  console.log(
-                    "Navigating to:",
-                    `/(tabs)/clientes/${item.id_cliente}`
-                  );
                   router.push({
                     pathname: "/(tabs)/clientes/[id]",
-                    params: {
-                      id: item.id_cliente.toString(),
-                      clienteName: item.nome,
-                    },
+                    params: { id: item.id_cliente.toString(), clienteName: item.nome },
                   });
                 }
               }}
@@ -277,59 +228,69 @@ const ClientesScreenComponent: React.FC = () => {
           )}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
           }
           ListHeaderComponent={
             <Text style={styles.resultCount}>
-              {filteredClientes.length} cliente
-              {filteredClientes.length !== 1 ? "s" : ""}
+              {filteredClientes.length} cliente{filteredClientes.length !== 1 ? "s" : ""}
             </Text>
           }
-          scrollIndicatorInsets={{ right: 1 }}
         />
       )}
 
-      {/* Botões Flutuantes */}
+      {/* FABs */}
       {!selectionMode ? (
-        <View style={styles.fabContainer}>
+        <View style={styles.fabRow}>
           {filteredClientes.length > 0 && (
             <TouchableOpacity
-              style={[styles.fab, styles.fabDelete]}
+              style={[styles.fabSecondary]}
               onPress={() => setSelectionMode(true)}
               activeOpacity={0.8}
             >
-              <Ionicons name="trash" size={28} color="#fff" />
+              <Ionicons name="trash-outline" size={22} color={Colors.danger} />
             </TouchableOpacity>
           )}
           <TouchableOpacity
-            style={styles.fab}
-            onPress={handleCreateCliente}
+            style={styles.fabPrimary}
+            onPress={() => {
+              setSelectedCliente(null);
+              setShowModal(true);
+            }}
             activeOpacity={0.8}
           >
-            <Ionicons name="add" size={28} color="#fff" />
+            <LinearGradient
+              colors={[...Colors.gradientPrimary]}
+              style={styles.fabGradient}
+            >
+              <Ionicons name="add" size={28} color="#fff" />
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       ) : (
         <TouchableOpacity
-          style={[styles.fab, styles.fabDelete, styles.fabAbsolute]}
+          style={[styles.fabDeleteAbsolute]}
           onPress={handleDeleteSelected}
           disabled={deleting || selectedIds.size === 0}
           activeOpacity={0.8}
         >
-          {deleting ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Ionicons name="trash" size={28} color="#fff" />
-          )}
+          <LinearGradient
+            colors={[Colors.danger, "#D50000"]}
+            style={styles.fabGradient}
+          >
+            {deleting ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Ionicons name="trash" size={24} color="#fff" />
+            )}
+          </LinearGradient>
         </TouchableOpacity>
       )}
 
-      {/* Modal de Criar/Editar */}
       <ClienteModal
         visible={showModal}
         cliente={selectedCliente}
         onClose={() => setShowModal(false)}
-        onSuccess={handleModalSuccess}
+        onSuccess={loadClientes}
       />
     </View>
   );
@@ -338,112 +299,118 @@ const ClientesScreenComponent: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: "#fff",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    paddingTop: Platform.OS === "ios" ? 60 : 48,
+    paddingBottom: Spacing.xl,
+    paddingHorizontal: Spacing.xl,
+    borderBottomLeftRadius: BorderRadius.xl,
+    borderBottomRightRadius: BorderRadius.xl,
   },
-  searchContainer: {
+  headerTitle: {
+    fontSize: FontSize.xxl,
+    fontWeight: FontWeight.heavy,
+    color: Colors.textInverse,
+    marginBottom: Spacing.lg,
+  },
+  searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.sm,
   },
   searchInput: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    fontSize: 14,
-    color: "#333",
+    paddingVertical: Platform.OS === "ios" ? 14 : 12,
+    fontSize: FontSize.md,
+    color: Colors.text,
   },
-  selectionHeader: {
+  selectionBar: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    alignItems: "center",
-    gap: 12,
   },
-  selectionTitle: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+  selectionText: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textInverse,
   },
-  selectAllButton: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#e91e63",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+  selectAllBtn: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textInverse,
   },
-  loadingContainer: {
+  centerBox: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingBottom: 80,
-  },
-  resultCount: {
-    fontSize: 12,
-    color: "#999",
-    fontWeight: "500",
-    marginBottom: 12,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 32,
+    paddingHorizontal: Spacing.xxxl,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#999",
-    marginTop: 16,
-    marginBottom: 8,
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textSecondary,
+    marginTop: Spacing.lg,
   },
   emptyText: {
-    fontSize: 14,
-    color: "#bbb",
-    textAlign: "center",
-    lineHeight: 20,
+    fontSize: FontSize.md,
+    color: Colors.textTertiary,
+    marginTop: Spacing.xs,
   },
-  fab: {
+  listContent: {
+    padding: Spacing.xl,
+    paddingBottom: 100,
+  },
+  resultCount: {
+    fontSize: FontSize.xs,
+    color: Colors.textTertiary,
+    fontWeight: FontWeight.medium,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: Spacing.md,
+  },
+  fabRow: {
+    position: "absolute",
+    bottom: Spacing.xxl,
+    right: Spacing.xl,
+    flexDirection: "row",
+    gap: Spacing.md,
+    alignItems: "center",
+  },
+  fabPrimary: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#e91e63",
+    overflow: "hidden",
+    ...Shadows.fab,
+  },
+  fabSecondary: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.surface,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    ...Shadows.md,
   },
-  fabContainer: {
+  fabGradient: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fabDeleteAbsolute: {
     position: "absolute",
-    bottom: 24,
-    right: 24,
-    flexDirection: "row",
-    gap: 12,
-  },
-  fabAbsolute: {
-    position: "absolute",
-    bottom: 24,
-    right: 24,
-  },
-  fabDelete: {
-    backgroundColor: "#f44336",
+    bottom: Spacing.xxl,
+    right: Spacing.xl,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    overflow: "hidden",
+    ...Shadows.fab,
   },
 });
 
