@@ -2,7 +2,7 @@
  * Tela de Recuperação de Senha - Modern & Juicy
  */
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -46,6 +46,11 @@ export const ForgotPasswordScreen: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const codeRef2 = useRef<TextInput>(null);
+  const codeRef3 = useRef<TextInput>(null);
+  const codeRef4 = useRef<TextInput>(null);
+  const codeRef5 = useRef<TextInput>(null);
+
   const handleForgotPassword = async () => {
     if (!email || !email.includes("@")) {
       Alert.alert("Erro", "Por favor, insira um email válido");
@@ -66,7 +71,9 @@ export const ForgotPasswordScreen: React.FC = () => {
       return;
     }
     const isValid = await validateResetToken(email, fullCode);
-    if (!isValid) {
+    if (isValid) {
+      setResetToken(fullCode);
+    } else {
       Alert.alert("Erro", error || "Código inválido ou expirado");
       setCode1(""); setCode2(""); setCode3(""); setCode4(""); setCode5("");
     }
@@ -94,24 +101,30 @@ export const ForgotPasswordScreen: React.FC = () => {
     }
   };
 
+  const setters = [setCode1, setCode2, setCode3, setCode4, setCode5];
+  const nextRefs = [codeRef2, codeRef3, codeRef4, codeRef5, null];
+
   const handleCodeInput = (inputIndex: number, text: string) => {
     const upperText = text.toUpperCase();
-    if (upperText.length === 1) {
-      switch (inputIndex) {
-        case 1: setCode1(upperText); break;
-        case 2: setCode2(upperText); break;
-        case 3: setCode3(upperText); break;
-        case 4: setCode4(upperText); break;
-        case 5: setCode5(upperText); break;
-      }
-    } else if (upperText.length > 1) {
-      const chars = upperText.split("").slice(0, 5);
-      setCode1(chars[0] || "");
-      setCode2(chars[1] || "");
-      setCode3(chars[2] || "");
-      setCode4(chars[3] || "");
-      setCode5(chars[4] || "");
+    const idx = inputIndex - 1;
+
+    // Empty = user pressed backspace
+    if (upperText.length === 0) {
+      setters[idx]("");
+      return;
     }
+
+    // Paste: distribute across all inputs
+    if (upperText.length > 1) {
+      const chars = upperText.split("").slice(0, 5);
+      chars.forEach((ch, i) => setters[i]?.(ch));
+      for (let i = chars.length; i < 5; i++) setters[i]?.("");
+      return;
+    }
+
+    // Single character: set and advance
+    setters[idx](upperText);
+    nextRefs[idx]?.current?.focus();
   };
 
   const handleBack = () => {
@@ -220,8 +233,10 @@ export const ForgotPasswordScreen: React.FC = () => {
                       editable={!loading}
                       maxLength={5}
                       autoCapitalize="characters"
+                      textContentType="oneTimeCode"
                     />
                     <TextInput
+                      ref={codeRef2}
                       style={styles.codeInput}
                       placeholder="-"
                       placeholderTextColor={Colors.textTertiary}
@@ -232,6 +247,7 @@ export const ForgotPasswordScreen: React.FC = () => {
                       autoCapitalize="characters"
                     />
                     <TextInput
+                      ref={codeRef3}
                       style={styles.codeInput}
                       placeholder="-"
                       placeholderTextColor={Colors.textTertiary}
@@ -242,6 +258,7 @@ export const ForgotPasswordScreen: React.FC = () => {
                       autoCapitalize="characters"
                     />
                     <TextInput
+                      ref={codeRef4}
                       style={styles.codeInput}
                       placeholder="-"
                       placeholderTextColor={Colors.textTertiary}
@@ -252,6 +269,7 @@ export const ForgotPasswordScreen: React.FC = () => {
                       autoCapitalize="characters"
                     />
                     <TextInput
+                      ref={codeRef5}
                       style={styles.codeInput}
                       placeholder="-"
                       placeholderTextColor={Colors.textTertiary}
