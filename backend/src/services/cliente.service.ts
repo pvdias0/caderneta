@@ -148,7 +148,7 @@ export class ClienteService {
       }
     }
 
-    if (data.email !== undefined && data.email !== null) {
+    if (data.email !== undefined && data.email !== null && data.email.trim() !== "") {
       if (!this.isValidEmail(data.email)) {
         throw new Error("Email inválido");
       }

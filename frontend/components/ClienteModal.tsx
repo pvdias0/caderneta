@@ -14,6 +14,8 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -61,9 +63,9 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
 
   useEffect(() => {
     if (cliente) {
-      setNome(cliente.nome);
-      setEmail(cliente.email);
-      setTelefone(cliente.telefone);
+      setNome(cliente.nome || "");
+      setEmail(cliente.email || "");
+      setTelefone(cliente.telefone || "");
     } else {
       setNome("");
       setEmail("");
@@ -97,10 +99,13 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
     try {
       setLoading(true);
 
+      const trimmedEmail = (email || "").trim();
+      const trimmedTelefone = (telefone || "").trim();
+
       const dados: ICreateClienteDTO = {
         nome: nome.trim(),
-        email: email.trim(),
-        telefone: telefone.trim(),
+        email: trimmedEmail || undefined,
+        telefone: trimmedTelefone || undefined,
       };
 
       if (isEditing && cliente) {
@@ -137,9 +142,10 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
       onRequestClose={handleClose}
     >
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.container}
       >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.overlay}>
           <View style={styles.modalContent}>
             {/* Header */}
@@ -255,6 +261,7 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
             </View>
           </View>
         </View>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </Modal>
   );
