@@ -104,8 +104,8 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
 
       const dados: ICreateClienteDTO = {
         nome: nome.trim(),
-        email: trimmedEmail || undefined,
-        telefone: trimmedTelefone || undefined,
+        email: trimmedEmail || null,
+        telefone: trimmedTelefone || null,
       };
 
       if (isEditing && cliente) {
