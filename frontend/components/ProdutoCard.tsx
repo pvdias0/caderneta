@@ -7,7 +7,14 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { IProduto } from "../types/produto";
 import { useThemeColors } from "../context/ThemeContext";
-import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
+import {
+  Spacing,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+  ThemeColors,
+} from "../theme";
 
 export interface ProdutoCardProps {
   produto: IProduto;
@@ -38,7 +45,11 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
 
   return (
     <TouchableOpacity
-      onPress={showCheckbox ? () => onSelect?.(produto.id_produto, !isSelected) : undefined}
+      onPress={
+        showCheckbox
+          ? () => onSelect?.(produto.id_produto, !isSelected)
+          : undefined
+      }
       activeOpacity={showCheckbox ? 0.7 : 1}
     >
       <View style={[styles.card, isSelected && styles.cardSelected]}>
@@ -48,8 +59,12 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
               onPress={() => onSelect?.(produto.id_produto, !isSelected)}
               style={styles.checkWrap}
             >
-              <View style={[styles.checkbox, isSelected && styles.checkboxActive]}>
-                {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
+              <View
+                style={[styles.checkbox, isSelected && styles.checkboxActive]}
+              >
+                {isSelected && (
+                  <Ionicons name="checkmark" size={14} color="#fff" />
+                )}
               </View>
             </TouchableOpacity>
           )}
@@ -62,7 +77,9 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
             <Text style={styles.name} numberOfLines={1}>
               {produto.nome}
             </Text>
-            <Text style={styles.price}>{formatCurrency(produto.valor_produto)}</Text>
+            <Text style={styles.price}>
+              {formatCurrency(produto.valor_produto)}
+            </Text>
           </View>
 
           {!showCheckbox && (
@@ -71,7 +88,11 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
               style={styles.editBtn}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="pencil-outline" size={18} color={colors.textTertiary} />
+              <Ionicons
+                name="pencil-outline"
+                size={18}
+                color={colors.textTertiary}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -89,7 +110,9 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
               {lowStock ? "Estoque baixo" : "Em estoque"}
             </Text>
           </View>
-          <Text style={[styles.stockValue, lowStock && { color: colors.danger }]}>
+          <Text
+            style={[styles.stockValue, lowStock && { color: colors.danger }]}
+          >
             {produto.quantidade_estoque} un.
           </Text>
         </View>
@@ -98,98 +121,99 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
   );
 };
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    marginBottom: Spacing.md,
-    ...Shadows.sm,
-  },
-  cardSelected: {
-    backgroundColor: colors.warningSoft,
-    borderWidth: 1.5,
-    borderColor: colors.warning,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.md,
-  },
-  checkWrap: {
-    marginRight: Spacing.md,
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: colors.border,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  checkboxActive: {
-    backgroundColor: colors.warning,
-    borderColor: colors.warning,
-  },
-  iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.warningSoft,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: Spacing.md,
-  },
-  info: {
-    flex: 1,
-  },
-  name: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  price: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.bold,
-    color: colors.warning,
-  },
-  editBtn: {
-    padding: Spacing.sm,
-    backgroundColor: colors.background,
-    borderRadius: BorderRadius.sm,
-  },
-  stockRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: colors.successSoft,
-    borderRadius: BorderRadius.sm,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-  },
-  stockRowLow: {
-    backgroundColor: colors.dangerSoft,
-  },
-  stockBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
-  },
-  stockDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  stockLabel: {
-    fontSize: FontSize.sm,
-    color: colors.textSecondary,
-    fontWeight: FontWeight.medium,
-  },
-  stockValue: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.bold,
-    color: colors.success,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: BorderRadius.lg,
+      padding: Spacing.lg,
+      marginBottom: Spacing.md,
+      ...Shadows.sm,
+    },
+    cardSelected: {
+      backgroundColor: colors.warningSoft,
+      borderWidth: 1.5,
+      borderColor: colors.warning,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: Spacing.md,
+    },
+    checkWrap: {
+      marginRight: Spacing.md,
+    },
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: 6,
+      borderWidth: 2,
+      borderColor: colors.border,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    checkboxActive: {
+      backgroundColor: colors.warning,
+      borderColor: colors.warning,
+    },
+    iconCircle: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.warningSoft,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: Spacing.md,
+    },
+    info: {
+      flex: 1,
+    },
+    name: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+      color: colors.text,
+      marginBottom: 2,
+    },
+    price: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.bold,
+      color: colors.warning,
+    },
+    editBtn: {
+      padding: Spacing.sm,
+      backgroundColor: colors.background,
+      borderRadius: BorderRadius.sm,
+    },
+    stockRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: colors.successSoft,
+      borderRadius: BorderRadius.sm,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+    },
+    stockRowLow: {
+      backgroundColor: colors.dangerSoft,
+    },
+    stockBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: Spacing.sm,
+    },
+    stockDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
+    stockLabel: {
+      fontSize: FontSize.sm,
+      color: colors.textSecondary,
+      fontWeight: FontWeight.medium,
+    },
+    stockValue: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.bold,
+      color: colors.success,
+    },
+  });

@@ -287,124 +287,125 @@ export const HomeScreen: React.FC = () => {
   );
 };
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    paddingTop: Platform.OS === "ios" ? 60 : 48,
-    paddingBottom: Spacing.xxxl,
-    paddingHorizontal: Spacing.xl,
-    borderBottomLeftRadius: BorderRadius.xxl,
-    borderBottomRightRadius: BorderRadius.xxl,
-  },
-  profileRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.xxl,
-  },
-  avatarCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: "rgba(255,255,255,0.25)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: Spacing.lg,
-  },
-  avatarText: {
-    fontSize: FontSize.xl,
-    fontWeight: FontWeight.bold,
-    color: colors.textInverse,
-  },
-  greetingContainer: {
-    flex: 1,
-  },
-  greetingText: {
-    fontSize: FontSize.sm,
-    color: "rgba(255,255,255,0.8)",
-    marginBottom: 2,
-  },
-  userName: {
-    fontSize: FontSize.xl,
-    fontWeight: FontWeight.bold,
-    color: colors.textInverse,
-  },
-  headerBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: Spacing.sm,
-  },
-  mainStatCard: {
-    backgroundColor: "rgba(255,255,255,0.15)",
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.xl,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-  },
-  mainStatLabel: {
-    fontSize: FontSize.sm,
-    color: "rgba(255,255,255,0.8)",
-    fontWeight: FontWeight.medium,
-    marginBottom: Spacing.xs,
-  },
-  mainStatValue: {
-    fontSize: FontSize.xxxl,
-    fontWeight: FontWeight.heavy,
-    color: colors.textInverse,
-    letterSpacing: -0.5,
-  },
-  variationBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.xs,
-    marginTop: Spacing.sm,
-    backgroundColor: "rgba(255,255,255,0.9)",
-    borderRadius: BorderRadius.full,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    alignSelf: "flex-start",
-  },
-  variationText: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.semibold,
-  },
-  cardsSection: {
-    padding: Spacing.xl,
-    paddingBottom: 120,
-  },
-  sectionTitle: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-    color: colors.text,
-    marginBottom: Spacing.lg,
-  },
-  cardsGrid: {
-    gap: Spacing.md,
-  },
-  loadingBox: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: Spacing.huge,
-  },
-  loadingText: {
-    fontSize: FontSize.sm,
-    color: colors.textTertiary,
-    marginTop: Spacing.md,
-  },
-  emptyBox: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: Spacing.huge,
-  },
-  emptyText: {
-    fontSize: FontSize.md,
-    color: colors.textTertiary,
-    marginTop: Spacing.md,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      paddingTop: Platform.OS === "ios" ? 60 : 48,
+      paddingBottom: Spacing.xxxl,
+      paddingHorizontal: Spacing.xl,
+      borderBottomLeftRadius: BorderRadius.xxl,
+      borderBottomRightRadius: BorderRadius.xxl,
+    },
+    profileRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: Spacing.xxl,
+    },
+    avatarCircle: {
+      width: 52,
+      height: 52,
+      borderRadius: 26,
+      backgroundColor: "rgba(255,255,255,0.25)",
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: Spacing.lg,
+    },
+    avatarText: {
+      fontSize: FontSize.xl,
+      fontWeight: FontWeight.bold,
+      color: colors.textInverse,
+    },
+    greetingContainer: {
+      flex: 1,
+    },
+    greetingText: {
+      fontSize: FontSize.sm,
+      color: "rgba(255,255,255,0.8)",
+      marginBottom: 2,
+    },
+    userName: {
+      fontSize: FontSize.xl,
+      fontWeight: FontWeight.bold,
+      color: colors.textInverse,
+    },
+    headerBtn: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: "rgba(255,255,255,0.2)",
+      justifyContent: "center",
+      alignItems: "center",
+      marginLeft: Spacing.sm,
+    },
+    mainStatCard: {
+      backgroundColor: "rgba(255,255,255,0.15)",
+      borderRadius: BorderRadius.lg,
+      padding: Spacing.xl,
+      borderWidth: 1,
+      borderColor: "rgba(255,255,255,0.2)",
+    },
+    mainStatLabel: {
+      fontSize: FontSize.sm,
+      color: "rgba(255,255,255,0.8)",
+      fontWeight: FontWeight.medium,
+      marginBottom: Spacing.xs,
+    },
+    mainStatValue: {
+      fontSize: FontSize.xxxl,
+      fontWeight: FontWeight.heavy,
+      color: colors.textInverse,
+      letterSpacing: -0.5,
+    },
+    variationBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: Spacing.xs,
+      marginTop: Spacing.sm,
+      backgroundColor: "rgba(255,255,255,0.9)",
+      borderRadius: BorderRadius.full,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.xs,
+      alignSelf: "flex-start",
+    },
+    variationText: {
+      fontSize: FontSize.xs,
+      fontWeight: FontWeight.semibold,
+    },
+    cardsSection: {
+      padding: Spacing.xl,
+      paddingBottom: 120,
+    },
+    sectionTitle: {
+      fontSize: FontSize.lg,
+      fontWeight: FontWeight.bold,
+      color: colors.text,
+      marginBottom: Spacing.lg,
+    },
+    cardsGrid: {
+      gap: Spacing.md,
+    },
+    loadingBox: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: Spacing.huge,
+    },
+    loadingText: {
+      fontSize: FontSize.sm,
+      color: colors.textTertiary,
+      marginTop: Spacing.md,
+    },
+    emptyBox: {
+      alignItems: "center",
+      justifyContent: "center",
+      paddingVertical: Spacing.huge,
+    },
+    emptyText: {
+      fontSize: FontSize.md,
+      color: colors.textTertiary,
+      marginTop: Spacing.md,
+    },
+  });

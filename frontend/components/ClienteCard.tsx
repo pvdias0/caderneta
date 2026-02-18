@@ -7,7 +7,14 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ICliente } from "../types/cliente";
 import { useThemeColors } from "../context/ThemeContext";
-import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
+import {
+  Spacing,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+  ThemeColors,
+} from "../theme";
 
 export interface ClienteCardProps {
   cliente: ICliente;
@@ -43,8 +50,12 @@ export const ClienteCard: React.FC<ClienteCardProps> = ({
             onPress={() => onSelect?.(cliente.id_cliente, !isSelected)}
             style={styles.checkWrap}
           >
-            <View style={[styles.checkbox, isSelected && styles.checkboxActive]}>
-              {isSelected && <Ionicons name="checkmark" size={14} color="#fff" />}
+            <View
+              style={[styles.checkbox, isSelected && styles.checkboxActive]}
+            >
+              {isSelected && (
+                <Ionicons name="checkmark" size={14} color="#fff" />
+              )}
             </View>
           </TouchableOpacity>
         )}
@@ -79,88 +90,89 @@ export const ClienteCard: React.FC<ClienteCardProps> = ({
   );
 };
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    marginBottom: Spacing.md,
-    ...Shadows.sm,
-  },
-  cardSelected: {
-    backgroundColor: colors.primarySoft,
-    borderWidth: 1.5,
-    borderColor: colors.primaryLight,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  checkWrap: {
-    marginRight: Spacing.md,
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: colors.border,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  checkboxActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.background,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: Spacing.md,
-  },
-  avatarDebt: {
-    backgroundColor: colors.primarySoft,
-  },
-  avatarText: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-    color: colors.textSecondary,
-  },
-  avatarTextDebt: {
-    color: colors.primary,
-  },
-  info: {
-    flex: 1,
-    marginRight: Spacing.md,
-  },
-  name: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  detail: {
-    fontSize: FontSize.sm,
-    color: colors.textTertiary,
-  },
-  saldoBox: {
-    alignItems: "flex-end",
-  },
-  saldoValue: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.bold,
-    color: colors.textSecondary,
-  },
-  saldoDebt: {
-    color: colors.primary,
-  },
-  saldoLabel: {
-    fontSize: FontSize.xs,
-    color: colors.textTertiary,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: BorderRadius.lg,
+      padding: Spacing.lg,
+      marginBottom: Spacing.md,
+      ...Shadows.sm,
+    },
+    cardSelected: {
+      backgroundColor: colors.primarySoft,
+      borderWidth: 1.5,
+      borderColor: colors.primaryLight,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    checkWrap: {
+      marginRight: Spacing.md,
+    },
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: 6,
+      borderWidth: 2,
+      borderColor: colors.border,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    checkboxActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    avatar: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      backgroundColor: colors.background,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: Spacing.md,
+    },
+    avatarDebt: {
+      backgroundColor: colors.primarySoft,
+    },
+    avatarText: {
+      fontSize: FontSize.lg,
+      fontWeight: FontWeight.bold,
+      color: colors.textSecondary,
+    },
+    avatarTextDebt: {
+      color: colors.primary,
+    },
+    info: {
+      flex: 1,
+      marginRight: Spacing.md,
+    },
+    name: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+      color: colors.text,
+      marginBottom: 2,
+    },
+    detail: {
+      fontSize: FontSize.sm,
+      color: colors.textTertiary,
+    },
+    saldoBox: {
+      alignItems: "flex-end",
+    },
+    saldoValue: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.bold,
+      color: colors.textSecondary,
+    },
+    saldoDebt: {
+      color: colors.primary,
+    },
+    saldoLabel: {
+      fontSize: FontSize.xs,
+      color: colors.textTertiary,
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+    },
+  });

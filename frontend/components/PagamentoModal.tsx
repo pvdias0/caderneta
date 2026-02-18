@@ -19,7 +19,14 @@ import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { IMovimento } from "../types/movimento";
 import { useThemeColors } from "../context/ThemeContext";
-import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
+import {
+  Spacing,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+  ThemeColors,
+} from "../theme";
 
 export interface PagamentoModalProps {
   visible: boolean;
@@ -239,151 +246,152 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
   );
 };
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  backdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
-  },
-  content: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: BorderRadius.xl,
-    borderTopRightRadius: BorderRadius.xl,
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xl,
-    maxHeight: "90%",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  title: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-    color: colors.text,
-  },
-  form: {
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.lg,
-  },
-  formGroup: {
-    marginBottom: Spacing.xl,
-  },
-  label: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.semibold,
-    color: colors.text,
-    marginBottom: Spacing.sm,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
-    height: 48,
-    backgroundColor: colors.background,
-  },
-  currencyPrefix: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.bold,
-    color: colors.primary,
-    marginRight: Spacing.sm,
-  },
-  input: {
-    flex: 1,
-    fontSize: FontSize.md,
-    color: colors.text,
-  },
-  inputError: {
-    borderColor: colors.danger,
-  },
-  errorText: {
-    fontSize: FontSize.xs,
-    color: colors.danger,
-    marginTop: Spacing.xs,
-  },
-  dateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
-    height: 48,
-    gap: Spacing.md,
-    backgroundColor: colors.background,
-  },
-  dateButtonText: {
-    fontSize: FontSize.md,
-    color: colors.text,
-    fontWeight: FontWeight.medium,
-  },
-  datePickerContainer: {
-    marginTop: Spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: BorderRadius.md,
-    overflow: "hidden",
-    backgroundColor: colors.background,
-  },
-  datePickerClose: {
-    backgroundColor: colors.primary,
-    paddingVertical: Spacing.md,
-    alignItems: "center",
-  },
-  datePickerCloseText: {
-    color: colors.textInverse,
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-  },
-  footer: {
-    flexDirection: "row",
-    gap: Spacing.md,
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  button: {
-    flex: 1,
-    height: 48,
-    borderRadius: BorderRadius.md,
-    justifyContent: "center",
-    alignItems: "center",
-    overflow: "hidden",
-  },
-  cancelButton: {
-    backgroundColor: colors.background,
-  },
-  cancelButtonText: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: colors.textSecondary,
-  },
-  saveGradient: {
-    flex: 1,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: BorderRadius.md,
-  },
-  saveButtonText: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: colors.textInverse,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "flex-end",
+    },
+    backdrop: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
+    },
+    content: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: BorderRadius.xl,
+      borderTopRightRadius: BorderRadius.xl,
+      paddingTop: Spacing.xl,
+      paddingBottom: Spacing.xl,
+      maxHeight: "90%",
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: Spacing.xl,
+      paddingBottom: Spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    title: {
+      fontSize: FontSize.lg,
+      fontWeight: FontWeight.bold,
+      color: colors.text,
+    },
+    form: {
+      paddingHorizontal: Spacing.xl,
+      paddingVertical: Spacing.lg,
+    },
+    formGroup: {
+      marginBottom: Spacing.xl,
+    },
+    label: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.semibold,
+      color: colors.text,
+      marginBottom: Spacing.sm,
+    },
+    inputContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.md,
+      paddingHorizontal: Spacing.md,
+      height: 48,
+      backgroundColor: colors.background,
+    },
+    currencyPrefix: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.bold,
+      color: colors.primary,
+      marginRight: Spacing.sm,
+    },
+    input: {
+      flex: 1,
+      fontSize: FontSize.md,
+      color: colors.text,
+    },
+    inputError: {
+      borderColor: colors.danger,
+    },
+    errorText: {
+      fontSize: FontSize.xs,
+      color: colors.danger,
+      marginTop: Spacing.xs,
+    },
+    dateButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.md,
+      paddingHorizontal: Spacing.md,
+      height: 48,
+      gap: Spacing.md,
+      backgroundColor: colors.background,
+    },
+    dateButtonText: {
+      fontSize: FontSize.md,
+      color: colors.text,
+      fontWeight: FontWeight.medium,
+    },
+    datePickerContainer: {
+      marginTop: Spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.md,
+      overflow: "hidden",
+      backgroundColor: colors.background,
+    },
+    datePickerClose: {
+      backgroundColor: colors.primary,
+      paddingVertical: Spacing.md,
+      alignItems: "center",
+    },
+    datePickerCloseText: {
+      color: colors.textInverse,
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+    },
+    footer: {
+      flexDirection: "row",
+      gap: Spacing.md,
+      paddingHorizontal: Spacing.xl,
+      paddingTop: Spacing.lg,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    button: {
+      flex: 1,
+      height: 48,
+      borderRadius: BorderRadius.md,
+      justifyContent: "center",
+      alignItems: "center",
+      overflow: "hidden",
+    },
+    cancelButton: {
+      backgroundColor: colors.background,
+    },
+    cancelButtonText: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+      color: colors.textSecondary,
+    },
+    saveGradient: {
+      flex: 1,
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: BorderRadius.md,
+    },
+    saveButtonText: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+      color: colors.textInverse,
+    },
+  });

@@ -19,7 +19,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { apiService } from "../services/api";
 import { IProduto } from "../types/produto";
 import { useThemeColors } from "../context/ThemeContext";
-import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
+import {
+  Spacing,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+  ThemeColors,
+} from "../theme";
 
 interface ProdutoModalProps {
   visible: boolean;
@@ -132,7 +139,7 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
     try {
       setLoading(true);
       const valorConverted = parseFloat(
-        valor.replace(/\./g, "").replace(/,/g, ".")
+        valor.replace(/\./g, "").replace(/,/g, "."),
       );
       const data = {
         nome: nome.trim(),
@@ -265,114 +272,115 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
   );
 };
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  title: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-    color: colors.text,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
-  },
-  section: {
-    marginBottom: Spacing.xl,
-  },
-  label: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.semibold,
-    color: colors.text,
-    marginBottom: Spacing.sm,
-  },
-  input: {
-    backgroundColor: colors.background,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    fontSize: FontSize.md,
-    color: colors.text,
-  },
-  inputWithPrefix: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.background,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    paddingHorizontal: Spacing.md,
-  },
-  currencyPrefix: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.bold,
-    color: colors.primary,
-    marginRight: Spacing.xs,
-  },
-  currencyInput: {
-    flex: 1,
-    paddingVertical: Spacing.md,
-    fontSize: FontSize.md,
-    color: colors.text,
-  },
-  suffix: {
-    fontSize: FontSize.md,
-    color: colors.textTertiary,
-    marginLeft: Spacing.xs,
-  },
-  requiredNote: {
-    fontSize: FontSize.xs,
-    color: colors.textTertiary,
-    marginTop: Spacing.md,
-  },
-  footer: {
-    flexDirection: "row",
-    gap: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  button: {
-    flex: 1,
-    height: 48,
-    borderRadius: BorderRadius.md,
-    justifyContent: "center",
-    alignItems: "center",
-    overflow: "hidden",
-  },
-  cancelButton: {
-    backgroundColor: colors.background,
-  },
-  cancelButtonText: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: colors.textSecondary,
-  },
-  saveGradient: {
-    flex: 1,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: BorderRadius.md,
-  },
-  saveButtonText: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: colors.textInverse,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.surface,
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: Spacing.lg,
+      paddingVertical: Spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    title: {
+      fontSize: FontSize.lg,
+      fontWeight: FontWeight.bold,
+      color: colors.text,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: Spacing.lg,
+      paddingVertical: Spacing.lg,
+    },
+    section: {
+      marginBottom: Spacing.xl,
+    },
+    label: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.semibold,
+      color: colors.text,
+      marginBottom: Spacing.sm,
+    },
+    input: {
+      backgroundColor: colors.background,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.md,
+      fontSize: FontSize.md,
+      color: colors.text,
+    },
+    inputWithPrefix: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.background,
+      borderRadius: BorderRadius.md,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      paddingHorizontal: Spacing.md,
+    },
+    currencyPrefix: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.bold,
+      color: colors.primary,
+      marginRight: Spacing.xs,
+    },
+    currencyInput: {
+      flex: 1,
+      paddingVertical: Spacing.md,
+      fontSize: FontSize.md,
+      color: colors.text,
+    },
+    suffix: {
+      fontSize: FontSize.md,
+      color: colors.textTertiary,
+      marginLeft: Spacing.xs,
+    },
+    requiredNote: {
+      fontSize: FontSize.xs,
+      color: colors.textTertiary,
+      marginTop: Spacing.md,
+    },
+    footer: {
+      flexDirection: "row",
+      gap: Spacing.md,
+      paddingHorizontal: Spacing.lg,
+      paddingVertical: Spacing.lg,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    button: {
+      flex: 1,
+      height: 48,
+      borderRadius: BorderRadius.md,
+      justifyContent: "center",
+      alignItems: "center",
+      overflow: "hidden",
+    },
+    cancelButton: {
+      backgroundColor: colors.background,
+    },
+    cancelButtonText: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+      color: colors.textSecondary,
+    },
+    saveGradient: {
+      flex: 1,
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: BorderRadius.md,
+    },
+    saveButtonText: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+      color: colors.textInverse,
+    },
+  });

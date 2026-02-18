@@ -7,7 +7,14 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { IMovimento } from "../types/movimento";
 import { useThemeColors } from "../context/ThemeContext";
-import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
+import {
+  Spacing,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+  ThemeColors,
+} from "../theme";
 
 export interface MovimentoCardProps {
   movimento: IMovimento;
@@ -55,7 +62,7 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
           style: "destructive",
           onPress: () => onDelete?.(movimento),
         },
-      ]
+      ],
     );
   };
 
@@ -66,14 +73,21 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
         <View style={styles.typeRow}>
           <View style={[styles.typeBadge, { backgroundColor: typeBg }]}>
             <Ionicons name={typeIcon as any} size={14} color={typeColor} />
-            <Text style={[styles.typeText, { color: typeColor }]}>{typeLabel}</Text>
+            <Text style={[styles.typeText, { color: typeColor }]}>
+              {typeLabel}
+            </Text>
           </View>
-          <Text style={styles.dateText}>{formatDate(movimento.data_movimento)}</Text>
+          <Text style={styles.dateText}>
+            {formatDate(movimento.data_movimento)}
+          </Text>
         </View>
 
         <View style={styles.actions}>
           {onEdit && (
-            <TouchableOpacity onPress={() => onEdit(movimento)} style={styles.actionBtn}>
+            <TouchableOpacity
+              onPress={() => onEdit(movimento)}
+              style={styles.actionBtn}
+            >
               <Ionicons name="create-outline" size={16} color={colors.info} />
             </TouchableOpacity>
           )}
@@ -103,7 +117,8 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
                 {item.nome_produto || `Produto ${item.id_produto}`}
               </Text>
               <Text style={styles.itemQty}>
-                {Math.round(item.quantidade)} x {formatCurrency(item.valor_unitario)}
+                {Math.round(item.quantidade)} x{" "}
+                {formatCurrency(item.valor_unitario)}
               </Text>
             </View>
           ))}
@@ -113,89 +128,90 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
   );
 };
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    marginBottom: Spacing.md,
-    ...Shadows.sm,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: Spacing.md,
-  },
-  typeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.md,
-  },
-  typeBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.xs,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.full,
-  },
-  typeText: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.semibold,
-  },
-  dateText: {
-    fontSize: FontSize.xs,
-    color: colors.textTertiary,
-  },
-  actions: {
-    flexDirection: "row",
-    gap: Spacing.xs,
-  },
-  actionBtn: {
-    padding: Spacing.sm,
-    backgroundColor: colors.background,
-    borderRadius: BorderRadius.sm,
-  },
-  valueRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: colors.background,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    marginBottom: Spacing.sm,
-  },
-  valueLabel: {
-    fontSize: FontSize.sm,
-    color: colors.textTertiary,
-    fontWeight: FontWeight.medium,
-  },
-  valueAmount: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-  },
-  itemsBox: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: Spacing.md,
-    gap: Spacing.sm,
-  },
-  itemRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  itemName: {
-    fontSize: FontSize.sm,
-    color: colors.textSecondary,
-    flex: 1,
-    marginRight: Spacing.md,
-  },
-  itemQty: {
-    fontSize: FontSize.sm,
-    color: colors.textTertiary,
-    fontWeight: FontWeight.medium,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: BorderRadius.lg,
+      padding: Spacing.lg,
+      marginBottom: Spacing.md,
+      ...Shadows.sm,
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: Spacing.md,
+    },
+    typeRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: Spacing.md,
+    },
+    typeBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: Spacing.xs,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.xs,
+      borderRadius: BorderRadius.full,
+    },
+    typeText: {
+      fontSize: FontSize.xs,
+      fontWeight: FontWeight.semibold,
+    },
+    dateText: {
+      fontSize: FontSize.xs,
+      color: colors.textTertiary,
+    },
+    actions: {
+      flexDirection: "row",
+      gap: Spacing.xs,
+    },
+    actionBtn: {
+      padding: Spacing.sm,
+      backgroundColor: colors.background,
+      borderRadius: BorderRadius.sm,
+    },
+    valueRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: colors.background,
+      borderRadius: BorderRadius.md,
+      paddingHorizontal: Spacing.lg,
+      paddingVertical: Spacing.md,
+      marginBottom: Spacing.sm,
+    },
+    valueLabel: {
+      fontSize: FontSize.sm,
+      color: colors.textTertiary,
+      fontWeight: FontWeight.medium,
+    },
+    valueAmount: {
+      fontSize: FontSize.lg,
+      fontWeight: FontWeight.bold,
+    },
+    itemsBox: {
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingTop: Spacing.md,
+      gap: Spacing.sm,
+    },
+    itemRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    itemName: {
+      fontSize: FontSize.sm,
+      color: colors.textSecondary,
+      flex: 1,
+      marginRight: Spacing.md,
+    },
+    itemQty: {
+      fontSize: FontSize.sm,
+      color: colors.textTertiary,
+      fontWeight: FontWeight.medium,
+    },
+  });

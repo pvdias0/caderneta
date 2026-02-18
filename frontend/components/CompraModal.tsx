@@ -24,7 +24,14 @@ import { IMovimento } from "../types/movimento";
 import { IProduto } from "../types/produto";
 import { apiService } from "../services/api";
 import { useThemeColors } from "../context/ThemeContext";
-import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
+import {
+  Spacing,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+  ThemeColors,
+} from "../theme";
 
 export interface CompraModalProps {
   visible: boolean;
@@ -65,7 +72,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
   const [loadingProdutos, setLoadingProdutos] = useState(false);
   const [showProdutoSelector, setShowProdutoSelector] = useState(false);
   const [selectedProdutoId, setSelectedProdutoId] = useState<number | null>(
-    null
+    null,
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -76,14 +83,17 @@ export const CompraModal: React.FC<CompraModalProps> = ({
     if (visible) {
       loadProdutos();
       if (compra) {
-        console.log('ðŸ“‹ [CompraModal] Modal aberto para EDITAR compra:', {
+        console.log("ðŸ“‹ [CompraModal] Modal aberto para EDITAR compra:", {
           id_compra: compra.id_movimento,
           data_movimento: compra.data_movimento,
           itens_count: compra.itens?.length || 0,
         });
         setData(new Date(compra.data_movimento));
         if (compra.itens) {
-          console.log('ðŸ›’ [CompraModal] Itens da compra a editar:', compra.itens);
+          console.log(
+            "ðŸ›’ [CompraModal] Itens da compra a editar:",
+            compra.itens,
+          );
           // Normalizar quantidades para inteiros e armazenar quantidade original
           const itensNormalizados = compra.itens.map((item: any) => ({
             ...item,
@@ -92,11 +102,14 @@ export const CompraModal: React.FC<CompraModalProps> = ({
             valor_unitario: Number(item.valor_unitario), // Garantir que Ã© nÃºmero tambÃ©m
             originalQuantidade: Math.round(item.quantidade), // Guardar quantidade original para cÃ¡lculo de estoque
           }));
-          console.log('âœ… [CompraModal] Itens normalizados:', itensNormalizados);
+          console.log(
+            "âœ… [CompraModal] Itens normalizados:",
+            itensNormalizados,
+          );
           setCart(itensNormalizados);
         }
       } else {
-        console.log('âž• [CompraModal] Modal aberto para CRIAR nova compra');
+        console.log("âž• [CompraModal] Modal aberto para CRIAR nova compra");
         setData(new Date());
         setCart([]);
       }
@@ -107,36 +120,51 @@ export const CompraModal: React.FC<CompraModalProps> = ({
   // Effect para popular os dados dos produtos nos itens do carrinho
   // Executa quando produtos Ã© carregado E hÃ¡ itens no carrinho
   useEffect(() => {
-    console.log('ðŸ”„ [CompraModal] Verificando sincronizaÃ§Ã£o de produtos:', {
+    console.log("ðŸ”„ [CompraModal] Verificando sincronizaÃ§Ã£o de produtos:", {
       cart_length: cart.length,
       produtos_length: produtos.length,
     });
-    
+
     if (cart.length > 0 && produtos.length > 0) {
-      console.log('ðŸ” [CompraModal] Verificando itens no carrinho...');
+      console.log("ðŸ” [CompraModal] Verificando itens no carrinho...");
       // Verifica quais itens precisam ser populados
       const itensComDadosIncompletos = cart.some((item) => !item.produto);
-      console.log('â“ [CompraModal] Itens com dados incompletos:', itensComDadosIncompletos);
+      console.log(
+        "â“ [CompraModal] Itens com dados incompletos:",
+        itensComDadosIncompletos,
+      );
 
       if (itensComDadosIncompletos) {
-        console.log('ðŸ“¦ [CompraModal] Populando dados dos produtos...');
+        console.log("ðŸ“¦ [CompraModal] Populando dados dos produtos...");
         const cartAtualizado = cart.map((item) => {
           if (!item.produto) {
-            console.log(`ðŸ”Ž [CompraModal] Procurando produto com ID ${item.id_produto} em ${produtos.length} produtos disponÃ­veis`);
-            console.log(`ðŸ“‹ [CompraModal] IDs disponÃ­veis:`, produtos.map((p: IProduto) => p.id_produto));
+            console.log(
+              `ðŸ”Ž [CompraModal] Procurando produto com ID ${item.id_produto} em ${produtos.length} produtos disponÃ­veis`,
+            );
+            console.log(
+              `ðŸ“‹ [CompraModal] IDs disponÃ­veis:`,
+              produtos.map((p: IProduto) => p.id_produto),
+            );
             const produtoEncontrado = produtos.find(
-              (p) => p.id_produto === item.id_produto
+              (p) => p.id_produto === item.id_produto,
             );
             if (produtoEncontrado) {
-              console.log(`âœ¨ [CompraModal] Produto encontrado para ID ${item.id_produto}:`, {
-                nome: produtoEncontrado.nome,
-                estoque: produtoEncontrado.quantidade_estoque,
-              });
+              console.log(
+                `âœ¨ [CompraModal] Produto encontrado para ID ${item.id_produto}:`,
+                {
+                  nome: produtoEncontrado.nome,
+                  estoque: produtoEncontrado.quantidade_estoque,
+                },
+              );
               return { ...item, produto: produtoEncontrado };
             } else {
-              console.warn(`âš ï¸ [CompraModal] Produto NÃƒO encontrado para ID ${item.id_produto}`);
+              console.warn(
+                `âš ï¸ [CompraModal] Produto NÃƒO encontrado para ID ${item.id_produto}`,
+              );
               console.warn(`âš ï¸ [CompraModal] Detalhes do item:`, item);
-              console.warn(`âš ï¸ [CompraModal] Tipo de id_produto: ${typeof item.id_produto}, valor: ${item.id_produto}`);
+              console.warn(
+                `âš ï¸ [CompraModal] Tipo de id_produto: ${typeof item.id_produto}, valor: ${item.id_produto}`,
+              );
             }
           }
           return item;
@@ -146,14 +174,23 @@ export const CompraModal: React.FC<CompraModalProps> = ({
         const cartStr = JSON.stringify(cart);
         const cartAtualizadoStr = JSON.stringify(cartAtualizado);
         if (cartStr !== cartAtualizadoStr) {
-          console.log('ðŸ”„ [CompraModal] Atualizando carrinho com dados dos produtos');
-          console.log('ðŸ“Š [CompraModal] Carrinho atualizado:', cartAtualizado);
+          console.log(
+            "ðŸ”„ [CompraModal] Atualizando carrinho com dados dos produtos",
+          );
+          console.log(
+            "ðŸ“Š [CompraModal] Carrinho atualizado:",
+            cartAtualizado,
+          );
           setCart(cartAtualizado);
         } else {
-          console.log('âœ“ [CompraModal] Carrinho jÃ¡ estava populado, nenhuma alteraÃ§Ã£o necessÃ¡ria');
+          console.log(
+            "âœ“ [CompraModal] Carrinho jÃ¡ estava populado, nenhuma alteraÃ§Ã£o necessÃ¡ria",
+          );
         }
       } else {
-        console.log('âœ“ [CompraModal] Todos os itens jÃ¡ tÃªm dados de produto');
+        console.log(
+          "âœ“ [CompraModal] Todos os itens jÃ¡ tÃªm dados de produto",
+        );
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -161,13 +198,21 @@ export const CompraModal: React.FC<CompraModalProps> = ({
 
   const loadProdutos = async () => {
     try {
-      console.log('ðŸ“¥ [CompraModal] Iniciando carregamento de produtos...');
+      console.log("ðŸ“¥ [CompraModal] Iniciando carregamento de produtos...");
       setLoadingProdutos(true);
       const data = await apiService.getProdutos();
       const produtosCarregados = data.data || [];
-      console.log(`âœ… [CompraModal] ${produtosCarregados.length} produtos carregados (raw):`, produtosCarregados);
-      console.log(`âœ… [CompraModal] ${produtosCarregados.length} produtos carregados (mapeado):`, 
-        produtosCarregados.map((p: IProduto) => ({ id: p.id_produto, nome: p.nome, estoque: p.quantidade_estoque }))
+      console.log(
+        `âœ… [CompraModal] ${produtosCarregados.length} produtos carregados (raw):`,
+        produtosCarregados,
+      );
+      console.log(
+        `âœ… [CompraModal] ${produtosCarregados.length} produtos carregados (mapeado):`,
+        produtosCarregados.map((p: IProduto) => ({
+          id: p.id_produto,
+          nome: p.nome,
+          estoque: p.quantidade_estoque,
+        })),
       );
       setProdutos(produtosCarregados);
     } catch (error) {
@@ -213,13 +258,14 @@ export const CompraModal: React.FC<CompraModalProps> = ({
    */
   const getAvailableStock = (cartItem: CartItem): number => {
     if (!cartItem.produto) return 0;
-    
+
     // Se tem quantidade original (estÃ¡ em modo ediÃ§Ã£o), calcular estoque disponÃ­vel
     if (cartItem.originalQuantidade !== undefined) {
-      const quantidadeDevolvidaAoEstoque = cartItem.originalQuantidade - cartItem.quantidade;
+      const quantidadeDevolvidaAoEstoque =
+        cartItem.originalQuantidade - cartItem.quantidade;
       return cartItem.produto.quantidade_estoque + quantidadeDevolvidaAoEstoque;
     }
-    
+
     // Caso contrÃ¡rio, retornar estoque total (modo criaÃ§Ã£o)
     return cartItem.produto.quantidade_estoque;
   };
@@ -244,7 +290,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
     if (produto.quantidade_estoque === 0) {
       Alert.alert(
         "Sem Estoque",
-        `O produto "${produto.nome}" nÃ£o possui quantidade disponÃ­vel em estoque.`
+        `O produto "${produto.nome}" nÃ£o possui quantidade disponÃ­vel em estoque.`,
       );
       return;
     }
@@ -256,14 +302,14 @@ export const CompraModal: React.FC<CompraModalProps> = ({
     if (produto.quantidade_estoque < qtd) {
       Alert.alert(
         "Estoque Insuficiente",
-        `O produto "${produto.nome}" possui apenas ${produto.quantidade_estoque} unidade(s) em estoque.`
+        `O produto "${produto.nome}" possui apenas ${produto.quantidade_estoque} unidade(s) em estoque.`,
       );
       return;
     }
 
     // Verificar se produto jÃ¡ estÃ¡ no carrinho
     const existingIndex = cart.findIndex(
-      (i) => i.id_produto === selectedProdutoId
+      (i) => i.id_produto === selectedProdutoId,
     );
     if (existingIndex >= 0) {
       // Se jÃ¡ estÃ¡ no carrinho, validar se hÃ¡ estoque suficiente para aumentar
@@ -271,7 +317,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
       if (produto.quantidade_estoque < novaQuantidade) {
         Alert.alert(
           "Estoque Insuficiente",
-          `O produto "${produto.nome}" possui apenas ${produto.quantidade_estoque} unidade(s) em estoque, mas vocÃª jÃ¡ tem ${cart[existingIndex].quantidade} no carrinho.`
+          `O produto "${produto.nome}" possui apenas ${produto.quantidade_estoque} unidade(s) em estoque, mas vocÃª jÃ¡ tem ${cart[existingIndex].quantidade} no carrinho.`,
         );
         return;
       }
@@ -307,11 +353,11 @@ export const CompraModal: React.FC<CompraModalProps> = ({
     if (!isNaN(qtd) && qtd > 0) {
       // Validar estoque disponÃ­vel
       const item = cart[index];
-      
+
       // Se nÃ£o tem produto carregado, tentar carregar agora
       if (!item.produto) {
         const produtoEncontrado = produtos.find(
-          (p) => p.id_produto === item.id_produto
+          (p) => p.id_produto === item.id_produto,
         );
         if (produtoEncontrado) {
           item.produto = produtoEncontrado;
@@ -320,13 +366,13 @@ export const CompraModal: React.FC<CompraModalProps> = ({
           return;
         }
       }
-      
+
       const availableStock = getAvailableStock(item);
-      
+
       if (qtd > availableStock) {
         Alert.alert(
           "Estoque Insuficiente",
-          `O produto "${item.produto.nome}" possui apenas ${availableStock} unidade(s) disponÃ­vel(is).`
+          `O produto "${item.produto.nome}" possui apenas ${availableStock} unidade(s) disponÃ­vel(is).`,
         );
         return;
       }
@@ -340,7 +386,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
   const getTotalValue = (): number => {
     return cart.reduce(
       (sum, item) => sum + item.quantidade * item.valor_unitario,
-      0
+      0,
     );
   };
 
@@ -456,13 +502,15 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                   ) : (
                     <>
                       <Text style={styles.selectorLabel}>
-                        Selecione o Produto ({
-                          produtos.filter(p =>
+                        Selecione o Produto (
+                        {
+                          produtos.filter((p) =>
                             p.nome
                               .toLowerCase()
-                              .includes(searchProduto.toLowerCase())
+                              .includes(searchProduto.toLowerCase()),
                           ).length
-                        })
+                        }
+                        )
                       </Text>
                       <TextInput
                         style={styles.searchInput}
@@ -472,10 +520,10 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                         onChangeText={setSearchProduto}
                       />
                       <FlatList
-                        data={produtos.filter(p =>
+                        data={produtos.filter((p) =>
                           p.nome
                             .toLowerCase()
-                            .includes(searchProduto.toLowerCase())
+                            .includes(searchProduto.toLowerCase()),
                         )}
                         scrollEnabled={false}
                         keyExtractor={(item) => item.id_produto.toString()}
@@ -500,7 +548,8 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                                 <Text
                                   style={[
                                     styles.produtoOptionName,
-                                    isOutOfStock && styles.produtoOptionNameDisabled,
+                                    isOutOfStock &&
+                                      styles.produtoOptionNameDisabled,
                                   ]}
                                   numberOfLines={1}
                                 >
@@ -513,7 +562,8 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                                   <Text
                                     style={[
                                       styles.produtoOptionStock,
-                                      isOutOfStock && styles.produtoOptionStockEmpty,
+                                      isOutOfStock &&
+                                        styles.produtoOptionStockEmpty,
                                     ]}
                                   >
                                     {isOutOfStock
@@ -586,65 +636,70 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                             </Text>
                           </View>
                         </View>
-                      <View style={styles.cartItemDetails}>
-                        <Text style={styles.cartItemPrice}>
-                          {formatCurrency(item.valor_unitario)}
-                        </Text>
-                        <View style={styles.quantityControls}>
-                          <TouchableOpacity
-                            onPress={() => {
-                              const newQtd = Math.round(item.quantidade) - 1;
-                              if (newQtd > 0) {
-                                updateCartQuantity(index, newQtd.toString());
-                              }
-                            }}
-                            style={styles.quantityButton}
-                          >
-                            <Ionicons name="remove" size={16} color="#e91e63" />
-                          </TouchableOpacity>
-                          <Text style={styles.quantityDisplay}>
-                            {Math.round(item.quantidade)}
+                        <View style={styles.cartItemDetails}>
+                          <Text style={styles.cartItemPrice}>
+                            {formatCurrency(item.valor_unitario)}
                           </Text>
-                          <TouchableOpacity
-                            onPress={() => {
-                              const newQtd = Math.round(item.quantidade) + 1;
-                              
-                              // Garantir que o produto estÃ¡ carregado
-                              let itemComProduto = { ...item };
-                              if (!itemComProduto.produto) {
-                                const produtoEncontrado = produtos.find(
-                                  (p) => p.id_produto === item.id_produto
-                                );
-                                if (produtoEncontrado) {
-                                  itemComProduto.produto = produtoEncontrado;
+                          <View style={styles.quantityControls}>
+                            <TouchableOpacity
+                              onPress={() => {
+                                const newQtd = Math.round(item.quantidade) - 1;
+                                if (newQtd > 0) {
+                                  updateCartQuantity(index, newQtd.toString());
                                 }
-                              }
-                              
-                              const availableStock = getAvailableStock(itemComProduto);
-                              
-                              // Validar estoque antes de incrementar
-                              if (newQtd > availableStock) {
-                                Alert.alert(
-                                  "Estoque Insuficiente",
-                                  `O produto "${itemComProduto.produto?.nome || 'desconhecido'}" possui apenas ${availableStock} unidade(s) disponÃ­vel(is).`
-                                );
-                                return;
-                              }
-                              
-                              updateCartQuantity(index, newQtd.toString());
-                            }}
-                            style={styles.quantityButton}
-                          >
-                            <Ionicons name="add" size={16} color="#e91e63" />
-                          </TouchableOpacity>
+                              }}
+                              style={styles.quantityButton}
+                            >
+                              <Ionicons
+                                name="remove"
+                                size={16}
+                                color="#e91e63"
+                              />
+                            </TouchableOpacity>
+                            <Text style={styles.quantityDisplay}>
+                              {Math.round(item.quantidade)}
+                            </Text>
+                            <TouchableOpacity
+                              onPress={() => {
+                                const newQtd = Math.round(item.quantidade) + 1;
+
+                                // Garantir que o produto estÃ¡ carregado
+                                let itemComProduto = { ...item };
+                                if (!itemComProduto.produto) {
+                                  const produtoEncontrado = produtos.find(
+                                    (p) => p.id_produto === item.id_produto,
+                                  );
+                                  if (produtoEncontrado) {
+                                    itemComProduto.produto = produtoEncontrado;
+                                  }
+                                }
+
+                                const availableStock =
+                                  getAvailableStock(itemComProduto);
+
+                                // Validar estoque antes de incrementar
+                                if (newQtd > availableStock) {
+                                  Alert.alert(
+                                    "Estoque Insuficiente",
+                                    `O produto "${itemComProduto.produto?.nome || "desconhecido"}" possui apenas ${availableStock} unidade(s) disponÃ­vel(is).`,
+                                  );
+                                  return;
+                                }
+
+                                updateCartQuantity(index, newQtd.toString());
+                              }}
+                              style={styles.quantityButton}
+                            >
+                              <Ionicons name="add" size={16} color="#e91e63" />
+                            </TouchableOpacity>
+                          </View>
+                          <Text style={styles.cartItemSubtotal}>
+                            {formatCurrency(
+                              item.quantidade * item.valor_unitario,
+                            )}
+                          </Text>
                         </View>
-                        <Text style={styles.cartItemSubtotal}>
-                          {formatCurrency(
-                            item.quantidade * item.valor_unitario
-                          )}
-                        </Text>
                       </View>
-                    </View>
                       <TouchableOpacity
                         onPress={() => removeFromCart(index)}
                         style={styles.removeButton}
@@ -685,7 +740,10 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                 colors={[...colors.gradientPrimary]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                style={[styles.saveGradient, (loading || cart.length === 0) && { opacity: 0.6 }]}
+                style={[
+                  styles.saveGradient,
+                  (loading || cart.length === 0) && { opacity: 0.6 },
+                ]}
               >
                 <Text style={styles.saveButtonText}>
                   {loading ? "Salvando..." : "Salvar"}
@@ -699,352 +757,353 @@ export const CompraModal: React.FC<CompraModalProps> = ({
   );
 };
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  backdrop: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
-  },
-  content: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: BorderRadius.xl,
-    borderTopRightRadius: BorderRadius.xl,
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xl,
-    maxHeight: "95%",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  title: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-    color: colors.text,
-  },
-  form: {
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.lg,
-  },
-  formGroup: {
-    marginBottom: Spacing.xl,
-  },
-  label: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.semibold,
-    color: colors.text,
-    marginBottom: Spacing.sm,
-  },
-  dateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
-    height: 48,
-    gap: Spacing.md,
-    backgroundColor: colors.background,
-  },
-  dateButtonText: {
-    fontSize: FontSize.md,
-    color: colors.text,
-    fontWeight: FontWeight.medium,
-  },
-  datePickerContainer: {
-    marginTop: Spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: BorderRadius.md,
-    overflow: "hidden",
-    backgroundColor: colors.background,
-  },
-  datePickerClose: {
-    backgroundColor: colors.primary,
-    paddingVertical: Spacing.md,
-    alignItems: "center",
-  },
-  datePickerCloseText: {
-    color: colors.textInverse,
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-  },
-  addProductButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.primary,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.md,
-    gap: Spacing.sm,
-  },
-  addProductButtonText: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: colors.textInverse,
-  },
-  produtoSelector: {
-    backgroundColor: colors.background,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    marginTop: Spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  selectorLabel: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.semibold,
-    color: colors.textSecondary,
-    marginBottom: Spacing.md,
-  },
-  searchInput: {
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: BorderRadius.sm,
-    paddingHorizontal: Spacing.md,
-    height: 40,
-    fontSize: FontSize.md,
-    color: colors.text,
-    backgroundColor: colors.surface,
-    marginBottom: Spacing.md,
-  },
-  produtoOption: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    marginBottom: Spacing.sm,
-    backgroundColor: colors.surface,
-    borderRadius: BorderRadius.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  produtoOptionSelected: {
-    backgroundColor: colors.primarySoft,
-    borderColor: colors.primaryLight,
-  },
-  produtoOptionContent: {
-    flex: 1,
-  },
-  produtoOptionName: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.medium,
-    color: colors.text,
-    marginBottom: 2,
-  },
-  produtoOptionNameDisabled: {
-    color: colors.textTertiary,
-  },
-  produtoOptionSubInfo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  produtoOptionPrice: {
-    fontSize: FontSize.xs,
-    color: colors.textTertiary,
-  },
-  produtoOptionStock: {
-    fontSize: FontSize.xs,
-    color: colors.success,
-    fontWeight: FontWeight.medium,
-  },
-  produtoOptionStockEmpty: {
-    color: colors.danger,
-  },
-  produtoOptionDisabled: {
-    backgroundColor: colors.background,
-    opacity: 0.6,
-  },
-  addToCartButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.primary,
-    borderRadius: BorderRadius.sm,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    marginTop: Spacing.md,
-    gap: Spacing.xs,
-  },
-  addToCartButtonDisabled: {
-    backgroundColor: colors.textTertiary,
-    opacity: 0.6,
-  },
-  addToCartButtonText: {
-    color: colors.textInverse,
-    fontWeight: FontWeight.semibold,
-    fontSize: FontSize.md,
-  },
-  errorText: {
-    fontSize: FontSize.xs,
-    color: colors.danger,
-    marginTop: Spacing.xs,
-  },
-  cartContainer: {
-    backgroundColor: colors.background,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    marginTop: Spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  cartTitle: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.semibold,
-    color: colors.textSecondary,
-    marginBottom: Spacing.md,
-  },
-  cartItem: {
-    backgroundColor: colors.surface,
-    borderRadius: BorderRadius.sm,
-    padding: Spacing.md,
-    marginBottom: Spacing.sm,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderLeftWidth: 3,
-    borderLeftColor: colors.warning,
-  },
-  cartItemInfo: {
-    flex: 1,
-  },
-  cartItemName: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.medium,
-    color: colors.text,
-    marginBottom: Spacing.xs,
-  },
-  cartItemDetails: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
-  },
-  cartItemPrice: {
-    fontSize: FontSize.xs,
-    color: colors.textTertiary,
-    minWidth: 50,
-  },
-  quantityControls: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
-    backgroundColor: colors.background,
-    borderRadius: BorderRadius.sm,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-  },
-  quantityButton: {
-    padding: Spacing.xs,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  quantityDisplay: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: colors.text,
-    minWidth: 30,
-    textAlign: "center",
-  },
-  cartItemSubtotal: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.semibold,
-    color: colors.primary,
-    minWidth: 60,
-    textAlign: "right",
-  },
-  cartItemNameContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
-    marginBottom: Spacing.xs,
-  },
-  stockBadge: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.sm,
-  },
-  stockBadgeOk: {
-    backgroundColor: colors.successSoft,
-  },
-  stockBadgeWarning: {
-    backgroundColor: colors.dangerSoft,
-  },
-  stockBadgeText: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.semibold,
-    color: colors.textSecondary,
-  },
-  removeButton: {
-    padding: Spacing.sm,
-  },
-  cartTotal: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    marginTop: Spacing.sm,
-  },
-  cartTotalLabel: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.semibold,
-    color: colors.textSecondary,
-  },
-  cartTotalValue: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-    color: colors.primary,
-  },
-  footer: {
-    flexDirection: "row",
-    gap: Spacing.md,
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  button: {
-    flex: 1,
-    height: 48,
-    borderRadius: BorderRadius.md,
-    justifyContent: "center",
-    alignItems: "center",
-    overflow: "hidden",
-  },
-  cancelButton: {
-    backgroundColor: colors.background,
-  },
-  cancelButtonText: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: colors.textSecondary,
-  },
-  saveGradient: {
-    flex: 1,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: BorderRadius.md,
-  },
-  saveButtonText: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-    color: colors.textInverse,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "flex-end",
+    },
+    backdrop: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
+    },
+    content: {
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: BorderRadius.xl,
+      borderTopRightRadius: BorderRadius.xl,
+      paddingTop: Spacing.xl,
+      paddingBottom: Spacing.xl,
+      maxHeight: "95%",
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: Spacing.xl,
+      paddingBottom: Spacing.lg,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    title: {
+      fontSize: FontSize.lg,
+      fontWeight: FontWeight.bold,
+      color: colors.text,
+    },
+    form: {
+      paddingHorizontal: Spacing.xl,
+      paddingVertical: Spacing.lg,
+    },
+    formGroup: {
+      marginBottom: Spacing.xl,
+    },
+    label: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.semibold,
+      color: colors.text,
+      marginBottom: Spacing.sm,
+    },
+    dateButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.md,
+      paddingHorizontal: Spacing.md,
+      height: 48,
+      gap: Spacing.md,
+      backgroundColor: colors.background,
+    },
+    dateButtonText: {
+      fontSize: FontSize.md,
+      color: colors.text,
+      fontWeight: FontWeight.medium,
+    },
+    datePickerContainer: {
+      marginTop: Spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.md,
+      overflow: "hidden",
+      backgroundColor: colors.background,
+    },
+    datePickerClose: {
+      backgroundColor: colors.primary,
+      paddingVertical: Spacing.md,
+      alignItems: "center",
+    },
+    datePickerCloseText: {
+      color: colors.textInverse,
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+    },
+    addProductButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.primary,
+      borderRadius: BorderRadius.md,
+      paddingVertical: Spacing.md,
+      gap: Spacing.sm,
+    },
+    addProductButtonText: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+      color: colors.textInverse,
+    },
+    produtoSelector: {
+      backgroundColor: colors.background,
+      borderRadius: BorderRadius.md,
+      padding: Spacing.md,
+      marginTop: Spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    selectorLabel: {
+      fontSize: FontSize.xs,
+      fontWeight: FontWeight.semibold,
+      color: colors.textSecondary,
+      marginBottom: Spacing.md,
+    },
+    searchInput: {
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.sm,
+      paddingHorizontal: Spacing.md,
+      height: 40,
+      fontSize: FontSize.md,
+      color: colors.text,
+      backgroundColor: colors.surface,
+      marginBottom: Spacing.md,
+    },
+    produtoOption: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.md,
+      marginBottom: Spacing.sm,
+      backgroundColor: colors.surface,
+      borderRadius: BorderRadius.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    produtoOptionSelected: {
+      backgroundColor: colors.primarySoft,
+      borderColor: colors.primaryLight,
+    },
+    produtoOptionContent: {
+      flex: 1,
+    },
+    produtoOptionName: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.medium,
+      color: colors.text,
+      marginBottom: 2,
+    },
+    produtoOptionNameDisabled: {
+      color: colors.textTertiary,
+    },
+    produtoOptionSubInfo: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    produtoOptionPrice: {
+      fontSize: FontSize.xs,
+      color: colors.textTertiary,
+    },
+    produtoOptionStock: {
+      fontSize: FontSize.xs,
+      color: colors.success,
+      fontWeight: FontWeight.medium,
+    },
+    produtoOptionStockEmpty: {
+      color: colors.danger,
+    },
+    produtoOptionDisabled: {
+      backgroundColor: colors.background,
+      opacity: 0.6,
+    },
+    addToCartButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.primary,
+      borderRadius: BorderRadius.sm,
+      paddingVertical: Spacing.md,
+      paddingHorizontal: Spacing.lg,
+      marginTop: Spacing.md,
+      gap: Spacing.xs,
+    },
+    addToCartButtonDisabled: {
+      backgroundColor: colors.textTertiary,
+      opacity: 0.6,
+    },
+    addToCartButtonText: {
+      color: colors.textInverse,
+      fontWeight: FontWeight.semibold,
+      fontSize: FontSize.md,
+    },
+    errorText: {
+      fontSize: FontSize.xs,
+      color: colors.danger,
+      marginTop: Spacing.xs,
+    },
+    cartContainer: {
+      backgroundColor: colors.background,
+      borderRadius: BorderRadius.md,
+      padding: Spacing.md,
+      marginTop: Spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    cartTitle: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.semibold,
+      color: colors.textSecondary,
+      marginBottom: Spacing.md,
+    },
+    cartItem: {
+      backgroundColor: colors.surface,
+      borderRadius: BorderRadius.sm,
+      padding: Spacing.md,
+      marginBottom: Spacing.sm,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      borderLeftWidth: 3,
+      borderLeftColor: colors.warning,
+    },
+    cartItemInfo: {
+      flex: 1,
+    },
+    cartItemName: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.medium,
+      color: colors.text,
+      marginBottom: Spacing.xs,
+    },
+    cartItemDetails: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: Spacing.sm,
+    },
+    cartItemPrice: {
+      fontSize: FontSize.xs,
+      color: colors.textTertiary,
+      minWidth: 50,
+    },
+    quantityControls: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: Spacing.sm,
+      backgroundColor: colors.background,
+      borderRadius: BorderRadius.sm,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xs,
+    },
+    quantityButton: {
+      padding: Spacing.xs,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    quantityDisplay: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+      color: colors.text,
+      minWidth: 30,
+      textAlign: "center",
+    },
+    cartItemSubtotal: {
+      fontSize: FontSize.xs,
+      fontWeight: FontWeight.semibold,
+      color: colors.primary,
+      minWidth: 60,
+      textAlign: "right",
+    },
+    cartItemNameContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: Spacing.sm,
+      marginBottom: Spacing.xs,
+    },
+    stockBadge: {
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xs,
+      borderRadius: BorderRadius.sm,
+    },
+    stockBadgeOk: {
+      backgroundColor: colors.successSoft,
+    },
+    stockBadgeWarning: {
+      backgroundColor: colors.dangerSoft,
+    },
+    stockBadgeText: {
+      fontSize: FontSize.xs,
+      fontWeight: FontWeight.semibold,
+      color: colors.textSecondary,
+    },
+    removeButton: {
+      padding: Spacing.sm,
+    },
+    cartTotal: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingTop: Spacing.md,
+      paddingHorizontal: Spacing.md,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      marginTop: Spacing.sm,
+    },
+    cartTotalLabel: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.semibold,
+      color: colors.textSecondary,
+    },
+    cartTotalValue: {
+      fontSize: FontSize.lg,
+      fontWeight: FontWeight.bold,
+      color: colors.primary,
+    },
+    footer: {
+      flexDirection: "row",
+      gap: Spacing.md,
+      paddingHorizontal: Spacing.xl,
+      paddingTop: Spacing.lg,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    button: {
+      flex: 1,
+      height: 48,
+      borderRadius: BorderRadius.md,
+      justifyContent: "center",
+      alignItems: "center",
+      overflow: "hidden",
+    },
+    cancelButton: {
+      backgroundColor: colors.background,
+    },
+    cancelButtonText: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+      color: colors.textSecondary,
+    },
+    saveGradient: {
+      flex: 1,
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: BorderRadius.md,
+    },
+    saveButtonText: {
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+      color: colors.textInverse,
+    },
+  });

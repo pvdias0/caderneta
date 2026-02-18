@@ -19,7 +19,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { apiService } from "../services/api";
 import { useThemeColors } from "../context/ThemeContext";
-import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
+import {
+  Spacing,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+  ThemeColors,
+} from "../theme";
 
 export interface ChangePasswordModalProps {
   visible: boolean;
@@ -154,78 +161,78 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             scrollEnabled={false}
           >
             <View style={styles.modalContent}>
-            {/* Header */}
-            <View style={styles.header}>
-              <Text style={styles.title}>Mudar Senha</Text>
-              <TouchableOpacity onPress={handleClose} disabled={loading}>
-                <Ionicons name="close" size={24} color={colors.text} />
-              </TouchableOpacity>
-            </View>
+              {/* Header */}
+              <View style={styles.header}>
+                <Text style={styles.title}>Mudar Senha</Text>
+                <TouchableOpacity onPress={handleClose} disabled={loading}>
+                  <Ionicons name="close" size={24} color={colors.text} />
+                </TouchableOpacity>
+              </View>
 
-            {/* Campos de Entrada */}
-            <View style={styles.formContainer}>
-              <PasswordInput
-                label="Senha Atual"
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
-                showPassword={showCurrentPassword}
-                onToggleShow={() =>
-                  setShowCurrentPassword(!showCurrentPassword)
-                }
-                placeholder="Digite sua senha atual"
-              />
+              {/* Campos de Entrada */}
+              <View style={styles.formContainer}>
+                <PasswordInput
+                  label="Senha Atual"
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  showPassword={showCurrentPassword}
+                  onToggleShow={() =>
+                    setShowCurrentPassword(!showCurrentPassword)
+                  }
+                  placeholder="Digite sua senha atual"
+                />
 
-              <PasswordInput
-                label="Nova Senha"
-                value={newPassword}
-                onChangeText={setNewPassword}
-                showPassword={showNewPassword}
-                onToggleShow={() => setShowNewPassword(!showNewPassword)}
-                placeholder="Digite a nova senha"
-              />
+                <PasswordInput
+                  label="Nova Senha"
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  showPassword={showNewPassword}
+                  onToggleShow={() => setShowNewPassword(!showNewPassword)}
+                  placeholder="Digite a nova senha"
+                />
 
-              <PasswordInput
-                label="Confirmar Senha"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                showPassword={showConfirmPassword}
-                onToggleShow={() =>
-                  setShowConfirmPassword(!showConfirmPassword)
-                }
-                placeholder="Confirme a nova senha"
-              />
-            </View>
+                <PasswordInput
+                  label="Confirmar Senha"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  showPassword={showConfirmPassword}
+                  onToggleShow={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
+                  placeholder="Confirme a nova senha"
+                />
+              </View>
 
-            {/* BotÃµes */}
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
-                onPress={handleClose}
-                disabled={loading}
-              >
-                <Text style={styles.cancelButtonText}>Cancelar</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={handleChangePassword}
-                disabled={loading}
-                activeOpacity={0.85}
-                style={styles.button}
-              >
-                <LinearGradient
-                  colors={[...colors.gradientPrimary]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={[styles.submitGradient, loading && { opacity: 0.6 }]}
+              {/* BotÃµes */}
+              <View style={styles.buttonsContainer}>
+                <TouchableOpacity
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={handleClose}
+                  disabled={loading}
                 >
-                  {loading ? (
-                    <ActivityIndicator size="small" color="#fff" />
-                  ) : (
-                    <Text style={styles.submitButtonText}>Mudar Senha</Text>
-                  )}
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
+                  <Text style={styles.cancelButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleChangePassword}
+                  disabled={loading}
+                  activeOpacity={0.85}
+                  style={styles.button}
+                >
+                  <LinearGradient
+                    colors={[...colors.gradientPrimary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={[styles.submitGradient, loading && { opacity: 0.6 }]}
+                  >
+                    {loading ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <Text style={styles.submitButtonText}>Mudar Senha</Text>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
         </View>
@@ -234,105 +241,106 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   );
 };
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: Spacing.lg,
-  },
-  overlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    backgroundColor: colors.surface,
-    borderRadius: BorderRadius.xl,
-    width: "100%",
-    maxWidth: 400,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.xl,
-    ...Shadows.lg,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: Spacing.xl,
-    paddingBottom: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  title: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-    color: colors.text,
-  },
-  formContainer: {
-    marginBottom: Spacing.xl,
-  },
-  inputContainer: {
-    marginBottom: Spacing.lg,
-  },
-  label: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.semibold,
-    marginBottom: Spacing.sm,
-    color: colors.text,
-  },
-  passwordInputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
-    backgroundColor: colors.background,
-    height: 48,
-  },
-  input: {
-    flex: 1,
-    fontSize: FontSize.md,
-    color: colors.text,
-  },
-  eyeButton: {
-    padding: Spacing.sm,
-  },
-  buttonsContainer: {
-    flexDirection: "row",
-    gap: Spacing.md,
-  },
-  button: {
-    flex: 1,
-    borderRadius: BorderRadius.md,
-    overflow: "hidden",
-  },
-  cancelButton: {
-    backgroundColor: colors.background,
-    paddingVertical: Spacing.md,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: BorderRadius.md,
-  },
-  cancelButtonText: {
-    color: colors.textSecondary,
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-  },
-  submitGradient: {
-    paddingVertical: Spacing.md,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: BorderRadius.md,
-  },
-  submitButtonText: {
-    color: colors.textInverse,
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.semibold,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
+    },
+    scrollContent: {
+      flexGrow: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: Spacing.lg,
+    },
+    overlay: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    modalContent: {
+      backgroundColor: colors.surface,
+      borderRadius: BorderRadius.xl,
+      width: "100%",
+      maxWidth: 400,
+      paddingHorizontal: Spacing.xl,
+      paddingVertical: Spacing.xl,
+      ...Shadows.lg,
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: Spacing.xl,
+      paddingBottom: Spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    title: {
+      fontSize: FontSize.lg,
+      fontWeight: FontWeight.bold,
+      color: colors.text,
+    },
+    formContainer: {
+      marginBottom: Spacing.xl,
+    },
+    inputContainer: {
+      marginBottom: Spacing.lg,
+    },
+    label: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.semibold,
+      marginBottom: Spacing.sm,
+      color: colors.text,
+    },
+    passwordInputWrapper: {
+      flexDirection: "row",
+      alignItems: "center",
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.md,
+      paddingHorizontal: Spacing.md,
+      backgroundColor: colors.background,
+      height: 48,
+    },
+    input: {
+      flex: 1,
+      fontSize: FontSize.md,
+      color: colors.text,
+    },
+    eyeButton: {
+      padding: Spacing.sm,
+    },
+    buttonsContainer: {
+      flexDirection: "row",
+      gap: Spacing.md,
+    },
+    button: {
+      flex: 1,
+      borderRadius: BorderRadius.md,
+      overflow: "hidden",
+    },
+    cancelButton: {
+      backgroundColor: colors.background,
+      paddingVertical: Spacing.md,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: BorderRadius.md,
+    },
+    cancelButtonText: {
+      color: colors.textSecondary,
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+    },
+    submitGradient: {
+      paddingVertical: Spacing.md,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: BorderRadius.md,
+    },
+    submitButtonText: {
+      color: colors.textInverse,
+      fontSize: FontSize.md,
+      fontWeight: FontWeight.semibold,
+    },
+  });

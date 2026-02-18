@@ -6,7 +6,14 @@ import React, { useMemo } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../context/ThemeContext";
-import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
+import {
+  Spacing,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+  ThemeColors,
+} from "../theme";
 
 export interface DashboardCardProps {
   title: string;
@@ -31,7 +38,12 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   return (
     <View style={styles.card}>
       <View style={styles.row}>
-        <View style={[styles.iconCircle, { backgroundColor: `${effectiveColor}15` }]}>
+        <View
+          style={[
+            styles.iconCircle,
+            { backgroundColor: `${effectiveColor}15` },
+          ]}
+        >
           <Ionicons name={icon} size={22} color={effectiveColor} />
         </View>
         <View style={styles.textContent}>
@@ -43,7 +55,9 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
             style={[
               styles.badge,
               {
-                backgroundColor: isPositive ? colors.successSoft : colors.dangerSoft,
+                backgroundColor: isPositive
+                  ? colors.successSoft
+                  : colors.dangerSoft,
               },
             ]}
           >
@@ -68,50 +82,51 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   );
 };
 
-const createStyles = (colors: ThemeColors) => StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    ...Shadows.sm,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: BorderRadius.md,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: Spacing.lg,
-  },
-  textContent: {
-    flex: 1,
-  },
-  title: {
-    fontSize: FontSize.xs,
-    color: colors.textTertiary,
-    fontWeight: FontWeight.medium,
-    textTransform: "uppercase",
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  value: {
-    fontSize: FontSize.xl,
-    fontWeight: FontWeight.bold,
-  },
-  badge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.full,
-  },
-  badgeText: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.semibold,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: BorderRadius.lg,
+      padding: Spacing.lg,
+      ...Shadows.sm,
+    },
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    iconCircle: {
+      width: 48,
+      height: 48,
+      borderRadius: BorderRadius.md,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: Spacing.lg,
+    },
+    textContent: {
+      flex: 1,
+    },
+    title: {
+      fontSize: FontSize.xs,
+      color: colors.textTertiary,
+      fontWeight: FontWeight.medium,
+      textTransform: "uppercase",
+      letterSpacing: 0.5,
+      marginBottom: 2,
+    },
+    value: {
+      fontSize: FontSize.xl,
+      fontWeight: FontWeight.bold,
+    },
+    badge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 3,
+      paddingHorizontal: Spacing.sm,
+      paddingVertical: Spacing.xs,
+      borderRadius: BorderRadius.full,
+    },
+    badgeText: {
+      fontSize: FontSize.xs,
+      fontWeight: FontWeight.semibold,
+    },
+  });
