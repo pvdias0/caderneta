@@ -1,9 +1,10 @@
 /**
  * Caderneta Design System
  * Modern, Minimalist, Juicy
+ * Light & Dark themes
  */
 
-export const Colors = {
+export const LightColors = {
   // Brand
   primary: "#E91E63",
   primaryDark: "#AD1457",
@@ -45,6 +46,54 @@ export const Colors = {
   gradientWarm: ["#FF6090", "#E91E63"] as const,
   gradientDark: ["#880E4F", "#AD1457"] as const,
 };
+
+export const DarkColors: ThemeColors = {
+  // Brand
+  primary: "#F06292",
+  primaryDark: "#E91E63",
+  primaryLight: "#F8BBD0",
+  primarySoft: "rgba(240,98,146,0.15)",
+
+  // Accent
+  accent: "#FF6090",
+  accentDark: "#C2185B",
+
+  // Semantic
+  success: "#69F0AE",
+  successSoft: "rgba(105,240,174,0.12)",
+  danger: "#FF5252",
+  dangerSoft: "rgba(255,82,82,0.12)",
+  warning: "#FFD740",
+  warningSoft: "rgba(255,215,64,0.12)",
+  info: "#448AFF",
+  infoSoft: "rgba(68,138,255,0.12)",
+
+  // Neutrals
+  background: "#121212",
+  surface: "#1E1E1E",
+  surfaceElevated: "#2C2C2C",
+  border: "#333333",
+  borderLight: "#2A2A2A",
+  divider: "#333333",
+
+  // Text
+  text: "#F5F5F5",
+  textSecondary: "#B0BEC5",
+  textTertiary: "#78909C",
+  textInverse: "#FFFFFF",
+  textOnPrimary: "#FFFFFF",
+
+  // Gradients
+  gradientPrimary: ["#E91E63", "#880E4F"] as const,
+  gradientPrimaryLight: ["#F06292", "#E91E63"] as const,
+  gradientWarm: ["#FF6090", "#E91E63"] as const,
+  gradientDark: ["#880E4F", "#AD1457"] as const,
+};
+
+export type ThemeColors = typeof LightColors;
+
+/** @deprecated Use useThemeColors() hook instead for dark mode support */
+export const Colors = LightColors;
 
 export const Spacing = {
   xs: 4,

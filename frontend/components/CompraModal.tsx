@@ -1,8 +1,8 @@
-/**
+﻿/**
  * Modal para criar/editar compra com carrinho de itens
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -23,7 +23,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { IMovimento } from "../types/movimento";
 import { IProduto } from "../types/produto";
 import { apiService } from "../services/api";
-import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
+import { useThemeColors } from "../context/ThemeContext";
+import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
 
 export interface CompraModalProps {
   visible: boolean;
@@ -55,6 +56,9 @@ export const CompraModal: React.FC<CompraModalProps> = ({
   onSave,
   loading = false,
 }) => {
+  const colors = useThemeColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [data, setData] = useState(new Date());
   const [cart, setCart] = useState<CartItem[]>([]);
   const [produtos, setProdutos] = useState<IProduto[]>([]);
@@ -72,27 +76,27 @@ export const CompraModal: React.FC<CompraModalProps> = ({
     if (visible) {
       loadProdutos();
       if (compra) {
-        console.log('📋 [CompraModal] Modal aberto para EDITAR compra:', {
+        console.log('ðŸ“‹ [CompraModal] Modal aberto para EDITAR compra:', {
           id_compra: compra.id_movimento,
           data_movimento: compra.data_movimento,
           itens_count: compra.itens?.length || 0,
         });
         setData(new Date(compra.data_movimento));
         if (compra.itens) {
-          console.log('🛒 [CompraModal] Itens da compra a editar:', compra.itens);
+          console.log('ðŸ›’ [CompraModal] Itens da compra a editar:', compra.itens);
           // Normalizar quantidades para inteiros e armazenar quantidade original
           const itensNormalizados = compra.itens.map((item: any) => ({
             ...item,
             id_produto: Number(item.id_produto), // Converter para number
             quantidade: Math.round(item.quantidade),
-            valor_unitario: Number(item.valor_unitario), // Garantir que é número também
-            originalQuantidade: Math.round(item.quantidade), // Guardar quantidade original para cálculo de estoque
+            valor_unitario: Number(item.valor_unitario), // Garantir que Ã© nÃºmero tambÃ©m
+            originalQuantidade: Math.round(item.quantidade), // Guardar quantidade original para cÃ¡lculo de estoque
           }));
-          console.log('✅ [CompraModal] Itens normalizados:', itensNormalizados);
+          console.log('âœ… [CompraModal] Itens normalizados:', itensNormalizados);
           setCart(itensNormalizados);
         }
       } else {
-        console.log('➕ [CompraModal] Modal aberto para CRIAR nova compra');
+        console.log('âž• [CompraModal] Modal aberto para CRIAR nova compra');
         setData(new Date());
         setCart([]);
       }
@@ -101,55 +105,55 @@ export const CompraModal: React.FC<CompraModalProps> = ({
   }, [visible, compra]);
 
   // Effect para popular os dados dos produtos nos itens do carrinho
-  // Executa quando produtos é carregado E há itens no carrinho
+  // Executa quando produtos Ã© carregado E hÃ¡ itens no carrinho
   useEffect(() => {
-    console.log('🔄 [CompraModal] Verificando sincronização de produtos:', {
+    console.log('ðŸ”„ [CompraModal] Verificando sincronizaÃ§Ã£o de produtos:', {
       cart_length: cart.length,
       produtos_length: produtos.length,
     });
     
     if (cart.length > 0 && produtos.length > 0) {
-      console.log('🔍 [CompraModal] Verificando itens no carrinho...');
+      console.log('ðŸ” [CompraModal] Verificando itens no carrinho...');
       // Verifica quais itens precisam ser populados
       const itensComDadosIncompletos = cart.some((item) => !item.produto);
-      console.log('❓ [CompraModal] Itens com dados incompletos:', itensComDadosIncompletos);
+      console.log('â“ [CompraModal] Itens com dados incompletos:', itensComDadosIncompletos);
 
       if (itensComDadosIncompletos) {
-        console.log('📦 [CompraModal] Populando dados dos produtos...');
+        console.log('ðŸ“¦ [CompraModal] Populando dados dos produtos...');
         const cartAtualizado = cart.map((item) => {
           if (!item.produto) {
-            console.log(`🔎 [CompraModal] Procurando produto com ID ${item.id_produto} em ${produtos.length} produtos disponíveis`);
-            console.log(`📋 [CompraModal] IDs disponíveis:`, produtos.map((p: IProduto) => p.id_produto));
+            console.log(`ðŸ”Ž [CompraModal] Procurando produto com ID ${item.id_produto} em ${produtos.length} produtos disponÃ­veis`);
+            console.log(`ðŸ“‹ [CompraModal] IDs disponÃ­veis:`, produtos.map((p: IProduto) => p.id_produto));
             const produtoEncontrado = produtos.find(
               (p) => p.id_produto === item.id_produto
             );
             if (produtoEncontrado) {
-              console.log(`✨ [CompraModal] Produto encontrado para ID ${item.id_produto}:`, {
+              console.log(`âœ¨ [CompraModal] Produto encontrado para ID ${item.id_produto}:`, {
                 nome: produtoEncontrado.nome,
                 estoque: produtoEncontrado.quantidade_estoque,
               });
               return { ...item, produto: produtoEncontrado };
             } else {
-              console.warn(`⚠️ [CompraModal] Produto NÃO encontrado para ID ${item.id_produto}`);
-              console.warn(`⚠️ [CompraModal] Detalhes do item:`, item);
-              console.warn(`⚠️ [CompraModal] Tipo de id_produto: ${typeof item.id_produto}, valor: ${item.id_produto}`);
+              console.warn(`âš ï¸ [CompraModal] Produto NÃƒO encontrado para ID ${item.id_produto}`);
+              console.warn(`âš ï¸ [CompraModal] Detalhes do item:`, item);
+              console.warn(`âš ï¸ [CompraModal] Tipo de id_produto: ${typeof item.id_produto}, valor: ${item.id_produto}`);
             }
           }
           return item;
         });
 
-        // Só atualiza se realmente alterou algum item
+        // SÃ³ atualiza se realmente alterou algum item
         const cartStr = JSON.stringify(cart);
         const cartAtualizadoStr = JSON.stringify(cartAtualizado);
         if (cartStr !== cartAtualizadoStr) {
-          console.log('🔄 [CompraModal] Atualizando carrinho com dados dos produtos');
-          console.log('📊 [CompraModal] Carrinho atualizado:', cartAtualizado);
+          console.log('ðŸ”„ [CompraModal] Atualizando carrinho com dados dos produtos');
+          console.log('ðŸ“Š [CompraModal] Carrinho atualizado:', cartAtualizado);
           setCart(cartAtualizado);
         } else {
-          console.log('✓ [CompraModal] Carrinho já estava populado, nenhuma alteração necessária');
+          console.log('âœ“ [CompraModal] Carrinho jÃ¡ estava populado, nenhuma alteraÃ§Ã£o necessÃ¡ria');
         }
       } else {
-        console.log('✓ [CompraModal] Todos os itens já têm dados de produto');
+        console.log('âœ“ [CompraModal] Todos os itens jÃ¡ tÃªm dados de produto');
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -157,18 +161,18 @@ export const CompraModal: React.FC<CompraModalProps> = ({
 
   const loadProdutos = async () => {
     try {
-      console.log('📥 [CompraModal] Iniciando carregamento de produtos...');
+      console.log('ðŸ“¥ [CompraModal] Iniciando carregamento de produtos...');
       setLoadingProdutos(true);
       const data = await apiService.getProdutos();
       const produtosCarregados = data.data || [];
-      console.log(`✅ [CompraModal] ${produtosCarregados.length} produtos carregados (raw):`, produtosCarregados);
-      console.log(`✅ [CompraModal] ${produtosCarregados.length} produtos carregados (mapeado):`, 
+      console.log(`âœ… [CompraModal] ${produtosCarregados.length} produtos carregados (raw):`, produtosCarregados);
+      console.log(`âœ… [CompraModal] ${produtosCarregados.length} produtos carregados (mapeado):`, 
         produtosCarregados.map((p: IProduto) => ({ id: p.id_produto, nome: p.nome, estoque: p.quantidade_estoque }))
       );
       setProdutos(produtosCarregados);
     } catch (error) {
-      console.error("❌ [CompraModal] Erro ao carregar produtos:", error);
-      Alert.alert("Erro", "Não foi possível carregar os produtos");
+      console.error("âŒ [CompraModal] Erro ao carregar produtos:", error);
+      Alert.alert("Erro", "NÃ£o foi possÃ­vel carregar os produtos");
     } finally {
       setLoadingProdutos(false);
     }
@@ -203,20 +207,20 @@ export const CompraModal: React.FC<CompraModalProps> = ({
   };
 
   /**
-   * Calcula o estoque disponível para um item do carrinho
-   * Durante criação: estoque total do produto
-   * Durante edição: estoque total + quantidade que está sendo "devolvida" ao reduzir
+   * Calcula o estoque disponÃ­vel para um item do carrinho
+   * Durante criaÃ§Ã£o: estoque total do produto
+   * Durante ediÃ§Ã£o: estoque total + quantidade que estÃ¡ sendo "devolvida" ao reduzir
    */
   const getAvailableStock = (cartItem: CartItem): number => {
     if (!cartItem.produto) return 0;
     
-    // Se tem quantidade original (está em modo edição), calcular estoque disponível
+    // Se tem quantidade original (estÃ¡ em modo ediÃ§Ã£o), calcular estoque disponÃ­vel
     if (cartItem.originalQuantidade !== undefined) {
       const quantidadeDevolvidaAoEstoque = cartItem.originalQuantidade - cartItem.quantidade;
       return cartItem.produto.quantidade_estoque + quantidadeDevolvidaAoEstoque;
     }
     
-    // Caso contrário, retornar estoque total (modo criação)
+    // Caso contrÃ¡rio, retornar estoque total (modo criaÃ§Ã£o)
     return cartItem.produto.quantidade_estoque;
   };
 
@@ -232,7 +236,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
 
     const produto = produtos.find((p) => p.id_produto === selectedProdutoId);
     if (!produto || selectedProdutoId === null) {
-      Alert.alert("Erro", "Produto não encontrado");
+      Alert.alert("Erro", "Produto nÃ£o encontrado");
       return;
     }
 
@@ -240,15 +244,15 @@ export const CompraModal: React.FC<CompraModalProps> = ({
     if (produto.quantidade_estoque === 0) {
       Alert.alert(
         "Sem Estoque",
-        `O produto "${produto.nome}" não possui quantidade disponível em estoque.`
+        `O produto "${produto.nome}" nÃ£o possui quantidade disponÃ­vel em estoque.`
       );
       return;
     }
 
-    // Usar quantidade padrão ao adicionar
+    // Usar quantidade padrÃ£o ao adicionar
     const qtd = DEFAULT_QUANTITY;
 
-    // Verificar se há estoque suficiente
+    // Verificar se hÃ¡ estoque suficiente
     if (produto.quantidade_estoque < qtd) {
       Alert.alert(
         "Estoque Insuficiente",
@@ -257,17 +261,17 @@ export const CompraModal: React.FC<CompraModalProps> = ({
       return;
     }
 
-    // Verificar se produto já está no carrinho
+    // Verificar se produto jÃ¡ estÃ¡ no carrinho
     const existingIndex = cart.findIndex(
       (i) => i.id_produto === selectedProdutoId
     );
     if (existingIndex >= 0) {
-      // Se já está no carrinho, validar se há estoque suficiente para aumentar
+      // Se jÃ¡ estÃ¡ no carrinho, validar se hÃ¡ estoque suficiente para aumentar
       const novaQuantidade = cart[existingIndex].quantidade + qtd;
       if (produto.quantidade_estoque < novaQuantidade) {
         Alert.alert(
           "Estoque Insuficiente",
-          `O produto "${produto.nome}" possui apenas ${produto.quantidade_estoque} unidade(s) em estoque, mas você já tem ${cart[existingIndex].quantidade} no carrinho.`
+          `O produto "${produto.nome}" possui apenas ${produto.quantidade_estoque} unidade(s) em estoque, mas vocÃª jÃ¡ tem ${cart[existingIndex].quantidade} no carrinho.`
         );
         return;
       }
@@ -298,13 +302,13 @@ export const CompraModal: React.FC<CompraModalProps> = ({
   };
 
   const updateCartQuantity = (index: number, newQtd: string) => {
-    // Aceitar apenas números inteiros
+    // Aceitar apenas nÃºmeros inteiros
     const qtd = parseInt(newQtd, 10);
     if (!isNaN(qtd) && qtd > 0) {
-      // Validar estoque disponível
+      // Validar estoque disponÃ­vel
       const item = cart[index];
       
-      // Se não tem produto carregado, tentar carregar agora
+      // Se nÃ£o tem produto carregado, tentar carregar agora
       if (!item.produto) {
         const produtoEncontrado = produtos.find(
           (p) => p.id_produto === item.id_produto
@@ -312,7 +316,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
         if (produtoEncontrado) {
           item.produto = produtoEncontrado;
         } else {
-          Alert.alert("Erro", "Dados do produto não encontrado");
+          Alert.alert("Erro", "Dados do produto nÃ£o encontrado");
           return;
         }
       }
@@ -322,7 +326,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
       if (qtd > availableStock) {
         Alert.alert(
           "Estoque Insuficiente",
-          `O produto "${item.produto.nome}" possui apenas ${availableStock} unidade(s) disponível(is).`
+          `O produto "${item.produto.nome}" possui apenas ${availableStock} unidade(s) disponÃ­vel(is).`
         );
         return;
       }
@@ -381,7 +385,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
               {compra ? "Editar Compra" : "Nova Compra"}
             </Text>
             <TouchableOpacity onPress={onClose} disabled={loading}>
-              <Ionicons name="close" size={24} color="#333" />
+              <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
 
@@ -407,7 +411,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                     mode="date"
                     display={Platform.OS === "ios" ? "spinner" : "default"}
                     onChange={handleDateChange}
-                    textColor="#333"
+                    textColor={colors.text}
                   />
                   {Platform.OS === "ios" && (
                     <TouchableOpacity
@@ -425,7 +429,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
             <View style={styles.formGroup}>
               <Text style={styles.label}>Produtos</Text>
 
-              {/* Botão para adicionar produto */}
+              {/* BotÃ£o para adicionar produto */}
               <TouchableOpacity
                 onPress={() => setShowProdutoSelector(!showProdutoSelector)}
                 disabled={loading || loadingProdutos}
@@ -463,7 +467,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                       <TextInput
                         style={styles.searchInput}
                         placeholder="Buscar produto..."
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.textTertiary}
                         value={searchProduto}
                         onChangeText={setSearchProduto}
                       />
@@ -530,7 +534,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                                 <Ionicons
                                   name="lock-closed"
                                   size={20}
-                                  color="#ccc"
+                                  color={colors.textTertiary}
                                 />
                               )}
                             </TouchableOpacity>
@@ -538,7 +542,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                         }}
                       />
 
-                      {/* Botão para adicionar ao carrinho */}
+                      {/* BotÃ£o para adicionar ao carrinho */}
                       <TouchableOpacity
                         onPress={addToCart}
                         disabled={!selectedProdutoId}
@@ -605,7 +609,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                             onPress={() => {
                               const newQtd = Math.round(item.quantidade) + 1;
                               
-                              // Garantir que o produto está carregado
+                              // Garantir que o produto estÃ¡ carregado
                               let itemComProduto = { ...item };
                               if (!itemComProduto.produto) {
                                 const produtoEncontrado = produtos.find(
@@ -622,7 +626,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                               if (newQtd > availableStock) {
                                 Alert.alert(
                                   "Estoque Insuficiente",
-                                  `O produto "${itemComProduto.produto?.nome || 'desconhecido'}" possui apenas ${availableStock} unidade(s) disponível(is).`
+                                  `O produto "${itemComProduto.produto?.nome || 'desconhecido'}" possui apenas ${availableStock} unidade(s) disponÃ­vel(is).`
                                 );
                                 return;
                               }
@@ -662,7 +666,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
             </View>
           </ScrollView>
 
-          {/* Footer com botões */}
+          {/* Footer com botÃµes */}
           <View style={styles.footer}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
@@ -678,7 +682,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
               activeOpacity={0.85}
             >
               <LinearGradient
-                colors={[...Colors.gradientPrimary]}
+                colors={[...colors.gradientPrimary]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={[styles.saveGradient, (loading || cart.length === 0) && { opacity: 0.6 }]}
@@ -695,7 +699,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "flex-end",
@@ -709,7 +713,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   content: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: BorderRadius.xl,
     borderTopRightRadius: BorderRadius.xl,
     paddingTop: Spacing.xl,
@@ -723,12 +727,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: colors.border,
   },
   title: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.bold,
-    color: Colors.text,
+    color: colors.text,
   },
   form: {
     paddingHorizontal: Spacing.xl,
@@ -740,40 +744,40 @@ const styles = StyleSheet.create({
   label: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.semibold,
-    color: Colors.text,
+    color: colors.text,
     marginBottom: Spacing.sm,
   },
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     height: 48,
     gap: Spacing.md,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   dateButtonText: {
     fontSize: FontSize.md,
-    color: Colors.text,
+    color: colors.text,
     fontWeight: FontWeight.medium,
   },
   datePickerContainer: {
     marginTop: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: BorderRadius.md,
     overflow: "hidden",
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   datePickerClose: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     paddingVertical: Spacing.md,
     alignItems: "center",
   },
   datePickerCloseText: {
-    color: Colors.textInverse,
+    color: colors.textInverse,
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
   },
@@ -781,7 +785,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: BorderRadius.md,
     paddingVertical: Spacing.md,
     gap: Spacing.sm,
@@ -789,31 +793,31 @@ const styles = StyleSheet.create({
   addProductButtonText: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
-    color: Colors.textInverse,
+    color: colors.textInverse,
   },
   produtoSelector: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     marginTop: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   selectorLabel: {
     fontSize: FontSize.xs,
     fontWeight: FontWeight.semibold,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginBottom: Spacing.md,
   },
   searchInput: {
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: BorderRadius.sm,
     paddingHorizontal: Spacing.md,
     height: 40,
     fontSize: FontSize.md,
-    color: Colors.text,
-    backgroundColor: Colors.surface,
+    color: colors.text,
+    backgroundColor: colors.surface,
     marginBottom: Spacing.md,
   },
   produtoOption: {
@@ -823,14 +827,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
     marginBottom: Spacing.sm,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: BorderRadius.sm,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   produtoOptionSelected: {
-    backgroundColor: Colors.primarySoft,
-    borderColor: Colors.primaryLight,
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primaryLight,
   },
   produtoOptionContent: {
     flex: 1,
@@ -838,11 +842,11 @@ const styles = StyleSheet.create({
   produtoOptionName: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.medium,
-    color: Colors.text,
+    color: colors.text,
     marginBottom: 2,
   },
   produtoOptionNameDisabled: {
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
   },
   produtoOptionSubInfo: {
     flexDirection: "row",
@@ -851,25 +855,25 @@ const styles = StyleSheet.create({
   },
   produtoOptionPrice: {
     fontSize: FontSize.xs,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
   },
   produtoOptionStock: {
     fontSize: FontSize.xs,
-    color: Colors.success,
+    color: colors.success,
     fontWeight: FontWeight.medium,
   },
   produtoOptionStockEmpty: {
-    color: Colors.danger,
+    color: colors.danger,
   },
   produtoOptionDisabled: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     opacity: 0.6,
   },
   addToCartButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: BorderRadius.sm,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
@@ -877,35 +881,35 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   addToCartButtonDisabled: {
-    backgroundColor: Colors.textTertiary,
+    backgroundColor: colors.textTertiary,
     opacity: 0.6,
   },
   addToCartButtonText: {
-    color: Colors.textInverse,
+    color: colors.textInverse,
     fontWeight: FontWeight.semibold,
     fontSize: FontSize.md,
   },
   errorText: {
     fontSize: FontSize.xs,
-    color: Colors.danger,
+    color: colors.danger,
     marginTop: Spacing.xs,
   },
   cartContainer: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     marginTop: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   cartTitle: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.semibold,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginBottom: Spacing.md,
   },
   cartItem: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: BorderRadius.sm,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
@@ -913,7 +917,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderLeftWidth: 3,
-    borderLeftColor: Colors.warning,
+    borderLeftColor: colors.warning,
   },
   cartItemInfo: {
     flex: 1,
@@ -921,7 +925,7 @@ const styles = StyleSheet.create({
   cartItemName: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.medium,
-    color: Colors.text,
+    color: colors.text,
     marginBottom: Spacing.xs,
   },
   cartItemDetails: {
@@ -931,14 +935,14 @@ const styles = StyleSheet.create({
   },
   cartItemPrice: {
     fontSize: FontSize.xs,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
     minWidth: 50,
   },
   quantityControls: {
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: BorderRadius.sm,
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
@@ -951,14 +955,14 @@ const styles = StyleSheet.create({
   quantityDisplay: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
-    color: Colors.text,
+    color: colors.text,
     minWidth: 30,
     textAlign: "center",
   },
   cartItemSubtotal: {
     fontSize: FontSize.xs,
     fontWeight: FontWeight.semibold,
-    color: Colors.primary,
+    color: colors.primary,
     minWidth: 60,
     textAlign: "right",
   },
@@ -974,15 +978,15 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.sm,
   },
   stockBadgeOk: {
-    backgroundColor: Colors.successSoft,
+    backgroundColor: colors.successSoft,
   },
   stockBadgeWarning: {
-    backgroundColor: Colors.dangerSoft,
+    backgroundColor: colors.dangerSoft,
   },
   stockBadgeText: {
     fontSize: FontSize.xs,
     fontWeight: FontWeight.semibold,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   removeButton: {
     padding: Spacing.sm,
@@ -994,18 +998,18 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.md,
     paddingHorizontal: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: colors.border,
     marginTop: Spacing.sm,
   },
   cartTotalLabel: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.semibold,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   cartTotalValue: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.bold,
-    color: Colors.primary,
+    color: colors.primary,
   },
   footer: {
     flexDirection: "row",
@@ -1013,7 +1017,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: colors.border,
   },
   button: {
     flex: 1,
@@ -1024,12 +1028,12 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cancelButton: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   cancelButtonText: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   saveGradient: {
     flex: 1,
@@ -1041,6 +1045,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
-    color: Colors.textInverse,
+    color: colors.textInverse,
   },
 });

@@ -3,13 +3,17 @@ import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../hooks/useAuth";
 import { TouchableOpacity, Alert, Platform, View } from "react-native";
-
-const PINK = "#E91E63";
-const PINK_SOFT = "#FCE4EC";
-const GRAY = "#9CA3AF";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useThemeColors } from "../../context/ThemeContext";
 
 export default function TabLayout() {
   const { logout } = useAuth();
+  const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
+
+  // Ensure minimum bottom padding + system inset for devices with navigation bar
+  const bottomPadding = Math.max(insets.bottom, 12);
+  const tabBarHeight = 56 + bottomPadding;
 
   const handleLogout = async () => {
     Alert.alert("Sair", "Deseja sair da aplicação?", [
@@ -31,8 +35,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: PINK,
-        tabBarInactiveTintColor: GRAY,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textTertiary,
         headerShown: false,
         tabBarShowLabel: true,
         tabBarLabelStyle: {
@@ -41,10 +45,10 @@ export default function TabLayout() {
           marginTop: -2,
         },
         tabBarStyle: {
-          backgroundColor: "#fff",
+          backgroundColor: colors.surface,
           borderTopWidth: 0,
-          height: Platform.OS === "ios" ? 88 : 64,
-          paddingBottom: Platform.OS === "ios" ? 28 : 8,
+          height: tabBarHeight,
+          paddingBottom: bottomPadding,
           paddingTop: 8,
           elevation: 20,
           shadowColor: "#000",
@@ -62,7 +66,11 @@ export default function TabLayout() {
         options={{
           title: "Início",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
+            <Ionicons
+              name={focused ? "home" : "home-outline"}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
@@ -71,7 +79,11 @@ export default function TabLayout() {
         options={{
           title: "Clientes",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "people" : "people-outline"} size={24} color={color} />
+            <Ionicons
+              name={focused ? "people" : "people-outline"}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
@@ -80,7 +92,11 @@ export default function TabLayout() {
         options={{
           title: "Produtos",
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "cube" : "cube-outline"} size={24} color={color} />
+            <Ionicons
+              name={focused ? "cube" : "cube-outline"}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />

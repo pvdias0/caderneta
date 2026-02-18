@@ -1,8 +1,8 @@
-/**
+﻿/**
  * Modal para Mudar Senha
  */
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -18,7 +18,8 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { apiService } from "../services/api";
-import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
+import { useThemeColors } from "../context/ThemeContext";
+import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
 
 export interface ChangePasswordModalProps {
   visible: boolean;
@@ -31,6 +32,9 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const colors = useThemeColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,7 +44,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   const [loading, setLoading] = useState(false);
 
   const handleChangePassword = async () => {
-    // Validações
+    // ValidaÃ§Ãµes
     if (!currentPassword.trim()) {
       Alert.alert("Erro", "Por favor, insira sua senha atual");
       return;
@@ -52,17 +56,17 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     }
 
     if (newPassword.length < 6) {
-      Alert.alert("Erro", "A nova senha deve ter no mínimo 6 caracteres");
+      Alert.alert("Erro", "A nova senha deve ter no mÃ­nimo 6 caracteres");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert("Erro", "As senhas não coincidem");
+      Alert.alert("Erro", "As senhas nÃ£o coincidem");
       return;
     }
 
     if (currentPassword === newPassword) {
-      Alert.alert("Erro", "A nova senha não pode ser igual à senha atual");
+      Alert.alert("Erro", "A nova senha nÃ£o pode ser igual Ã  senha atual");
       return;
     }
 
@@ -118,7 +122,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           value={value}
           onChangeText={onChangeText}
           editable={!loading}
-          placeholderTextColor="#ccc"
+          placeholderTextColor={colors.textTertiary}
         />
         <TouchableOpacity
           onPress={onToggleShow}
@@ -128,7 +132,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           <Ionicons
             name={showPassword ? "eye" : "eye-off"}
             size={20}
-            color="#999"
+            color={colors.textTertiary}
           />
         </TouchableOpacity>
       </View>
@@ -154,7 +158,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             <View style={styles.header}>
               <Text style={styles.title}>Mudar Senha</Text>
               <TouchableOpacity onPress={handleClose} disabled={loading}>
-                <Ionicons name="close" size={24} color="#333" />
+                <Ionicons name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
 
@@ -192,7 +196,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               />
             </View>
 
-            {/* Botões */}
+            {/* BotÃµes */}
             <View style={styles.buttonsContainer}>
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
@@ -209,7 +213,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                 style={styles.button}
               >
                 <LinearGradient
-                  colors={[...Colors.gradientPrimary]}
+                  colors={[...colors.gradientPrimary]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={[styles.submitGradient, loading && { opacity: 0.6 }]}
@@ -230,7 +234,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.4)",
@@ -247,7 +251,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: BorderRadius.xl,
     width: "100%",
     maxWidth: 400,
@@ -262,12 +266,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
     paddingBottom: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: colors.border,
   },
   title: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.bold,
-    color: Colors.text,
+    color: colors.text,
   },
   formContainer: {
     marginBottom: Spacing.xl,
@@ -279,22 +283,22 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: FontWeight.semibold,
     marginBottom: Spacing.sm,
-    color: Colors.text,
+    color: colors.text,
   },
   passwordInputWrapper: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     height: 48,
   },
   input: {
     flex: 1,
     fontSize: FontSize.md,
-    color: Colors.text,
+    color: colors.text,
   },
   eyeButton: {
     padding: Spacing.sm,
@@ -309,14 +313,14 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cancelButton: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     paddingVertical: Spacing.md,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: BorderRadius.md,
   },
   cancelButtonText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
   },
@@ -327,7 +331,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
   },
   submitButtonText: {
-    color: Colors.textInverse,
+    color: colors.textInverse,
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
   },

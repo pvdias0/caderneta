@@ -1,8 +1,8 @@
-/**
+﻿/**
  * Modal para criar/editar pagamento
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -18,7 +18,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { IMovimento } from "../types/movimento";
-import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
+import { useThemeColors } from "../context/ThemeContext";
+import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
 
 export interface PagamentoModalProps {
   visible: boolean;
@@ -35,6 +36,9 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
   onSave,
   loading = false,
 }) => {
+  const colors = useThemeColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [valor, setValor] = useState("");
   const [data, setData] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -43,7 +47,7 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
   useEffect(() => {
     if (pagamento) {
       // Editar pagamento existente
-      // valor já vem em reais do backend (numeric(12,2)), não precisa dividir por 100
+      // valor jÃ¡ vem em reais do backend (numeric(12,2)), nÃ£o precisa dividir por 100
       const valorDisplay = pagamento.valor || 0;
       setValor(Number(valorDisplay).toFixed(2).replace(".", ","));
       setData(new Date(pagamento.data_movimento));
@@ -94,7 +98,7 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!valor.trim()) {
-      newErrors.valor = "Valor é obrigatório";
+      newErrors.valor = "Valor Ã© obrigatÃ³rio";
     } else {
       const valorNum = parseFloat(valor.replace(/\./g, "").replace(/,/g, "."));
       if (valorNum <= 0) {
@@ -140,7 +144,7 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
               {pagamento ? "Editar Pagamento" : "Novo Pagamento"}
             </Text>
             <TouchableOpacity onPress={onClose} disabled={loading}>
-              <Ionicons name="close" size={24} color="#333" />
+              <Ionicons name="close" size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
 
@@ -153,7 +157,7 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
                 <TextInput
                   style={[styles.input, errors.valor && styles.inputError]}
                   placeholder="0,00"
-                  placeholderTextColor="#ccc"
+                  placeholderTextColor={colors.textTertiary}
                   value={valor}
                   onChangeText={handlePriceChange}
                   keyboardType="numeric"
@@ -187,7 +191,7 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
                     mode="date"
                     display={Platform.OS === "ios" ? "spinner" : "default"}
                     onChange={handleDateChange}
-                    textColor="#333"
+                    textColor={colors.text}
                   />
                   {Platform.OS === "ios" && (
                     <TouchableOpacity
@@ -202,7 +206,7 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
             </View>
           </ScrollView>
 
-          {/* Footer com botões */}
+          {/* Footer com botÃµes */}
           <View style={styles.footer}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
@@ -218,7 +222,7 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
               activeOpacity={0.85}
             >
               <LinearGradient
-                colors={[...Colors.gradientPrimary]}
+                colors={[...colors.gradientPrimary]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={[styles.saveGradient, loading && { opacity: 0.6 }]}
@@ -235,7 +239,7 @@ export const PagamentoModal: React.FC<PagamentoModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "flex-end",
@@ -249,7 +253,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   content: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: BorderRadius.xl,
     borderTopRightRadius: BorderRadius.xl,
     paddingTop: Spacing.xl,
@@ -263,12 +267,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: colors.border,
   },
   title: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.bold,
-    color: Colors.text,
+    color: colors.text,
   },
   form: {
     paddingHorizontal: Spacing.xl,
@@ -280,69 +284,69 @@ const styles = StyleSheet.create({
   label: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.semibold,
-    color: Colors.text,
+    color: colors.text,
     marginBottom: Spacing.sm,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     height: 48,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   currencyPrefix: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.bold,
-    color: Colors.primary,
+    color: colors.primary,
     marginRight: Spacing.sm,
   },
   input: {
     flex: 1,
     fontSize: FontSize.md,
-    color: Colors.text,
+    color: colors.text,
   },
   inputError: {
-    borderColor: Colors.danger,
+    borderColor: colors.danger,
   },
   errorText: {
     fontSize: FontSize.xs,
-    color: Colors.danger,
+    color: colors.danger,
     marginTop: Spacing.xs,
   },
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     height: 48,
     gap: Spacing.md,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   dateButtonText: {
     fontSize: FontSize.md,
-    color: Colors.text,
+    color: colors.text,
     fontWeight: FontWeight.medium,
   },
   datePickerContainer: {
     marginTop: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: BorderRadius.md,
     overflow: "hidden",
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   datePickerClose: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     paddingVertical: Spacing.md,
     alignItems: "center",
   },
   datePickerCloseText: {
-    color: Colors.textInverse,
+    color: colors.textInverse,
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
   },
@@ -352,7 +356,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: colors.border,
   },
   button: {
     flex: 1,
@@ -363,12 +367,12 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cancelButton: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   cancelButtonText: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   saveGradient: {
     flex: 1,
@@ -380,6 +384,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
-    color: Colors.textInverse,
+    color: colors.textInverse,
   },
 });

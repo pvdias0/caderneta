@@ -1,8 +1,8 @@
-/**
+﻿/**
  * Tela de Detalhes do Cliente - Modern & Juicy
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -26,12 +26,15 @@ import { PagamentoModal } from "../components/PagamentoModal";
 import { CompraModal } from "../components/CompraModal";
 import { ClienteModal } from "../components/ClienteModal";
 import * as Print from "expo-print";
-import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
+import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
+import { useThemeColors } from "../context/ThemeContext";
 
 const ClienteDetailsScreenComponent: React.FC = () => {
   const { id } = useLocalSearchParams();
   const clienteId = parseInt(id as string, 10);
   const router = useRouter();
+  const colors = useThemeColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [cliente, setCliente] = useState<ICliente | null>(null);
   const [movimentos, setMovimentos] = useState<IMovimento[]>([]);
@@ -57,7 +60,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
       setMovimentos(movimentosData.data || movimentosData);
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
-      Alert.alert("Erro", "Não foi possível carregar os dados do cliente");
+      Alert.alert("Erro", "NÃ£o foi possÃ­vel carregar os dados do cliente");
     } finally {
       setLoading(false);
     }
@@ -100,7 +103,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
       setEditingPagamento(null);
       await loadData();
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível salvar o pagamento");
+      Alert.alert("Erro", "NÃ£o foi possÃ­vel salvar o pagamento");
     } finally {
       setProcessingMovimento(false);
     }
@@ -127,7 +130,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
       setEditingCompra(null);
       await loadData();
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível salvar a compra");
+      Alert.alert("Erro", "NÃ£o foi possÃ­vel salvar a compra");
     } finally {
       setProcessingMovimento(false);
     }
@@ -144,7 +147,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
       Alert.alert("Sucesso", "Movimento deletado");
       await loadData();
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível deletar");
+      Alert.alert("Erro", "NÃ£o foi possÃ­vel deletar");
     } finally {
       setProcessingMovimento(false);
     }
@@ -172,13 +175,13 @@ const ClienteDetailsScreenComponent: React.FC = () => {
           await Print.printAsync({ uri: reader.result as string });
           Alert.alert("Sucesso", "Extrato gerado!");
         } catch {
-          Alert.alert("Erro", "Não foi possível exibir o extrato");
+          Alert.alert("Erro", "NÃ£o foi possÃ­vel exibir o extrato");
         } finally {
           setGeneratingPDF(false);
         }
       };
     } catch {
-      Alert.alert("Erro", "Não foi possível gerar o extrato");
+      Alert.alert("Erro", "NÃ£o foi possÃ­vel gerar o extrato");
       setGeneratingPDF(false);
     }
   };
@@ -186,7 +189,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
   if (loading) {
     return (
       <View style={styles.centerBox}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -194,8 +197,8 @@ const ClienteDetailsScreenComponent: React.FC = () => {
   if (!cliente) {
     return (
       <View style={styles.centerBox}>
-        <Ionicons name="alert-circle-outline" size={48} color={Colors.textTertiary} />
-        <Text style={styles.errorText}>Cliente não encontrado</Text>
+        <Ionicons name="alert-circle-outline" size={48} color={colors.textTertiary} />
+        <Text style={styles.errorText}>Cliente nÃ£o encontrado</Text>
       </View>
     );
   }
@@ -205,7 +208,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryDark} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -213,7 +216,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
       >
         {/* Profile Header */}
         <LinearGradient
-          colors={[...Colors.gradientPrimary]}
+          colors={[...colors.gradientPrimary]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.header}
@@ -239,7 +242,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
           {/* Saldo Card */}
           <View style={styles.saldoCard}>
             <Text style={styles.saldoLabel}>Saldo Devedor</Text>
-            <Text style={[styles.saldoValue, hasDebt && { color: Colors.primary }]}>
+            <Text style={[styles.saldoValue, hasDebt && { color: colors.primary }]}>
               {formatCurrency(cliente.saldo_devedor)}
             </Text>
           </View>
@@ -251,8 +254,8 @@ const ClienteDetailsScreenComponent: React.FC = () => {
             style={styles.actionItem}
             onPress={() => { setEditingCompra(null); setShowCompraModal(true); }}
           >
-            <View style={[styles.actionCircle, { backgroundColor: Colors.dangerSoft }]}>
-              <Ionicons name="cart" size={20} color={Colors.danger} />
+            <View style={[styles.actionCircle, { backgroundColor: colors.dangerSoft }]}>
+              <Ionicons name="cart" size={20} color={colors.danger} />
             </View>
             <Text style={styles.actionLabel}>Compra</Text>
           </TouchableOpacity>
@@ -261,8 +264,8 @@ const ClienteDetailsScreenComponent: React.FC = () => {
             style={styles.actionItem}
             onPress={() => { setEditingPagamento(null); setShowPagamentoModal(true); }}
           >
-            <View style={[styles.actionCircle, { backgroundColor: Colors.successSoft }]}>
-              <Ionicons name="cash" size={20} color={Colors.success} />
+            <View style={[styles.actionCircle, { backgroundColor: colors.successSoft }]}>
+              <Ionicons name="cash" size={20} color={colors.success} />
             </View>
             <Text style={styles.actionLabel}>Pagamento</Text>
           </TouchableOpacity>
@@ -272,8 +275,8 @@ const ClienteDetailsScreenComponent: React.FC = () => {
             onPress={generateExtratoPDF}
             disabled={generatingPDF}
           >
-            <View style={[styles.actionCircle, { backgroundColor: Colors.infoSoft }]}>
-              <Ionicons name="document-text" size={20} color={Colors.info} />
+            <View style={[styles.actionCircle, { backgroundColor: colors.infoSoft }]}>
+              <Ionicons name="document-text" size={20} color={colors.info} />
             </View>
             <Text style={styles.actionLabel}>{generatingPDF ? "..." : "Extrato"}</Text>
           </TouchableOpacity>
@@ -292,7 +295,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
 
           {movimentos.length === 0 ? (
             <View style={styles.emptyBox}>
-              <Ionicons name="receipt-outline" size={48} color={Colors.border} />
+              <Ionicons name="receipt-outline" size={48} color={colors.border} />
               <Text style={styles.emptyText}>Nenhum movimento registrado</Text>
             </View>
           ) : (
@@ -335,21 +338,21 @@ const ClienteDetailsScreenComponent: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   centerBox: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     gap: Spacing.md,
   },
   errorText: {
     fontSize: FontSize.md,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
   },
   header: {
     paddingTop: Platform.OS === "ios" ? 60 : 48,
@@ -384,12 +387,12 @@ const styles = StyleSheet.create({
   avatarLargeText: {
     fontSize: FontSize.xxl,
     fontWeight: FontWeight.bold,
-    color: Colors.textInverse,
+    color: colors.textInverse,
   },
   profileName: {
     fontSize: FontSize.xl,
     fontWeight: FontWeight.bold,
-    color: Colors.textInverse,
+    color: colors.textInverse,
     marginBottom: Spacing.xs,
   },
   profileDetail: {
@@ -397,7 +400,7 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.8)",
   },
   saldoCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.xl,
     alignItems: "center",
@@ -405,7 +408,7 @@ const styles = StyleSheet.create({
   },
   saldoLabel: {
     fontSize: FontSize.xs,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
     fontWeight: FontWeight.medium,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -414,7 +417,7 @@ const styles = StyleSheet.create({
   saldoValue: {
     fontSize: FontSize.xxxl,
     fontWeight: FontWeight.heavy,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     letterSpacing: -0.5,
   },
   actionsRow: {
@@ -438,7 +441,7 @@ const styles = StyleSheet.create({
   actionLabel: {
     fontSize: FontSize.xs,
     fontWeight: FontWeight.semibold,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   section: {
     paddingHorizontal: Spacing.xl,
@@ -453,10 +456,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.bold,
-    color: Colors.text,
+    color: colors.text,
   },
   countBadge: {
-    backgroundColor: Colors.primarySoft,
+    backgroundColor: colors.primarySoft,
     borderRadius: BorderRadius.full,
     paddingHorizontal: Spacing.md,
     paddingVertical: 2,
@@ -464,7 +467,7 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: FontSize.xs,
     fontWeight: FontWeight.bold,
-    color: Colors.primary,
+    color: colors.primary,
   },
   emptyBox: {
     alignItems: "center",
@@ -473,7 +476,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: FontSize.md,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
   },
   movList: {
     gap: Spacing.xs,

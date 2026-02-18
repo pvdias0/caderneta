@@ -1,8 +1,8 @@
-/**
+﻿/**
  * Modal para Criar/Editar Cliente
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -21,7 +21,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { ICliente, ICreateClienteDTO } from "../types/cliente";
 import { apiService } from "../services/api";
-import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
+import { useThemeColors } from "../context/ThemeContext";
+import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
 
 export interface ClienteModalProps {
   visible: boolean;
@@ -36,14 +37,17 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const colors = useThemeColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Função para formatar telefone
+  // FunÃ§Ã£o para formatar telefone
   const formatPhoneNumber = (value: string): string => {
-    // Remove tudo que não é número
+    // Remove tudo que nÃ£o Ã© nÃºmero
     const cleaned = value.replace(/\D/g, "");
 
     // Limita a 11 caracteres
@@ -77,15 +81,15 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
 
   const validateForm = (): boolean => {
     if (!nome.trim()) {
-      Alert.alert("Erro", "Nome do cliente é obrigatório");
+      Alert.alert("Erro", "Nome do cliente Ã© obrigatÃ³rio");
       return false;
     }
 
-    // Validação opcional de email (se preenchido)
+    // ValidaÃ§Ã£o opcional de email (se preenchido)
     if (email.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        Alert.alert("Erro", "Email inválido");
+        Alert.alert("Erro", "Email invÃ¡lido");
         return false;
       }
     }
@@ -154,11 +158,11 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
                 {isEditing ? "Editar Cliente" : "Novo Cliente"}
               </Text>
               <TouchableOpacity onPress={handleClose} disabled={loading}>
-                <Ionicons name="close" size={24} color="#333" />
+                <Ionicons name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
 
-            {/* Formulário */}
+            {/* FormulÃ¡rio */}
             <View style={styles.form}>
               {/* Nome */}
               <View style={styles.formGroup}>
@@ -167,7 +171,7 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
                   <Ionicons
                     name="person"
                     size={18}
-                    color="#999"
+                    color={colors.textTertiary}
                     style={styles.inputIcon}
                   />
                   <TextInput
@@ -176,7 +180,7 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
                     value={nome}
                     onChangeText={setNome}
                     editable={!loading}
-                    placeholderTextColor="#ccc"
+                    placeholderTextColor={colors.textTertiary}
                   />
                 </View>
               </View>
@@ -188,7 +192,7 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
                   <Ionicons
                     name="mail"
                     size={18}
-                    color="#999"
+                    color={colors.textTertiary}
                     style={styles.inputIcon}
                   />
                   <TextInput
@@ -198,7 +202,7 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
                     onChangeText={setEmail}
                     editable={!loading}
                     keyboardType="email-address"
-                    placeholderTextColor="#ccc"
+                    placeholderTextColor={colors.textTertiary}
                   />
                 </View>
               </View>
@@ -210,7 +214,7 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
                   <Ionicons
                     name="call"
                     size={18}
-                    color="#999"
+                    color={colors.textTertiary}
                     style={styles.inputIcon}
                   />
                   <TextInput
@@ -221,13 +225,13 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
                     editable={!loading}
                     keyboardType="phone-pad"
                     maxLength={15}
-                    placeholderTextColor="#ccc"
+                    placeholderTextColor={colors.textTertiary}
                   />
                 </View>
               </View>
             </View>
 
-            {/* Botões */}
+            {/* BotÃµes */}
             <View style={styles.buttonsContainer}>
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
@@ -244,7 +248,7 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
                 style={[styles.button]}
               >
                 <LinearGradient
-                  colors={[...Colors.gradientPrimary]}
+                  colors={[...colors.gradientPrimary]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={[styles.submitGradient, loading && { opacity: 0.6 }]}
@@ -267,7 +271,7 @@ export const ClienteModal: React.FC<ClienteModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "flex-end",
@@ -280,7 +284,7 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
   },
   modalContent: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: BorderRadius.xl,
     width: "100%",
     maxWidth: 400,
@@ -295,12 +299,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xl,
     paddingBottom: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: colors.border,
   },
   title: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.bold,
-    color: Colors.text,
+    color: colors.text,
   },
   form: {
     marginBottom: Spacing.xl,
@@ -312,16 +316,16 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: FontWeight.semibold,
     marginBottom: Spacing.sm,
-    color: Colors.text,
+    color: colors.text,
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     height: 48,
   },
   inputIcon: {
@@ -330,7 +334,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: FontSize.md,
-    color: Colors.text,
+    color: colors.text,
   },
   buttonsContainer: {
     flexDirection: "row",
@@ -342,14 +346,14 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cancelButton: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     paddingVertical: Spacing.md,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: BorderRadius.md,
   },
   cancelButtonText: {
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
   },
@@ -360,7 +364,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
   },
   submitButtonText: {
-    color: Colors.textInverse,
+    color: colors.textInverse,
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
   },

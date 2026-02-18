@@ -2,11 +2,12 @@
  * Card de Movimento (Compra/Pagamento) - Modern & Juicy
  */
 
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { IMovimento } from "../types/movimento";
-import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
+import { useThemeColors } from "../context/ThemeContext";
+import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
 
 export interface MovimentoCardProps {
   movimento: IMovimento;
@@ -19,6 +20,9 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const colors = useThemeColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -35,8 +39,8 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
   };
 
   const isCompra = movimento.tipo === "COMPRA";
-  const typeColor = isCompra ? Colors.danger : Colors.success;
-  const typeBg = isCompra ? Colors.dangerSoft : Colors.successSoft;
+  const typeColor = isCompra ? colors.danger : colors.success;
+  const typeBg = isCompra ? colors.dangerSoft : colors.successSoft;
   const typeLabel = isCompra ? "Compra" : "Pagamento";
   const typeIcon = isCompra ? "cart" : "cash";
 
@@ -70,12 +74,12 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
         <View style={styles.actions}>
           {onEdit && (
             <TouchableOpacity onPress={() => onEdit(movimento)} style={styles.actionBtn}>
-              <Ionicons name="create-outline" size={16} color={Colors.info} />
+              <Ionicons name="create-outline" size={16} color={colors.info} />
             </TouchableOpacity>
           )}
           {onDelete && (
             <TouchableOpacity onPress={handleDelete} style={styles.actionBtn}>
-              <Ionicons name="trash-outline" size={16} color={Colors.danger} />
+              <Ionicons name="trash-outline" size={16} color={colors.danger} />
             </TouchableOpacity>
           )}
         </View>
@@ -109,9 +113,9 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     marginBottom: Spacing.md,
@@ -142,7 +146,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: FontSize.xs,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
   },
   actions: {
     flexDirection: "row",
@@ -150,14 +154,14 @@ const styles = StyleSheet.create({
   },
   actionBtn: {
     padding: Spacing.sm,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: BorderRadius.sm,
   },
   valueRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
@@ -165,7 +169,7 @@ const styles = StyleSheet.create({
   },
   valueLabel: {
     fontSize: FontSize.sm,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
     fontWeight: FontWeight.medium,
   },
   valueAmount: {
@@ -174,7 +178,7 @@ const styles = StyleSheet.create({
   },
   itemsBox: {
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: colors.border,
     paddingTop: Spacing.md,
     gap: Spacing.sm,
   },
@@ -185,13 +189,13 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: FontSize.sm,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     flex: 1,
     marginRight: Spacing.md,
   },
   itemQty: {
     fontSize: FontSize.sm,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
     fontWeight: FontWeight.medium,
   },
 });

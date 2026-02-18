@@ -2,11 +2,12 @@
  * Card de Produto - Modern & Juicy
  */
 
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { IProduto } from "../types/produto";
-import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
+import { useThemeColors } from "../context/ThemeContext";
+import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
 
 export interface ProdutoCardProps {
   produto: IProduto;
@@ -23,6 +24,9 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
   showCheckbox = false,
   onEdit,
 }) => {
+  const colors = useThemeColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -51,7 +55,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
           )}
 
           <View style={styles.iconCircle}>
-            <Ionicons name="cube" size={22} color={Colors.warning} />
+            <Ionicons name="cube" size={22} color={colors.warning} />
           </View>
 
           <View style={styles.info}>
@@ -67,7 +71,7 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
               style={styles.editBtn}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="pencil-outline" size={18} color={Colors.textTertiary} />
+              <Ionicons name="pencil-outline" size={18} color={colors.textTertiary} />
             </TouchableOpacity>
           )}
         </View>
@@ -78,14 +82,14 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
             <View
               style={[
                 styles.stockDot,
-                { backgroundColor: lowStock ? Colors.danger : Colors.success },
+                { backgroundColor: lowStock ? colors.danger : colors.success },
               ]}
             />
             <Text style={styles.stockLabel}>
               {lowStock ? "Estoque baixo" : "Em estoque"}
             </Text>
           </View>
-          <Text style={[styles.stockValue, lowStock && { color: Colors.danger }]}>
+          <Text style={[styles.stockValue, lowStock && { color: colors.danger }]}>
             {produto.quantidade_estoque} un.
           </Text>
         </View>
@@ -94,18 +98,18 @@ export const ProdutoCard: React.FC<ProdutoCardProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: BorderRadius.lg,
     padding: Spacing.lg,
     marginBottom: Spacing.md,
     ...Shadows.sm,
   },
   cardSelected: {
-    backgroundColor: Colors.warningSoft,
+    backgroundColor: colors.warningSoft,
     borderWidth: 1.5,
-    borderColor: Colors.warning,
+    borderColor: colors.warning,
   },
   row: {
     flexDirection: "row",
@@ -120,19 +124,19 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     justifyContent: "center",
     alignItems: "center",
   },
   checkboxActive: {
-    backgroundColor: Colors.warning,
-    borderColor: Colors.warning,
+    backgroundColor: colors.warning,
+    borderColor: colors.warning,
   },
   iconCircle: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.warningSoft,
+    backgroundColor: colors.warningSoft,
     justifyContent: "center",
     alignItems: "center",
     marginRight: Spacing.md,
@@ -143,30 +147,30 @@ const styles = StyleSheet.create({
   name: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
-    color: Colors.text,
+    color: colors.text,
     marginBottom: 2,
   },
   price: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.bold,
-    color: Colors.warning,
+    color: colors.warning,
   },
   editBtn: {
     padding: Spacing.sm,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: BorderRadius.sm,
   },
   stockRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: Colors.successSoft,
+    backgroundColor: colors.successSoft,
     borderRadius: BorderRadius.sm,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
   },
   stockRowLow: {
-    backgroundColor: Colors.dangerSoft,
+    backgroundColor: colors.dangerSoft,
   },
   stockBadge: {
     flexDirection: "row",
@@ -180,12 +184,12 @@ const styles = StyleSheet.create({
   },
   stockLabel: {
     fontSize: FontSize.sm,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontWeight: FontWeight.medium,
   },
   stockValue: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.bold,
-    color: Colors.success,
+    color: colors.success,
   },
 });

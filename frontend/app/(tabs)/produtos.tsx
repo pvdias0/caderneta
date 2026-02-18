@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -19,9 +19,20 @@ import { apiService } from "../../services/api";
 import { ProdutoCard } from "../../components/ProdutoCard";
 import { ProdutoModal } from "../../components/ProdutoModal";
 import { IProduto } from "../../types/produto";
-import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../../theme";
+import {
+  Spacing,
+  BorderRadius,
+  FontSize,
+  FontWeight,
+  Shadows,
+  ThemeColors,
+} from "../../theme";
+import { useThemeColors } from "../../context/ThemeContext";
+import { SwipeableTabView } from "../../components/SwipeableTabView";
 
 export default function ProdutosPage() {
+  const colors = useThemeColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [produtos, setProdutos] = useState<IProduto[]>([]);
   const [filteredProdutos, setFilteredProdutos] = useState<IProduto[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,7 +52,7 @@ export default function ProdutosPage() {
       setProdutos(data);
     } catch (error) {
       console.error("Erro ao carregar produtos:", error);
-      Alert.alert("Erro", "Não foi possível carregar os produtos");
+      Alert.alert("Erro", "NÃ£o foi possÃ­vel carregar os produtos");
     } finally {
       setLoading(false);
     }
@@ -58,7 +69,7 @@ export default function ProdutosPage() {
     }
     const query = searchQuery.toLowerCase();
     const filtered = (produtos || []).filter((produto) =>
-      produto.nome.toLowerCase().includes(query)
+      produto.nome.toLowerCase().includes(query),
     );
     setFilteredProdutos(filtered);
   }, [searchQuery, produtos]);
@@ -114,18 +125,24 @@ export default function ProdutosPage() {
             try {
               setDeleting(true);
               await apiService.deleteProdutos(Array.from(selectedIds));
-              Alert.alert("Sucesso", `${selectedIds.size} produto${selectedIds.size !== 1 ? "s" : ""} excluído${selectedIds.size !== 1 ? "s" : ""}`);
+              Alert.alert(
+                "Sucesso",
+                `${selectedIds.size} produto${selectedIds.size !== 1 ? "s" : ""} excluÃ­do${selectedIds.size !== 1 ? "s" : ""}`,
+              );
               setSelectionMode(false);
               setSelectedIds(new Set());
               await loadProdutos();
             } catch (error) {
-              Alert.alert("Erro", error instanceof Error ? error.message : "Erro ao excluir");
+              Alert.alert(
+                "Erro",
+                error instanceof Error ? error.message : "Erro ao excluir",
+              );
             } finally {
               setDeleting(false);
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -141,142 +158,179 @@ export default function ProdutosPage() {
 
   return (
     <ProtectedRoute>
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.primaryDark} />
-
-        {/* Header */}
-        <LinearGradient
-          colors={[...Colors.gradientPrimary]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.header}
-        >
-          {!selectionMode ? (
-            <>
-              <Text style={styles.headerTitle}>Produtos</Text>
-              <View style={styles.searchBar}>
-                <Ionicons name="search" size={18} color={Colors.textTertiary} />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Buscar produto..."
-                  placeholderTextColor={Colors.textTertiary}
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-                {searchQuery !== "" && (
-                  <TouchableOpacity onPress={() => setSearchQuery("")}>
-                    <Ionicons name="close-circle" size={18} color={Colors.textTertiary} />
-                  </TouchableOpacity>
-                )}
-              </View>
-            </>
-          ) : (
-            <View style={styles.selectionBar}>
-              <TouchableOpacity onPress={handleCancelSelection} style={styles.selBarBtn}>
-                <Ionicons name="close" size={22} color="#fff" />
-              </TouchableOpacity>
-              <Text style={styles.selBarTitle}>
-                {selectedIds.size} selecionado{selectedIds.size !== 1 ? "s" : ""}
-              </Text>
-              <TouchableOpacity onPress={handleSelectAll} style={styles.selBarBtn}>
-                <Text style={styles.selBarAction}>
-                  {selectedIds.size === filteredProdutos.length ? "Nenhum" : "Todos"}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </LinearGradient>
-
-        {/* Content */}
-        {loading && produtos.length === 0 ? (
-          <View style={styles.centerBox}>
-            <ActivityIndicator size="large" color={Colors.primary} />
-          </View>
-        ) : filteredProdutos.length === 0 ? (
-          <View style={styles.centerBox}>
-            <Ionicons name="cube-outline" size={56} color={Colors.border} />
-            <Text style={styles.emptyTitle}>Nenhum produto cadastrado</Text>
-            <Text style={styles.emptyText}>Toque no botão + para adicionar</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={filteredProdutos}
-            keyExtractor={(item) => item.id_produto.toString()}
-            renderItem={({ item }) => (
-              <ProdutoCard
-                produto={item}
-                showCheckbox={selectionMode}
-                isSelected={selectedIds.has(item.id_produto)}
-                onSelect={handleSelectProduto}
-                onEdit={handleEditProduto}
-              />
-            )}
-            contentContainerStyle={styles.listContent}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
-            }
-            ListHeaderComponent={
-              <Text style={styles.resultCount}>
-                {filteredProdutos.length} produto{filteredProdutos.length !== 1 ? "s" : ""}
-              </Text>
-            }
-            showsVerticalScrollIndicator={false}
+      <SwipeableTabView>
+        <View style={styles.container}>
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor={colors.primaryDark}
           />
-        )}
 
-        {/* FABs */}
-        {!selectionMode ? (
-          <View style={styles.fabRow}>
-            {filteredProdutos.length > 0 && (
+          {/* Header */}
+          <LinearGradient
+            colors={[...colors.gradientPrimary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.header}
+          >
+            {!selectionMode ? (
+              <>
+                <Text style={styles.headerTitle}>Produtos</Text>
+                <View style={styles.searchBar}>
+                  <Ionicons
+                    name="search"
+                    size={18}
+                    color={colors.textTertiary}
+                  />
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="Buscar produto..."
+                    placeholderTextColor={colors.textTertiary}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                  />
+                  {searchQuery !== "" && (
+                    <TouchableOpacity onPress={() => setSearchQuery("")}>
+                      <Ionicons
+                        name="close-circle"
+                        size={18}
+                        color={colors.textTertiary}
+                      />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </>
+            ) : (
+              <View style={styles.selectionBar}>
+                <TouchableOpacity
+                  onPress={handleCancelSelection}
+                  style={styles.selBarBtn}
+                >
+                  <Ionicons name="close" size={22} color="#fff" />
+                </TouchableOpacity>
+                <Text style={styles.selBarTitle}>
+                  {selectedIds.size} selecionado
+                  {selectedIds.size !== 1 ? "s" : ""}
+                </Text>
+                <TouchableOpacity
+                  onPress={handleSelectAll}
+                  style={styles.selBarBtn}
+                >
+                  <Text style={styles.selBarAction}>
+                    {selectedIds.size === filteredProdutos.length
+                      ? "Nenhum"
+                      : "Todos"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </LinearGradient>
+
+          {/* Content */}
+          {loading && produtos.length === 0 ? (
+            <View style={styles.centerBox}>
+              <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+          ) : filteredProdutos.length === 0 ? (
+            <View style={styles.centerBox}>
+              <Ionicons name="cube-outline" size={56} color={colors.border} />
+              <Text style={styles.emptyTitle}>Nenhum produto cadastrado</Text>
+              <Text style={styles.emptyText}>
+                Toque no botÃ£o + para adicionar
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={filteredProdutos}
+              keyExtractor={(item) => item.id_produto.toString()}
+              renderItem={({ item }) => (
+                <ProdutoCard
+                  produto={item}
+                  showCheckbox={selectionMode}
+                  isSelected={selectedIds.has(item.id_produto)}
+                  onSelect={handleSelectProduto}
+                  onEdit={handleEditProduto}
+                />
+              )}
+              contentContainerStyle={styles.listContent}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={colors.primary}
+                />
+              }
+              ListHeaderComponent={
+                <Text style={styles.resultCount}>
+                  {filteredProdutos.length} produto
+                  {filteredProdutos.length !== 1 ? "s" : ""}
+                </Text>
+              }
+              showsVerticalScrollIndicator={false}
+            />
+          )}
+
+          {/* FABs */}
+          {!selectionMode ? (
+            <View style={styles.fabRow}>
+              {filteredProdutos.length > 0 && (
+                <TouchableOpacity
+                  style={styles.fabSecondary}
+                  onPress={() => setSelectionMode(true)}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons
+                    name="trash-outline"
+                    size={22}
+                    color={colors.danger}
+                  />
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
-                style={styles.fabSecondary}
-                onPress={() => setSelectionMode(true)}
+                style={styles.fabPrimary}
+                onPress={handleCreateProduto}
                 activeOpacity={0.85}
               >
-                <Ionicons name="trash-outline" size={22} color={Colors.danger} />
+                <LinearGradient
+                  colors={[...colors.gradientPrimary]}
+                  style={styles.fabGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Ionicons name="add" size={28} color="#fff" />
+                </LinearGradient>
               </TouchableOpacity>
-            )}
-            <TouchableOpacity style={styles.fabPrimary} onPress={handleCreateProduto} activeOpacity={0.85}>
-              <LinearGradient
-                colors={[...Colors.gradientPrimary]}
-                style={styles.fabGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <Ionicons name="add" size={28} color="#fff" />
-              </LinearGradient>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[styles.fabDeleteActive]}
+              onPress={handleDeleteSelected}
+              disabled={deleting || selectedIds.size === 0}
+              activeOpacity={0.85}
+            >
+              {deleting ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Ionicons name="trash" size={24} color="#fff" />
+              )}
             </TouchableOpacity>
-          </View>
-        ) : (
-          <TouchableOpacity
-            style={[styles.fabDeleteActive]}
-            onPress={handleDeleteSelected}
-            disabled={deleting || selectedIds.size === 0}
-            activeOpacity={0.85}
-          >
-            {deleting ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Ionicons name="trash" size={24} color="#fff" />
-            )}
-          </TouchableOpacity>
-        )}
+          )}
 
-        <ProdutoModal
-          visible={showModal}
-          produto={selectedProduto}
-          onClose={() => setShowModal(false)}
-          onSuccess={() => loadProdutos()}
-        />
-      </View>
+          <ProdutoModal
+            visible={showModal}
+            produto={selectedProduto}
+            onClose={() => setShowModal(false)}
+            onSuccess={() => loadProdutos()}
+          />
+        </View>
+      </SwipeableTabView>
     </ProtectedRoute>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   header: {
     paddingTop: Platform.OS === "ios" ? 60 : 48,
@@ -288,13 +342,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: FontSize.xxl,
     fontWeight: FontWeight.bold,
-    color: Colors.textInverse,
+    color: colors.textInverse,
     marginBottom: Spacing.lg,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     height: 44,
@@ -303,7 +357,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: FontSize.md,
-    color: Colors.text,
+    color: colors.text,
   },
   selectionBar: {
     flexDirection: "row",
@@ -316,12 +370,12 @@ const styles = StyleSheet.create({
   selBarTitle: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.semibold,
-    color: Colors.textInverse,
+    color: colors.textInverse,
   },
   selBarAction: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.semibold,
-    color: Colors.textInverse,
+    color: colors.textInverse,
   },
   centerBox: {
     flex: 1,
@@ -332,20 +386,20 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.semibold,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
   },
   emptyText: {
     fontSize: FontSize.sm,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
   },
   listContent: {
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.lg,
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   resultCount: {
     fontSize: FontSize.xs,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
     fontWeight: FontWeight.medium,
     marginBottom: Spacing.md,
     textTransform: "uppercase",
@@ -353,7 +407,7 @@ const styles = StyleSheet.create({
   },
   fabRow: {
     position: "absolute",
-    bottom: Spacing.xxl,
+    bottom: 36,
     right: Spacing.xl,
     flexDirection: "row",
     alignItems: "center",
@@ -374,19 +428,19 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     justifyContent: "center",
     alignItems: "center",
     ...Shadows.md,
   },
   fabDeleteActive: {
     position: "absolute",
-    bottom: Spacing.xxl,
+    bottom: 36,
     right: Spacing.xl,
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.danger,
+    backgroundColor: colors.danger,
     justifyContent: "center",
     alignItems: "center",
     ...Shadows.fab,

@@ -1,8 +1,8 @@
-/**
+﻿/**
  * Modal para criar/editar produtos
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -18,7 +18,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { apiService } from "../services/api";
 import { IProduto } from "../types/produto";
-import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from "../theme";
+import { useThemeColors } from "../context/ThemeContext";
+import { Spacing, BorderRadius, FontSize, FontWeight, Shadows, ThemeColors } from "../theme";
 
 interface ProdutoModalProps {
   visible: boolean;
@@ -33,19 +34,22 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const colors = useThemeColors();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
   const [quantidade, setQuantidade] = useState("");
   const [loading, setLoading] = useState(false);
 
   const formatPrice = (text: string): string => {
-    // Remove tudo que não é número
+    // Remove tudo que nÃ£o Ã© nÃºmero
     const numbers = text.replace(/\D/g, "");
 
     if (numbers.length === 0) return "";
 
-    // Se tem menos de 3 dígitos, assume que está incompleto
-    // Se tem 3+ dígitos, divide por 100 para pegar centavos
+    // Se tem menos de 3 dÃ­gitos, assume que estÃ¡ incompleto
+    // Se tem 3+ dÃ­gitos, divide por 100 para pegar centavos
     let integerPart: number;
     let decimalPart: number;
 
@@ -58,7 +62,7 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
       decimalPart = num % 100;
     }
 
-    // Formata com separador de milhares e vírgula
+    // Formata com separador de milhares e vÃ­rgula
     const formatted = integerPart
       .toString()
       .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -77,7 +81,7 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
   useEffect(() => {
     if (produto) {
       setNome(produto.nome);
-      // Converte o valor numérico para formato de string com 2 casas decimais
+      // Converte o valor numÃ©rico para formato de string com 2 casas decimais
       const valorFormatado = produto.valor_produto.toFixed(2).replace(".", ",");
       setValor(valorFormatado);
       setQuantidade(produto.quantidade_estoque.toString());
@@ -90,17 +94,17 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
 
   const validateForm = (): boolean => {
     if (!nome.trim()) {
-      Alert.alert("Erro", "Nome do produto é obrigatório");
+      Alert.alert("Erro", "Nome do produto Ã© obrigatÃ³rio");
       return false;
     }
 
     if (!valor.trim()) {
-      Alert.alert("Erro", "Valor do produto é obrigatório");
+      Alert.alert("Erro", "Valor do produto Ã© obrigatÃ³rio");
       return false;
     }
 
     if (!quantidade.trim()) {
-      Alert.alert("Erro", "Quantidade em estoque é obrigatória");
+      Alert.alert("Erro", "Quantidade em estoque Ã© obrigatÃ³ria");
       return false;
     }
 
@@ -108,12 +112,12 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
     const qtdNum = parseInt(quantidade, 10);
 
     if (isNaN(valorNum) || valorNum <= 0) {
-      Alert.alert("Erro", "Valor deve ser um número maior que 0");
+      Alert.alert("Erro", "Valor deve ser um nÃºmero maior que 0");
       return false;
     }
 
     if (isNaN(qtdNum) || qtdNum <= 0) {
-      Alert.alert("Erro", "Quantidade deve ser um número inteiro maior que 0");
+      Alert.alert("Erro", "Quantidade deve ser um nÃºmero inteiro maior que 0");
       return false;
     }
 
@@ -166,7 +170,7 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} disabled={loading}>
-            <Ionicons name="close" size={24} color="#333" />
+            <Ionicons name="close" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.title}>
             {produto ? "Editar Produto" : "Novo Produto"}
@@ -184,7 +188,7 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
               value={nome}
               onChangeText={setNome}
               editable={!loading}
-              placeholderTextColor="#ccc"
+              placeholderTextColor={colors.textTertiary}
             />
           </View>
 
@@ -200,7 +204,7 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
                 onChangeText={handlePriceChange}
                 editable={!loading}
                 keyboardType="decimal-pad"
-                placeholderTextColor="#ccc"
+                placeholderTextColor={colors.textTertiary}
               />
             </View>
           </View>
@@ -216,16 +220,16 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
                 onChangeText={setQuantidade}
                 editable={!loading}
                 keyboardType="number-pad"
-                placeholderTextColor="#ccc"
+                placeholderTextColor={colors.textTertiary}
               />
               <Text style={styles.suffix}>un.</Text>
             </View>
           </View>
 
-          <Text style={styles.requiredNote}>* Campos obrigatórios</Text>
+          <Text style={styles.requiredNote}>* Campos obrigatÃ³rios</Text>
         </ScrollView>
 
-        {/* Botões */}
+        {/* BotÃµes */}
         <View style={styles.footer}>
           <TouchableOpacity
             style={[styles.button, styles.cancelButton]}
@@ -241,7 +245,7 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
             activeOpacity={0.85}
           >
             <LinearGradient
-              colors={[...Colors.gradientPrimary]}
+              colors={[...colors.gradientPrimary]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={[styles.saveGradient, loading && { opacity: 0.6 }]}
@@ -261,10 +265,10 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
   },
   header: {
     flexDirection: "row",
@@ -273,12 +277,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: colors.border,
   },
   title: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.bold,
-    color: Colors.text,
+    color: colors.text,
   },
   content: {
     flex: 1,
@@ -291,48 +295,48 @@ const styles = StyleSheet.create({
   label: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.semibold,
-    color: Colors.text,
+    color: colors.text,
     marginBottom: Spacing.sm,
   },
   input: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: BorderRadius.md,
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
     fontSize: FontSize.md,
-    color: Colors.text,
+    color: colors.text,
   },
   inputWithPrefix: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: BorderRadius.md,
     borderWidth: 1.5,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     paddingHorizontal: Spacing.md,
   },
   currencyPrefix: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.bold,
-    color: Colors.primary,
+    color: colors.primary,
     marginRight: Spacing.xs,
   },
   currencyInput: {
     flex: 1,
     paddingVertical: Spacing.md,
     fontSize: FontSize.md,
-    color: Colors.text,
+    color: colors.text,
   },
   suffix: {
     fontSize: FontSize.md,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
     marginLeft: Spacing.xs,
   },
   requiredNote: {
     fontSize: FontSize.xs,
-    color: Colors.textTertiary,
+    color: colors.textTertiary,
     marginTop: Spacing.md,
   },
   footer: {
@@ -341,7 +345,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    borderTopColor: colors.border,
   },
   button: {
     flex: 1,
@@ -352,12 +356,12 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cancelButton: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   cancelButtonText: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   saveGradient: {
     flex: 1,
@@ -369,6 +373,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.semibold,
-    color: Colors.textInverse,
+    color: colors.textInverse,
   },
 });
