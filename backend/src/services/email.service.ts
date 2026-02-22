@@ -28,11 +28,13 @@ interface BrevoResponse {
 class EmailService {
   private apiKey: string;
   private apiUrl = 'https://api.brevo.com/v3/smtp/email';
-  private senderEmail = 'caderneta-noreply@pvapps.com.br';
-  private senderName = 'Caderneta';
+  private senderEmail: string;
+  private senderName: string;
 
   constructor() {
-    this.apiKey = process.env.BREVO_API_KEY || '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';
+    this.apiKey = process.env.BREVO_API_KEY || '';
+    this.senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@caderneta.com';
+    this.senderName = process.env.BREVO_SENDER_NAME || 'Caderneta';
     
     if (!this.apiKey) {
       console.warn('⚠️ BREVO_API_KEY não configurada - emails não serão enviados');
