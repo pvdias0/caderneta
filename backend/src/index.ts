@@ -21,6 +21,24 @@ import dashboardRoutes from "./routes/dashboard.routes.js";
 const app: Express = express();
 const httpServer = createServer(app);
 
+// ==================== LOGS DE INICIALIZAÇÃO ====================
+console.log("\n🚀 Inicializando Caderneta API...\n");
+
+// Variáveis de ambiente
+console.log("📋 Variáveis de Ambiente:");
+console.log(`  ✓ NODE_ENV: ${process.env.NODE_ENV || "não definido"}`);
+console.log(`  ✓ API_PORT: ${process.env.API_PORT || "não definido"}`);
+console.log(`  ✓ API_URL: ${process.env.API_URL || "não definido"}`);
+console.log(`  ✓ DB_HOST: ${process.env.DB_HOST || "não definido"}`);
+console.log(`  ✓ DB_PORT: ${process.env.DB_PORT || "não definido"}`);
+console.log(`  ✓ DB_USER: ${process.env.DB_USER || "não definido"}`);
+console.log(`  ✓ DB_NAME: ${process.env.DB_NAME || "não definido"}`);
+console.log(`  ✓ JWT_SECRET: ${process.env.JWT_SECRET ? "✅ Configurado" : "❌ Não definido"}`);
+console.log(`  ✓ JWT_REFRESH_SECRET: ${process.env.JWT_REFRESH_SECRET ? "✅ Configurado" : "❌ Não definido"}`);
+console.log(`  ✓ BREVO_API_KEY: ${process.env.BREVO_API_KEY ? "✅ Configurado" : "❌ Não definido"}`);
+console.log(`  ✓ BREVO_SENDER_EMAIL: ${process.env.BREVO_SENDER_EMAIL || "não definido"}`);
+console.log(`  ✓ BREVO_SENDER_NAME: ${process.env.BREVO_SENDER_NAME || "não definido"}\n`);
+
 // Confiar em proxy (Cloudflare, Nginx, etc)
 app.set("trust proxy", 1);
 

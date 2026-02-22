@@ -34,8 +34,8 @@ class EmailService {
   constructor() {
     this.apiKey = process.env.BREVO_API_KEY || "";
     this.senderEmail =
-      process.env.BREVO_SENDER_EMAIL || "noreply@caderneta.com";
-    this.senderName = process.env.BREVO_SENDER_NAME || "Caderneta";
+      process.env.BREVO_SENDER_EMAIL || "";
+    this.senderName = process.env.BREVO_SENDER_NAME || "";
 
     if (!this.apiKey) {
       console.warn(
