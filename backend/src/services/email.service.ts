@@ -177,7 +177,7 @@ class EmailService {
   private async send(params: EmailParams): Promise<boolean> {
     try {
       if (!this.apiKey) {
-        console.warn("⚠️ Brevo API key não configurada");
+        console.error("❌ Brevo API key não configurada no .env");
         return false;
       }
 
@@ -196,6 +196,11 @@ class EmailService {
         htmlContent: params.htmlContent,
       };
 
+      console.log("📧 Enviando email via Brevo...");
+      console.log(`   Para: ${params.to}`);
+      console.log(`   Assunto: ${params.subject}`);
+      console.log(`   API Key: ${this.apiKey.substring(0, 10)}...${this.apiKey.substring(this.apiKey.length - 5)} (verificar se está correta)`);
+
       const response = await fetch(this.apiUrl, {
         method: "POST",
         headers: {
@@ -205,26 +210,41 @@ class EmailService {
         body: JSON.stringify(payload),
       });
 
+      console.log(`   Status HTTP: ${response.status}`);
+
       if (!response.ok) {
-        const errorData = (await response.json()) as BrevoResponse;
-        console.error(
-          "Erro ao enviar email:",
-          errorData.message || `HTTP ${response.status}`,
-        );
+        let errorData: any;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { message: `HTTP ${response.status}` };
+        }
+        
+        console.error("❌ Erro ao enviar email via Brevo:");
+        console.error(`   Status: ${response.status}`);
+        console.error(`   Mensagem: ${errorData.message || "Sem mensagem"}`);
+        console.error(`   Código: ${errorData.code || "Sem código"}`);
+        if (errorData.errors) {
+          console.error("   Detalhes dos erros:", errorData.errors);
+        }
+        console.error("   Resposta completa:", JSON.stringify(errorData, null, 2));
+        
         return false;
       }
 
       const data = (await response.json()) as BrevoResponse;
 
       if (data.messageId) {
-        console.log(`📧 Email enviado com sucesso: ${params.to}`);
+        console.log(`✅ Email enviado com sucesso para ${params.to}`);
+        console.log(`   Mensagem ID: ${data.messageId}`);
         return true;
       }
 
-      console.error("Erro ao enviar email:", data.message);
+      console.error("❌ Erro ao enviar email:", data.message);
       return false;
     } catch (error: any) {
-      console.error("Erro na requisição Brevo:", error.message);
+      console.error("❌ Erro na requisição Brevo:", error.message);
+      console.error("   Stack:", error.stack);
       return false;
     }
   }
