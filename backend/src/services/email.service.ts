@@ -33,8 +33,7 @@ class EmailService {
 
   constructor() {
     this.apiKey = process.env.BREVO_API_KEY || "";
-    this.senderEmail =
-      process.env.BREVO_SENDER_EMAIL || "";
+    this.senderEmail = process.env.BREVO_SENDER_EMAIL || "";
     this.senderName = process.env.BREVO_SENDER_NAME || "";
 
     if (!this.apiKey) {
@@ -199,7 +198,9 @@ class EmailService {
       console.log("📧 Enviando email via Brevo...");
       console.log(`   Para: ${params.to}`);
       console.log(`   Assunto: ${params.subject}`);
-      console.log(`   API Key: ${this.apiKey.substring(0, 10)}...${this.apiKey.substring(this.apiKey.length - 5)} (verificar se está correta)`);
+      console.log(
+        `   API Key: ${this.apiKey.substring(0, 10)}...${this.apiKey.substring(this.apiKey.length - 5)} (verificar se está correta)`,
+      );
 
       const response = await fetch(this.apiUrl, {
         method: "POST",
@@ -219,7 +220,7 @@ class EmailService {
         } catch {
           errorData = { message: `HTTP ${response.status}` };
         }
-        
+
         console.error("❌ Erro ao enviar email via Brevo:");
         console.error(`   Status: ${response.status}`);
         console.error(`   Mensagem: ${errorData.message || "Sem mensagem"}`);
@@ -227,8 +228,11 @@ class EmailService {
         if (errorData.errors) {
           console.error("   Detalhes dos erros:", errorData.errors);
         }
-        console.error("   Resposta completa:", JSON.stringify(errorData, null, 2));
-        
+        console.error(
+          "   Resposta completa:",
+          JSON.stringify(errorData, null, 2),
+        );
+
         return false;
       }
 
