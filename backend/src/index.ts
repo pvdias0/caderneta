@@ -33,11 +33,21 @@ console.log(`  ✓ DB_HOST: ${process.env.DB_HOST || "não definido"}`);
 console.log(`  ✓ DB_PORT: ${process.env.DB_PORT || "não definido"}`);
 console.log(`  ✓ DB_USER: ${process.env.DB_USER || "não definido"}`);
 console.log(`  ✓ DB_NAME: ${process.env.DB_NAME || "não definido"}`);
-console.log(`  ✓ JWT_SECRET: ${process.env.JWT_SECRET ? "✅ Configurado" : "❌ Não definido"}`);
-console.log(`  ✓ JWT_REFRESH_SECRET: ${process.env.JWT_REFRESH_SECRET ? "✅ Configurado" : "❌ Não definido"}`);
-console.log(`  ✓ BREVO_API_KEY: ${process.env.BREVO_API_KEY ? "✅ Configurado" : "❌ Não definido"}`);
-console.log(`  ✓ BREVO_SENDER_EMAIL: ${process.env.BREVO_SENDER_EMAIL || "não definido"}`);
-console.log(`  ✓ BREVO_SENDER_NAME: ${process.env.BREVO_SENDER_NAME || "não definido"}\n`);
+console.log(
+  `  ✓ JWT_SECRET: ${process.env.JWT_SECRET ? "✅ Configurado" : "❌ Não definido"}`,
+);
+console.log(
+  `  ✓ JWT_REFRESH_SECRET: ${process.env.JWT_REFRESH_SECRET ? "✅ Configurado" : "❌ Não definido"}`,
+);
+console.log(
+  `  ✓ BREVO_API_KEY: ${process.env.BREVO_API_KEY ? "✅ Configurado" : "❌ Não definido"}`,
+);
+console.log(
+  `  ✓ BREVO_SENDER_EMAIL: ${process.env.BREVO_SENDER_EMAIL || "não definido"}`,
+);
+console.log(
+  `  ✓ BREVO_SENDER_NAME: ${process.env.BREVO_SENDER_NAME || "não definido"}\n`,
+);
 
 // Confiar em proxy (Cloudflare, Nginx, etc)
 app.set("trust proxy", 1);
@@ -67,11 +77,11 @@ io.on("connection", (socket) => {
 // Função para notificar mudança no total a receber
 export function notificarTotalAReceberAtualizado(
   usuarioId: number,
-  novoTotal: number
+  novoTotal: number,
 ) {
   io.to(`usuario-${usuarioId}`).emit("total-atualizado", novoTotal);
   console.log(
-    `📡 Notificado usuário ${usuarioId}: novo total = R$ ${novoTotal}`
+    `📡 Notificado usuário ${usuarioId}: novo total = R$ ${novoTotal}`,
   );
 }
 
@@ -79,7 +89,7 @@ export function notificarTotalAReceberAtualizado(
 export function notificarSaldoClienteAtualizado(
   usuarioId: number,
   clienteId: number,
-  novoSaldo: number
+  novoSaldo: number,
 ) {
   io.to(`usuario-${usuarioId}`).emit("saldo-cliente-atualizado", {
     cliente_id: clienteId,
@@ -99,7 +109,7 @@ app.use(
   cors({
     origin: config.cors.origin,
     credentials: config.cors.credentials,
-  })
+  }),
 );
 
 // Rate limiting
@@ -225,14 +235,14 @@ async function startServer() {
       console.log(`🌍 Ambiente: ${config.env.toUpperCase()}`);
       console.log(`📡 URL: ${config.server.apiUrl}`);
       console.log(
-        `🗄️  Banco: ${config.database.host}:${config.database.port}/${config.database.name}`
+        `🗄️  Banco: ${config.database.host}:${config.database.port}/${config.database.name}`,
       );
       console.log(`✅ API pronta em http://localhost:${config.server.port}`);
       console.log(
-        `✅ Health check: http://localhost:${config.server.port}/api/v1/health`
+        `✅ Health check: http://localhost:${config.server.port}/api/v1/health`,
       );
       console.log(
-        `✅ DB check: http://localhost:${config.server.port}/api/v1/health/db`
+        `✅ DB check: http://localhost:${config.server.port}/api/v1/health/db`,
       );
       console.log(`🔌 WebSocket ativo em ws://localhost:${config.server.port}`);
       console.log(`${"=".repeat(60)}\n`);
