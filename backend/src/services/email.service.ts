@@ -3,7 +3,7 @@
  * Gerencia envio de emails (recuperação de senha, notificações, etc)
  */
 
-import config from '../config/index.js';
+import config from "../config/index.js";
 
 interface EmailParams {
   to: string;
@@ -27,17 +27,20 @@ interface BrevoResponse {
 
 class EmailService {
   private apiKey: string;
-  private apiUrl = 'https://api.brevo.com/v3/smtp/email';
+  private apiUrl = "https://api.brevo.com/v3/smtp/email";
   private senderEmail: string;
   private senderName: string;
 
   constructor() {
-    this.apiKey = process.env.BREVO_API_KEY || '';
-    this.senderEmail = process.env.BREVO_SENDER_EMAIL || 'noreply@caderneta.com';
-    this.senderName = process.env.BREVO_SENDER_NAME || 'Caderneta';
-    
+    this.apiKey = process.env.BREVO_API_KEY || "";
+    this.senderEmail =
+      process.env.BREVO_SENDER_EMAIL || "noreply@caderneta.com";
+    this.senderName = process.env.BREVO_SENDER_NAME || "Caderneta";
+
     if (!this.apiKey) {
-      console.warn('⚠️ BREVO_API_KEY não configurada - emails não serão enviados');
+      console.warn(
+        "⚠️ BREVO_API_KEY não configurada - emails não serão enviados",
+      );
     }
   }
 
@@ -48,7 +51,7 @@ class EmailService {
     email: string,
     nome: string,
     resetToken: string,
-    resetLink: string
+    resetLink: string,
   ): Promise<boolean> {
     try {
       const htmlContent = `
@@ -101,11 +104,11 @@ class EmailService {
       return await this.send({
         to: email,
         toName: nome,
-        subject: 'Código de recuperação de senha - Caderneta',
+        subject: "Código de recuperação de senha - Caderneta",
         htmlContent,
       });
     } catch (error) {
-      console.error('Erro ao enviar email de recuperação:', error);
+      console.error("Erro ao enviar email de recuperação:", error);
       return false;
     }
   }
@@ -113,7 +116,10 @@ class EmailService {
   /**
    * Enviar email de confirmação de nova senha
    */
-  async sendPasswordChangedEmail(email: string, nome: string): Promise<boolean> {
+  async sendPasswordChangedEmail(
+    email: string,
+    nome: string,
+  ): Promise<boolean> {
     try {
       const htmlContent = `
         <!DOCTYPE html>
@@ -156,11 +162,11 @@ class EmailService {
       return await this.send({
         to: email,
         toName: nome,
-        subject: 'Sua senha foi alterada - Caderneta',
+        subject: "Sua senha foi alterada - Caderneta",
         htmlContent,
       });
     } catch (error) {
-      console.error('Erro ao enviar email de confirmação:', error);
+      console.error("Erro ao enviar email de confirmação:", error);
       return false;
     }
   }
@@ -171,7 +177,7 @@ class EmailService {
   private async send(params: EmailParams): Promise<boolean> {
     try {
       if (!this.apiKey) {
-        console.warn('⚠️ Brevo API key não configurada');
+        console.warn("⚠️ Brevo API key não configurada");
         return false;
       }
 
@@ -191,31 +197,34 @@ class EmailService {
       };
 
       const response = await fetch(this.apiUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'api-key': this.apiKey,
-          'Content-Type': 'application/json',
+          "api-key": this.apiKey,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        const errorData = await response.json() as BrevoResponse;
-        console.error('Erro ao enviar email:', errorData.message || `HTTP ${response.status}`);
+        const errorData = (await response.json()) as BrevoResponse;
+        console.error(
+          "Erro ao enviar email:",
+          errorData.message || `HTTP ${response.status}`,
+        );
         return false;
       }
 
-      const data = await response.json() as BrevoResponse;
+      const data = (await response.json()) as BrevoResponse;
 
       if (data.messageId) {
         console.log(`📧 Email enviado com sucesso: ${params.to}`);
         return true;
       }
 
-      console.error('Erro ao enviar email:', data.message);
+      console.error("Erro ao enviar email:", data.message);
       return false;
     } catch (error: any) {
-      console.error('Erro na requisição Brevo:', error.message);
+      console.error("Erro na requisição Brevo:", error.message);
       return false;
     }
   }
