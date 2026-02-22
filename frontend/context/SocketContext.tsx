@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useEffect, useRef } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import Constants from "expo-constants";
 
-const API_URL = Constants.expoConfig?.extra?.apiUrl || "https://cadernetabackend.pvapps.com.br";
+const API_URL =
+  Constants.expoConfig?.extra?.apiUrl ||
+  "https://cadernetabackend.pvapps.com.br";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -21,12 +23,14 @@ interface SocketProviderProps {
 }
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
-  const socketRef = useRef<Socket | null>(null);
-  const [isConnected, setIsConnected] = React.useState(false);
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    console.log("🔧 Inicializando Socket.io com URL:", API_URL);
+
     // Conectar ao servidor WebSocket
-    const socket = io(API_URL, {
+    const newSocket = io(API_URL, {
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
@@ -35,29 +39,30 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
       autoConnect: true,
     });
 
-    socket.on("connect", () => {
-      console.log("🔌 Socket.io conectado:", socket.id);
+    newSocket.on("connect", () => {
+      console.log("🔌 Socket.io conectado:", newSocket.id);
       setIsConnected(true);
     });
 
-    socket.on("disconnect", () => {
-      console.log("❌ Socket.io desconectado");
+    newSocket.on("disconnect", (reason) => {
+      console.log("❌ Socket.io desconectado. Razão:", reason);
       setIsConnected(false);
     });
 
-    socket.on("connect_error", (error) => {
+    newSocket.on("connect_error", (error) => {
       console.error("🚨 Erro de conexão Socket.io:", error);
     });
 
-    socketRef.current = socket;
+    setSocket(newSocket);
 
     return () => {
-      socket.disconnect();
+      console.log("🧹 Desconectando Socket.io");
+      newSocket.disconnect();
     };
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket: socketRef.current, isConnected }}>
+    <SocketContext.Provider value={{ socket, isConnected }}>
       {children}
     </SocketContext.Provider>
   );

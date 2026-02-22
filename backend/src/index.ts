@@ -66,7 +66,9 @@ io.on("connection", (socket) => {
   // Cliente entra na sala do seu usuário
   socket.on("entrar-sala-usuario", (usuarioId: number) => {
     socket.join(`usuario-${usuarioId}`);
-    console.log(`👤 Usuário ${usuarioId} entrou na sala`);
+    console.log(`👤 Usuário ${usuarioId} entrou na sala: usuario-${usuarioId}`);
+    console.log(`   Socket ID: ${socket.id}`);
+    console.log(`✅ Pronto para receber notificações em tempo real`);
   });
 
   socket.on("disconnect", () => {

@@ -3,7 +3,13 @@
  * Modern & Juicy design with gradient header and animated cards
  */
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   View,
   Text,
@@ -65,8 +71,9 @@ export const HomeScreen: React.FC = () => {
     ]).start();
   }, []);
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
+      console.log("📊 Carregando dados do dashboard...");
       setLoading(true);
       const data = await apiService.getDashboardStats();
       setDashboardData({
@@ -81,15 +88,20 @@ export const HomeScreen: React.FC = () => {
           ticketMedio: Number(data?.variacao?.ticketMedio) || 0,
         },
       });
+      console.log("✅ Dashboard carregado com sucesso");
     } catch (error) {
       console.error("Erro ao carregar dashboard:", error);
       Alert.alert("Erro", "Não foi possível carregar os dados");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleSaldoAtualizado = () => loadDashboardData();
+  const handleSaldoAtualizado = useCallback(() => {
+    console.log("🔄 Saldo atualizado, recarregando dashboard...");
+    loadDashboardData();
+  }, [loadDashboardData]);
+
   useRealtimeUpdates(user?.id || null, handleSaldoAtualizado);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useSocket } from "../context/SocketContext";
 
 type UpdateCallback =
@@ -11,12 +11,20 @@ type UpdateCallback =
  */
 export const useRealtimeUpdates = (
   usuarioId: number | null,
-  onUpdate?: UpdateCallback
+  onUpdate?: UpdateCallback,
 ) => {
   const { socket, isConnected } = useSocket();
 
+  // Memoizar o callback para evitar re-registrar listeners desnecessariamente
+  const memoizedOnUpdate = useCallback(onUpdate || (() => {}), [onUpdate]);
+
   useEffect(() => {
-    if (!socket || !isConnected || !usuarioId) return;
+    if (!socket || !isConnected || !usuarioId) {
+      if (!socket) console.warn("⚠️ Socket não inicializado");
+      if (!isConnected) console.warn("⚠️ Socket não conectado");
+      if (!usuarioId) console.warn("⚠️ usuarioId não definido");
+      return;
+    }
 
     console.log(`🔌 Configurando Socket.io para usuário: ${usuarioId}`);
 
@@ -31,29 +39,37 @@ export const useRealtimeUpdates = (
       timestamp: string;
     }) => {
       console.log("💰 [Socket.io] Saldo atualizado em tempo real:", data);
-      
+      console.log(
+        `   Cliente: ${data.cliente_id}, Novo saldo: R$ ${data.saldo_devedor}`,
+      );
+
       // Se callback aceita parâmetros, chamar com clienteId
-      if (onUpdate && typeof onUpdate === 'function') {
-        const fnLength = onUpdate.length;
+      if (memoizedOnUpdate && typeof memoizedOnUpdate === "function") {
+        const fnLength = memoizedOnUpdate.length;
         if (fnLength > 0) {
-          (onUpdate as (clienteId: number, novoSaldo: number) => void)(
+          (memoizedOnUpdate as (clienteId: number, novoSaldo: number) => void)(
             data.cliente_id,
-            data.saldo_devedor
+            data.saldo_devedor,
           );
         } else {
           // Sem parâmetros, forçar reload geral
-          (onUpdate as () => void)();
+          (memoizedOnUpdate as () => void)();
         }
       }
     };
 
     // Escutar atualizações de total a receber (afeta dashboard)
     const handleTotalAtualizado = (novoTotal: number) => {
-      console.log("📊 [Socket.io] Total a receber atualizado em tempo real:", novoTotal);
-      
+      console.log(
+        "📊 [Socket.io] Total a receber atualizado em tempo real:",
+        novoTotal,
+      );
+      console.log(`   Novo total: R$ ${novoTotal}`);
+
       // Sempre forçar atualização do dashboard quando total muda
-      if (onUpdate) {
-        (onUpdate as () => void)();
+      if (memoizedOnUpdate) {
+        console.log("📡 Acionando callback de atualização...");
+        (memoizedOnUpdate as () => void)();
       }
     };
 
@@ -61,13 +77,15 @@ export const useRealtimeUpdates = (
     socket.on("saldo-cliente-atualizado", handleSaldoAtualizado);
     socket.on("total-atualizado", handleTotalAtualizado);
 
+    console.log("✅ Listeners registrados com sucesso");
+
     // Cleanup: remover listeners ao desmontar
     return () => {
-      console.log("🧹 Removendo listeners Socket.io");
+      console.log(`🧹 Removendo listeners Socket.io para usuário ${usuarioId}`);
       socket.off("saldo-cliente-atualizado", handleSaldoAtualizado);
       socket.off("total-atualizado", handleTotalAtualizado);
     };
-  }, [socket, isConnected, usuarioId, onUpdate]);
+  }, [socket, isConnected, usuarioId, memoizedOnUpdate]);
 
   return {
     isConnected,
