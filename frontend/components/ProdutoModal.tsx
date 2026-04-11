@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { apiService } from "../services/api";
 import { IProduto } from "../types/produto";
 import { useThemeColors } from "../context/ThemeContext";
@@ -42,7 +43,9 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
   onSuccess,
 }) => {
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const footerBottomPadding = Math.max(insets.bottom, Spacing.lg);
 
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
@@ -237,7 +240,7 @@ export const ProdutoModal: React.FC<ProdutoModalProps> = ({
         </ScrollView>
 
         {/* BotÃµes */}
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: footerBottomPadding }]}>
           <TouchableOpacity
             style={[styles.button, styles.cancelButton]}
             onPress={onClose}
@@ -351,7 +354,8 @@ const createStyles = (colors: ThemeColors) =>
       flexDirection: "row",
       gap: Spacing.md,
       paddingHorizontal: Spacing.lg,
-      paddingVertical: Spacing.lg,
+      paddingTop: Spacing.lg,
+      paddingBottom: Spacing.lg,
       borderTopWidth: 1,
       borderTopColor: colors.border,
     },
