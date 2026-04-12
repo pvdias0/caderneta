@@ -44,6 +44,7 @@ export class PdfService {
           m.id_movimento,
           m.tipo,
           COALESCE(c.valor_compra, p.valor_pagamento) AS valor,
+          COALESCE(c.desconto, 0) AS desconto,
           COALESCE(c.data_compra, p.data_pagamento) AS data_movimento,
           m.id_compra,
           m.id_pagamento
@@ -100,7 +101,7 @@ export class PdfService {
       // Configurar página
       this.adicionarCabecalho(doc, cliente);
       this.adicionarSecaoCliente(doc, cliente);
-      this.adicionarSecaoMovimentos(doc, movimentos);
+      this.adicionarSecaoMovimentos(doc, movimentos, cliente.saldo_devedor);
       this.adicionarRodape(doc);
 
       doc.end();
@@ -175,7 +176,11 @@ export class PdfService {
     doc.moveDown(1);
   }
 
-  private adicionarSecaoMovimentos(doc: PDFDocType, movimentos: any[]): void {
+  private adicionarSecaoMovimentos(
+    doc: PDFDocType,
+    movimentos: any[],
+    saldoDevedor: number
+  ): void {
     // Título da seção
     doc
       .fontSize(14)
@@ -262,6 +267,11 @@ export class PdfService {
               .replace(".", ",")})`;
           })
           .join("; ");
+
+        const desconto = parseFloat(movimento.desconto || 0);
+        if (desconto > 0) {
+          itensText += `; Desconto: R$ ${desconto.toFixed(2).replace(".", ",")}`;
+        }
       }
 
       if (itensText) {
@@ -280,6 +290,48 @@ export class PdfService {
       }
     });
 
+    if (doc.y > 720) {
+      doc.addPage();
+    }
+
+    const totalSaldo = Number(saldoDevedor || 0);
+    const totalRowY = doc.y + 4;
+    const totalRowHeight = 24;
+    const totalRowWidth = 495;
+
+    doc
+      .save()
+      .rect(startX, totalRowY, totalRowWidth, totalRowHeight)
+      .fill("#F3F4F6")
+      .restore();
+
+    doc
+      .save()
+      .moveTo(startX, totalRowY)
+      .lineTo(startX + totalRowWidth, totalRowY)
+      .lineWidth(1)
+      .stroke("#9CA3AF")
+      .restore();
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(10)
+      .fillColor("#111827")
+      .text("Saldo Devedor Total:", startX + 10, totalRowY + 7, {
+        width: 260,
+      })
+      .text(
+        `R$ ${totalSaldo.toFixed(2).replace(".", ",")}`,
+        startX + 270,
+        totalRowY + 7,
+        {
+          width: 215,
+          align: "right",
+        }
+      )
+      .fillColor("black");
+
+    doc.y = totalRowY + totalRowHeight;
     doc.moveDown(1);
   }
 

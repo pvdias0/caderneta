@@ -18,6 +18,7 @@ export interface IMovimento {
   id_conta: number;
   tipo: "COMPRA" | "PAGAMENTO" | "AJUSTE";
   valor: number;
+  desconto?: number;
   data_movimento: string;
   id_compra?: number;
   id_pagamento?: number;
@@ -26,6 +27,7 @@ export interface IMovimento {
 
 export interface ICreateCompraDTO {
   data_compra: string;
+  desconto?: number;
   itens: Array<{
     id_produto: number;
     quantidade: number;

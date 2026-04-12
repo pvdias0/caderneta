@@ -60,7 +60,7 @@ export class MovimentoController {
     try {
       const usuarioId = getUsuarioId(req);
       const { clienteId } = req.params;
-      const { data_compra, itens } = req.body;
+      const { data_compra, itens, desconto } = req.body;
 
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });
@@ -99,6 +99,16 @@ export class MovimentoController {
         }
       }
 
+      if (
+        desconto !== undefined &&
+        (typeof desconto !== "number" || Number.isNaN(desconto) || desconto < 0)
+      ) {
+        res.status(400).json({
+          error: "Desconto deve ser um número maior ou igual a 0",
+        });
+        return;
+      }
+
       // Obter ID da conta do cliente
       const contaId = await movimentoService.getContaByClienteId(
         Number(clienteId),
@@ -114,7 +124,8 @@ export class MovimentoController {
         contaId,
         data_compra,
         itens,
-        usuarioId
+        usuarioId,
+        desconto ?? 0
       );
 
       res.status(201).json({
@@ -138,7 +149,7 @@ export class MovimentoController {
     try {
       const usuarioId = getUsuarioId(req);
       const { clienteId } = req.params;
-      const { valor_compra } = req.body;
+      const { valor_compra, desconto } = req.body;
 
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });
@@ -152,6 +163,16 @@ export class MovimentoController {
 
       if (!valor_compra || valor_compra <= 0) {
         res.status(400).json({ error: "Valor da compra deve ser maior que 0" });
+        return;
+      }
+
+      if (
+        desconto !== undefined &&
+        (typeof desconto !== "number" || Number.isNaN(desconto) || desconto < 0)
+      ) {
+        res.status(400).json({
+          error: "Desconto deve ser um número maior ou igual a 0",
+        });
         return;
       }
 
@@ -169,7 +190,8 @@ export class MovimentoController {
       const compra = await movimentoService.createCompra(
         contaId,
         valor_compra,
-        usuarioId
+        usuarioId,
+        desconto ?? 0
       );
 
       // Buscar saldo atualizado do cliente
@@ -295,7 +317,7 @@ export class MovimentoController {
     try {
       const usuarioId = getUsuarioId(req);
       const { clienteId, compraId } = req.params;
-      const { data_compra, itens } = req.body;
+      const { data_compra, itens, desconto } = req.body;
 
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });
@@ -339,11 +361,22 @@ export class MovimentoController {
         }
       }
 
+      if (
+        desconto !== undefined &&
+        (typeof desconto !== "number" || Number.isNaN(desconto) || desconto < 0)
+      ) {
+        res.status(400).json({
+          error: "Desconto deve ser um número maior ou igual a 0",
+        });
+        return;
+      }
+
       const compra = await movimentoService.updateCompraComItens(
         Number(compraId),
         data_compra,
         itens,
-        usuarioId
+        usuarioId,
+        desconto ?? 0
       );
 
       // Buscar saldo atualizado do cliente
@@ -389,7 +422,7 @@ export class MovimentoController {
     try {
       const usuarioId = getUsuarioId(req);
       const { clienteId, compraId } = req.params;
-      const { valor_compra, data_compra } = req.body;
+      const { valor_compra, data_compra, desconto } = req.body;
 
       if (!usuarioId) {
         res.status(401).json({ error: "Usuário não autenticado" });
@@ -411,11 +444,22 @@ export class MovimentoController {
         return;
       }
 
+      if (
+        desconto !== undefined &&
+        (typeof desconto !== "number" || Number.isNaN(desconto) || desconto < 0)
+      ) {
+        res.status(400).json({
+          error: "Desconto deve ser um número maior ou igual a 0",
+        });
+        return;
+      }
+
       const compra = await movimentoService.updateCompra(
         Number(compraId),
         valor_compra,
         data_compra || null,
-        usuarioId
+        usuarioId,
+        desconto ?? 0
       );
 
       res.status(200).json({

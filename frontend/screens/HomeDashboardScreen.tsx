@@ -1,8 +1,3 @@
-/**
- * Tela Inicial - Home / Dashboard
- * Modern & Juicy design with gradient header and animated cards
- */
-
 import React, {
   useState,
   useEffect,
@@ -25,6 +20,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useAuth } from "../hooks/useAuth";
 import { apiService } from "../services/api";
 import { DashboardCard } from "../components/DashboardCard";
@@ -35,14 +31,14 @@ import {
   BorderRadius,
   FontSize,
   FontWeight,
-  Shadows,
   ThemeColors,
 } from "../theme";
 import { useTheme, useThemeColors } from "../context/ThemeContext";
 import { SwipeableTabView } from "../components/SwipeableTabView";
 
-export const HomeScreen: React.FC = () => {
+const HomeDashboardScreen: React.FC = () => {
   const { user, logout } = useAuth();
+  const router = useRouter();
   const { isDark, toggleTheme } = useTheme();
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -69,26 +65,26 @@ export const HomeScreen: React.FC = () => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnim, slideAnim]);
 
   const loadDashboardData = useCallback(async () => {
     try {
-      console.log("📊 Carregando dados do dashboard...");
       setLoading(true);
       const data = await apiService.getDashboardStats();
       setDashboardData({
         totalAReceber: Number(data?.totalAReceber) || 0,
         clientesAtivos: Number(data?.clientesAtivos) || 0,
         vendasMes: Number(data?.vendasMes) || 0,
+        vendasDia: Number(data?.vendasDia) || 0,
         ticketMedio: Number(data?.ticketMedio) || 0,
         variacao: {
           totalAReceber: Number(data?.variacao?.totalAReceber) || 0,
           clientesAtivos: Number(data?.variacao?.clientesAtivos) || 0,
           vendasMes: Number(data?.variacao?.vendasMes) || 0,
+          vendasDia: Number(data?.variacao?.vendasDia) || 0,
           ticketMedio: Number(data?.variacao?.ticketMedio) || 0,
         },
       });
-      console.log("✅ Dashboard carregado com sucesso");
     } catch (error) {
       console.error("Erro ao carregar dashboard:", error);
       Alert.alert("Erro", "Não foi possível carregar os dados");
@@ -98,7 +94,6 @@ export const HomeScreen: React.FC = () => {
   }, []);
 
   const handleSaldoAtualizado = useCallback(() => {
-    console.log("🔄 Saldo atualizado, recarregando dashboard...");
     loadDashboardData();
   }, [loadDashboardData]);
 
@@ -106,7 +101,7 @@ export const HomeScreen: React.FC = () => {
 
   useEffect(() => {
     loadDashboardData();
-  }, []);
+  }, [loadDashboardData]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -128,6 +123,24 @@ export const HomeScreen: React.FC = () => {
     return "Boa noite";
   };
 
+  const openSalesReport = (mode: "month" | "day") => {
+    const now = new Date();
+    router.push({
+      pathname: "/relatorio-vendas",
+      params:
+        mode === "month"
+          ? {
+              mode,
+              year: String(now.getFullYear()),
+              month: String(now.getMonth() + 1),
+            }
+          : {
+              mode,
+              date: now.toISOString().slice(0, 10),
+            },
+    });
+  };
+
   return (
     <SwipeableTabView>
       <View style={styles.container}>
@@ -146,7 +159,6 @@ export const HomeScreen: React.FC = () => {
             />
           }
         >
-          {/* Gradient Profile Header */}
           <LinearGradient
             colors={[...colors.gradientPrimary]}
             start={{ x: 0, y: 0 }}
@@ -165,7 +177,6 @@ export const HomeScreen: React.FC = () => {
                   {user?.nome_usuario || "Usuário"}
                 </Text>
               </View>
-              {/* Theme Toggle */}
               <TouchableOpacity
                 onPress={toggleTheme}
                 style={styles.headerBtn}
@@ -177,7 +188,6 @@ export const HomeScreen: React.FC = () => {
                   color="#fff"
                 />
               </TouchableOpacity>
-              {/* Logout */}
               <TouchableOpacity
                 onPress={() => {
                   Alert.alert("Sair", "Deseja sair da aplicação?", [
@@ -202,7 +212,6 @@ export const HomeScreen: React.FC = () => {
               </TouchableOpacity>
             </Animated.View>
 
-            {/* Main Stat Card */}
             {dashboardData && (
               <Animated.View
                 style={[
@@ -249,7 +258,6 @@ export const HomeScreen: React.FC = () => {
             )}
           </LinearGradient>
 
-          {/* Dashboard Cards */}
           <View style={styles.cardsSection}>
             <Text style={styles.sectionTitle}>Visão Geral</Text>
 
@@ -273,6 +281,15 @@ export const HomeScreen: React.FC = () => {
                   icon="cart"
                   variation={dashboardData.variacao?.vendasMes}
                   color={colors.success}
+                  onPress={() => openSalesReport("month")}
+                />
+                <DashboardCard
+                  title="Vendas no Dia"
+                  value={formatCurrency(dashboardData.vendasDia)}
+                  icon="today"
+                  variation={dashboardData.variacao?.vendasDia}
+                  color={colors.primary}
+                  onPress={() => openSalesReport("day")}
                 />
                 <DashboardCard
                   title="Ticket Médio"
@@ -421,3 +438,5 @@ const createStyles = (colors: ThemeColors) =>
       marginTop: Spacing.md,
     },
   });
+
+export default HomeDashboardScreen;

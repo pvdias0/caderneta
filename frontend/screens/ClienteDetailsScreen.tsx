@@ -123,6 +123,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
 
   const handleSaveCompra = async (data: {
     data_compra: string;
+    desconto: number;
     itens: { id_produto: number; quantidade: number; valor_unitario: number }[];
   }) => {
     try {
@@ -130,7 +131,7 @@ const ClienteDetailsScreenComponent: React.FC = () => {
       if (editingCompra) {
         await apiService.request(
           "PUT",
-          `/api/v1/clientes/${clienteId}/movimentos/compra/${editingCompra.id_compra}/com-`,
+          `/api/v1/clientes/${clienteId}/movimentos/compra/${editingCompra.id_compra}/com-itens`,
           data,
         );
         Alert.alert("Sucesso", "Compra atualizada");

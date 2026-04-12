@@ -125,7 +125,18 @@ class ApiService {
 
       console.log(`📡 Resposta status: ${response.status}`);
 
-      const responseData = await response.json();
+      const rawResponse = await response.text();
+      let responseData: any = null;
+
+      if (rawResponse) {
+        try {
+          responseData = JSON.parse(rawResponse);
+        } catch {
+          responseData = {
+            error: rawResponse,
+          };
+        }
+      }
 
       // Se token expirou, tenta renovar
       if (response.status === 401 && includeAuth && this.refreshToken) {
@@ -138,7 +149,12 @@ class ApiService {
       }
 
       if (!response.ok) {
-        throw new Error(responseData.error || `HTTP ${response.status}`);
+        throw new Error(
+          responseData?.error ||
+            responseData?.message ||
+            rawResponse ||
+            `HTTP ${response.status}`
+        );
       }
 
       return responseData;
@@ -368,13 +384,58 @@ class ApiService {
         totalAReceber: 0,
         clientesAtivos: 0,
         vendasMes: 0,
+        vendasDia: 0,
         ticketMedio: 0,
         variacao: {
           totalAReceber: 0,
           clientesAtivos: 0,
           vendasMes: 0,
+          vendasDia: 0,
           ticketMedio: 0,
         },
+      }
+    );
+  }
+
+  async getDashboardSalesReport(params: {
+    mode: "month" | "day";
+    year?: number;
+    month?: number;
+    date?: string;
+  }): Promise<any> {
+    const searchParams = new URLSearchParams();
+    searchParams.set("mode", params.mode);
+
+    if (params.year !== undefined) {
+      searchParams.set("year", String(params.year));
+    }
+
+    if (params.month !== undefined) {
+      searchParams.set("month", String(params.month));
+    }
+
+    if (params.date) {
+      searchParams.set("date", params.date);
+    }
+
+    const response = (await this.request(
+      "GET",
+      `/api/v1/dashboard/vendas?${searchParams.toString()}`
+    )) as any;
+
+    return (
+      response?.data || {
+        periodo: {
+          mode: params.mode,
+          label: "",
+          referenceDate: params.date || "",
+        },
+        resumo: {
+          totalVendas: 0,
+          totalDescontos: 0,
+          quantidadeVendas: 0,
+        },
+        vendas: [],
       }
     );
   }

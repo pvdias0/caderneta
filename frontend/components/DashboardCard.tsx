@@ -3,7 +3,7 @@
  */
 
 import React, { useMemo } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColors } from "../context/ThemeContext";
 import {
@@ -21,6 +21,7 @@ export interface DashboardCardProps {
   icon: keyof typeof Ionicons.glyphMap;
   variation?: number;
   color?: string;
+  onPress?: () => void;
 }
 
 export const DashboardCard: React.FC<DashboardCardProps> = ({
@@ -29,6 +30,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   icon,
   variation = 0,
   color,
+  onPress,
 }) => {
   const colors = useThemeColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -36,7 +38,12 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
   const isPositive = variation >= 0;
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={[styles.card, onPress && styles.cardPressable]}
+      onPress={onPress}
+      activeOpacity={onPress ? 0.85 : 1}
+      disabled={!onPress}
+    >
       <View style={styles.row}>
         <View
           style={[
@@ -78,7 +85,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({
           </View>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -89,6 +96,10 @@ const createStyles = (colors: ThemeColors) =>
       borderRadius: BorderRadius.lg,
       padding: Spacing.lg,
       ...Shadows.sm,
+    },
+    cardPressable: {
+      borderWidth: 1,
+      borderColor: colors.border,
     },
     row: {
       flexDirection: "row",

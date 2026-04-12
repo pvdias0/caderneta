@@ -31,6 +31,7 @@ export interface MovimentoCompleto {
   id_conta: number;
   tipo: "COMPRA" | "PAGAMENTO" | "AJUSTE";
   valor: number;
+  desconto?: number;
   data_movimento: string;
   id_compra?: number;
   id_pagamento?: number;

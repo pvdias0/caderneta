@@ -29,7 +29,6 @@ import {
   BorderRadius,
   FontSize,
   FontWeight,
-  Shadows,
   ThemeColors,
 } from "../theme";
 
@@ -39,6 +38,7 @@ export interface CompraModalProps {
   onClose: () => void;
   onSave: (data: {
     data_compra: string;
+    desconto: number;
     itens: {
       id_produto: number;
       quantidade: number;
@@ -71,13 +71,20 @@ export const CompraModal: React.FC<CompraModalProps> = ({
   const [produtos, setProdutos] = useState<IProduto[]>([]);
   const [loadingProdutos, setLoadingProdutos] = useState(false);
   const [showProdutoSelector, setShowProdutoSelector] = useState(false);
-  const [selectedProdutoId, setSelectedProdutoId] = useState<number | null>(
-    null,
-  );
+  const [selectedProdutoIds, setSelectedProdutoIds] = useState<number[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [searchProduto, setSearchProduto] = useState("");
+  const [descontoInput, setDescontoInput] = useState("");
   const DEFAULT_QUANTITY = 1;
+
+  const filteredProdutos = useMemo(
+    () =>
+      produtos.filter((p) =>
+        p.nome.toLowerCase().includes(searchProduto.toLowerCase()),
+      ),
+    [produtos, searchProduto],
+  );
 
   useEffect(() => {
     if (visible) {
@@ -108,11 +115,20 @@ export const CompraModal: React.FC<CompraModalProps> = ({
           );
           setCart(itensNormalizados);
         }
+        setDescontoInput(
+          compra.desconto && Number(compra.desconto) > 0
+            ? Number(compra.desconto).toFixed(2).replace(".", ",")
+            : "",
+        );
       } else {
         console.log("âž• [CompraModal] Modal aberto para CRIAR nova compra");
         setData(new Date());
         setCart([]);
+        setDescontoInput("");
       }
+      setSelectedProdutoIds([]);
+      setSearchProduto("");
+      setShowProdutoSelector(false);
       setErrors({});
     }
   }, [visible, compra]);
@@ -251,6 +267,34 @@ export const CompraModal: React.FC<CompraModalProps> = ({
     }).format(value);
   };
 
+  const parseMoneyInput = (value: string): number => {
+    const normalized = value.trim();
+
+    if (!normalized) {
+      return 0;
+    }
+
+    if (normalized.includes(",")) {
+      const parsed = Number(normalized.replace(/\./g, "").replace(",", "."));
+      return Number.isFinite(parsed) ? parsed : Number.NaN;
+    }
+
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : Number.NaN;
+  };
+
+  const handleDescontoChange = (text: string) => {
+    setDescontoInput(text.replace(/[^0-9.,]/g, ""));
+
+    if (errors.desconto) {
+      setErrors((current) => {
+        const next = { ...current };
+        delete next.desconto;
+        return next;
+      });
+    }
+  };
+
   /**
    * Calcula o estoque disponÃ­vel para um item do carrinho
    * Durante criaÃ§Ã£o: estoque total do produto
@@ -270,75 +314,103 @@ export const CompraModal: React.FC<CompraModalProps> = ({
     return cartItem.produto.quantidade_estoque;
   };
 
+  const toggleProdutoSelection = (produtoId: number) => {
+    setSelectedProdutoIds((prev) => {
+      const alreadySelected = prev.includes(produtoId);
+
+      if (errors.produto && !alreadySelected) {
+        setErrors((current) => {
+          const next = { ...current };
+          delete next.produto;
+          return next;
+        });
+      }
+
+      return alreadySelected
+        ? prev.filter((id) => id !== produtoId)
+        : [...prev, produtoId];
+    });
+  };
+
   const addToCart = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!selectedProdutoId) {
-      newErrors.produto = "Selecione um produto";
+    if (selectedProdutoIds.length === 0) {
+      newErrors.produto = "Selecione pelo menos um produto";
     }
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
-    const produto = produtos.find((p) => p.id_produto === selectedProdutoId);
-    if (!produto || selectedProdutoId === null) {
-      Alert.alert("Erro", "Produto nÃ£o encontrado");
-      return;
-    }
+    const updatedCart = [...cart];
+    const skippedProducts: string[] = [];
+    let addedCount = 0;
 
-    // Validar estoque
-    if (produto.quantidade_estoque === 0) {
-      Alert.alert(
-        "Sem Estoque",
-        `O produto "${produto.nome}" nÃ£o possui quantidade disponÃ­vel em estoque.`,
-      );
-      return;
-    }
-
-    // Usar quantidade padrÃ£o ao adicionar
-    const qtd = DEFAULT_QUANTITY;
-
-    // Verificar se hÃ¡ estoque suficiente
-    if (produto.quantidade_estoque < qtd) {
-      Alert.alert(
-        "Estoque Insuficiente",
-        `O produto "${produto.nome}" possui apenas ${produto.quantidade_estoque} unidade(s) em estoque.`,
-      );
-      return;
-    }
-
-    // Verificar se produto jÃ¡ estÃ¡ no carrinho
-    const existingIndex = cart.findIndex(
-      (i) => i.id_produto === selectedProdutoId,
-    );
-    if (existingIndex >= 0) {
-      // Se jÃ¡ estÃ¡ no carrinho, validar se hÃ¡ estoque suficiente para aumentar
-      const novaQuantidade = cart[existingIndex].quantidade + qtd;
-      if (produto.quantidade_estoque < novaQuantidade) {
-        Alert.alert(
-          "Estoque Insuficiente",
-          `O produto "${produto.nome}" possui apenas ${produto.quantidade_estoque} unidade(s) em estoque, mas vocÃª jÃ¡ tem ${cart[existingIndex].quantidade} no carrinho.`,
-        );
-        return;
+    for (const selectedProdutoId of selectedProdutoIds) {
+      const produto = produtos.find((p) => p.id_produto === selectedProdutoId);
+      if (!produto) {
+        skippedProducts.push("Um dos produtos selecionados não foi encontrado.");
+        continue;
       }
 
-      const updatedCart = [...cart];
-      updatedCart[existingIndex].quantidade += qtd;
-      setCart(updatedCart);
-    } else {
-      setCart([
-        ...cart,
-        {
+      if (produto.quantidade_estoque === 0) {
+        skippedProducts.push(`"${produto.nome}" está sem estoque.`);
+        continue;
+      }
+
+      const qtd = DEFAULT_QUANTITY;
+      if (produto.quantidade_estoque < qtd) {
+        skippedProducts.push(
+          `"${produto.nome}" possui apenas ${produto.quantidade_estoque} unidade(s) em estoque.`,
+        );
+        continue;
+      }
+
+      const existingIndex = updatedCart.findIndex(
+        (i) => i.id_produto === selectedProdutoId,
+      );
+
+      if (existingIndex >= 0) {
+        const novaQuantidade = updatedCart[existingIndex].quantidade + qtd;
+        if (produto.quantidade_estoque < novaQuantidade) {
+          skippedProducts.push(
+            `"${produto.nome}" já possui ${updatedCart[existingIndex].quantidade} unidade(s) no carrinho e não tem mais estoque disponível.`,
+          );
+          continue;
+        }
+
+        updatedCart[existingIndex].quantidade += qtd;
+      } else {
+        updatedCart.push({
           id_produto: selectedProdutoId,
           quantidade: qtd,
           valor_unitario: produto.valor_produto,
           produto,
-        },
-      ]);
+        });
+      }
+
+      addedCount += 1;
+    }
+
+    if (addedCount === 0) {
+      Alert.alert(
+        "Não foi possível adicionar",
+        skippedProducts[0] || "Nenhum produto selecionado pôde ser adicionado.",
+      );
+      return;
+    }
+
+    setCart(updatedCart);
+
+    if (skippedProducts.length > 0) {
+      Alert.alert(
+        "Alguns produtos não foram adicionados",
+        skippedProducts.join("\n"),
+      );
     }
 
     // Reset
-    setSelectedProdutoId(null);
+    setSelectedProdutoIds([]);
     setSearchProduto("");
     setShowProdutoSelector(false);
   };
@@ -383,18 +455,35 @@ export const CompraModal: React.FC<CompraModalProps> = ({
     }
   };
 
-  const getTotalValue = (): number => {
+  const getSubtotalValue = (): number => {
     return cart.reduce(
       (sum, item) => sum + item.quantidade * item.valor_unitario,
       0,
     );
   };
 
+  const getDescontoValue = (): number => {
+    const desconto = parseMoneyInput(descontoInput);
+    return Number.isNaN(desconto) ? 0 : desconto;
+  };
+
+  const getTotalValue = (): number => {
+    return Math.max(getSubtotalValue() - getDescontoValue(), 0);
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
+    const subtotal = getSubtotalValue();
+    const desconto = parseMoneyInput(descontoInput);
 
     if (cart.length === 0) {
       newErrors.cart = "Adicione pelo menos um item ao carrinho";
+    }
+
+    if (Number.isNaN(desconto) || desconto < 0) {
+      newErrors.desconto = "Informe um desconto válido";
+    } else if (desconto > subtotal) {
+      newErrors.desconto = "O desconto não pode ser maior que o subtotal";
     }
 
     setErrors(newErrors);
@@ -405,6 +494,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
     if (!validateForm()) return;
 
     const dataCompra = data.toISOString();
+    const desconto = parseMoneyInput(descontoInput);
     const itens = cart.map((item) => ({
       id_produto: item.id_produto,
       quantidade: item.quantidade,
@@ -413,6 +503,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
 
     onSave({
       data_compra: dataCompra,
+      desconto,
       itens,
     });
   };
@@ -502,14 +593,7 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                   ) : (
                     <>
                       <Text style={styles.selectorLabel}>
-                        Selecione o Produto (
-                        {
-                          produtos.filter((p) =>
-                            p.nome
-                              .toLowerCase()
-                              .includes(searchProduto.toLowerCase()),
-                          ).length
-                        }
+                        Selecione um ou mais produtos ({filteredProdutos.length}
                         )
                       </Text>
                       <TextInput
@@ -520,28 +604,26 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                         onChangeText={setSearchProduto}
                       />
                       <FlatList
-                        data={produtos.filter((p) =>
-                          p.nome
-                            .toLowerCase()
-                            .includes(searchProduto.toLowerCase()),
-                        )}
+                        data={filteredProdutos}
                         scrollEnabled={false}
                         keyExtractor={(item) => item.id_produto.toString()}
                         renderItem={({ item }) => {
                           const isOutOfStock = item.quantidade_estoque === 0;
+                          const isSelected = selectedProdutoIds.includes(
+                            item.id_produto,
+                          );
                           return (
                             <TouchableOpacity
                               onPress={() => {
                                 if (!isOutOfStock) {
-                                  setSelectedProdutoId(item.id_produto);
+                                  toggleProdutoSelection(item.id_produto);
                                 }
                               }}
                               disabled={isOutOfStock}
                               style={[
                                 styles.produtoOption,
                                 isOutOfStock && styles.produtoOptionDisabled,
-                                selectedProdutoId === item.id_produto &&
-                                  styles.produtoOptionSelected,
+                                isSelected && styles.produtoOptionSelected,
                               ]}
                             >
                               <View style={styles.produtoOptionContent}>
@@ -572,14 +654,13 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                                   </Text>
                                 </View>
                               </View>
-                              {selectedProdutoId === item.id_produto &&
-                                !isOutOfStock && (
-                                  <Ionicons
-                                    name="checkmark-circle"
-                                    size={20}
-                                    color="#e91e63"
-                                  />
-                                )}
+                              {isSelected && !isOutOfStock && (
+                                <Ionicons
+                                  name="checkmark-circle"
+                                  size={20}
+                                  color="#e91e63"
+                                />
+                              )}
                               {isOutOfStock && (
                                 <Ionicons
                                   name="lock-closed"
@@ -595,21 +676,44 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                       {/* BotÃ£o para adicionar ao carrinho */}
                       <TouchableOpacity
                         onPress={addToCart}
-                        disabled={!selectedProdutoId}
+                        disabled={selectedProdutoIds.length === 0}
                         style={[
                           styles.addToCartButton,
-                          !selectedProdutoId && styles.addToCartButtonDisabled,
+                          selectedProdutoIds.length === 0 &&
+                            styles.addToCartButtonDisabled,
                         ]}
                       >
                         <Ionicons name="add-circle" size={18} color="#fff" />
                         <Text style={styles.addToCartButtonText}>
-                          Adicionar ao Carrinho
+                          {selectedProdutoIds.length > 1
+                            ? `Adicionar ${selectedProdutoIds.length} ao Carrinho`
+                            : "Adicionar ao Carrinho"}
                         </Text>
                       </TouchableOpacity>
                     </>
                   )}
                 </View>
               )}
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Desconto</Text>
+                <TextInput
+                  style={styles.moneyInput}
+                  placeholder="0,00"
+                  placeholderTextColor={colors.textTertiary}
+                  keyboardType={
+                    Platform.OS === "ios" ? "decimal-pad" : "numeric"
+                  }
+                  value={descontoInput}
+                  onChangeText={handleDescontoChange}
+                />
+                <Text style={styles.helperText}>
+                  O desconto é aplicado ao total dos itens da compra.
+                </Text>
+                {errors.desconto && (
+                  <Text style={styles.errorText}>{errors.desconto}</Text>
+                )}
+              </View>
 
               {/* Carrinho */}
               {cart.length > 0 && (
@@ -709,9 +813,22 @@ export const CompraModal: React.FC<CompraModalProps> = ({
                     </View>
                   ))}
 
+                  <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLabel}>Subtotal</Text>
+                    <Text style={styles.summaryValue}>
+                      {formatCurrency(getSubtotalValue())}
+                    </Text>
+                  </View>
+                  <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLabel}>Desconto</Text>
+                    <Text style={styles.summaryValue}>
+                      {formatCurrency(getDescontoValue())}
+                    </Text>
+                  </View>
+
                   {/* Total */}
                   <View style={styles.cartTotal}>
-                    <Text style={styles.cartTotalLabel}>Total</Text>
+                    <Text style={styles.cartTotalLabel}>Total Final</Text>
                     <Text style={styles.cartTotalValue}>
                       {formatCurrency(getTotalValue())}
                     </Text>
@@ -878,6 +995,21 @@ const createStyles = (colors: ThemeColors) =>
       color: colors.text,
       backgroundColor: colors.surface,
       marginBottom: Spacing.md,
+    },
+    moneyInput: {
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: BorderRadius.sm,
+      paddingHorizontal: Spacing.md,
+      height: 44,
+      fontSize: FontSize.md,
+      color: colors.text,
+      backgroundColor: colors.surface,
+    },
+    helperText: {
+      fontSize: FontSize.xs,
+      color: colors.textTertiary,
+      marginTop: Spacing.xs,
     },
     produtoOption: {
       flexDirection: "row",
@@ -1059,6 +1191,22 @@ const createStyles = (colors: ThemeColors) =>
       borderTopWidth: 1,
       borderTopColor: colors.border,
       marginTop: Spacing.sm,
+    },
+    summaryRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: Spacing.md,
+      marginTop: Spacing.xs,
+    },
+    summaryLabel: {
+      fontSize: FontSize.sm,
+      color: colors.textSecondary,
+    },
+    summaryValue: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.medium,
+      color: colors.text,
     },
     cartTotalLabel: {
       fontSize: FontSize.sm,

@@ -46,6 +46,7 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
   };
 
   const isCompra = movimento.tipo === "COMPRA";
+  const desconto = Number(movimento.desconto || 0);
   const typeColor = isCompra ? colors.danger : colors.success;
   const typeBg = isCompra ? colors.dangerSoft : colors.successSoft;
   const typeLabel = isCompra ? "Compra" : "Pagamento";
@@ -104,9 +105,16 @@ export const MovimentoCard: React.FC<MovimentoCardProps> = ({
         <Text style={styles.valueLabel}>Valor</Text>
         <Text style={[styles.valueAmount, { color: typeColor }]}>
           {isCompra ? "- " : "+ "}
-          {formatCurrency(movimento.valor)}
+          {formatCurrency(Number(movimento.valor || 0))}
         </Text>
       </View>
+
+      {isCompra && desconto > 0 && (
+        <View style={styles.discountRow}>
+          <Text style={styles.discountLabel}>Desconto aplicado</Text>
+          <Text style={styles.discountAmount}>{formatCurrency(desconto)}</Text>
+        </View>
+      )}
 
       {/* Items */}
       {isCompra && movimento.itens && movimento.itens.length > 0 && (
@@ -191,6 +199,21 @@ const createStyles = (colors: ThemeColors) =>
     valueAmount: {
       fontSize: FontSize.lg,
       fontWeight: FontWeight.bold,
+    },
+    discountRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: Spacing.sm,
+    },
+    discountLabel: {
+      fontSize: FontSize.sm,
+      color: colors.textSecondary,
+    },
+    discountAmount: {
+      fontSize: FontSize.sm,
+      fontWeight: FontWeight.semibold,
+      color: colors.warning,
     },
     itemsBox: {
       borderTopWidth: 1,

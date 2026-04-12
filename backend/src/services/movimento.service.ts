@@ -40,6 +40,7 @@ export class MovimentoService {
         m.id_conta,
         m.tipo,
         COALESCE(c.valor_compra, p.valor_pagamento) AS valor,
+        COALESCE(c.desconto, 0) AS desconto,
         COALESCE(c.data_compra, p.data_pagamento) AS data_movimento,
         m.id_compra,
         m.id_pagamento
@@ -108,7 +109,8 @@ export class MovimentoService {
       quantidade: number;
       valor_unitario: number;
     }>,
-    usuarioId: number
+    usuarioId: number,
+    desconto = 0
   ): Promise<any> {
     // Validar que a conta pertence ao usuário
     const validationQuery = `
@@ -161,20 +163,30 @@ export class MovimentoService {
         }
       }
 
-      // Calcular valor total da compra
-      const valorTotal = itens.reduce(
+      const subtotal = itens.reduce(
         (sum, item) => sum + item.quantidade * item.valor_unitario,
         0
       );
 
+      if (desconto < 0) {
+        throw new Error("Desconto não pode ser negativo");
+      }
+
+      if (desconto > subtotal) {
+        throw new Error("Desconto não pode ser maior que o subtotal da compra");
+      }
+
+      const valorTotal = subtotal - desconto;
+
       // Criar a compra (com data especificada)
       const compraQuery = `
-        INSERT INTO compra (id_conta, valor_compra, data_compra)
-        VALUES ($1, $2, $3)
+        INSERT INTO compra (id_conta, valor_compra, desconto, data_compra)
+        VALUES ($1, $2, $3, $4)
         RETURNING 
           id_compra,
           id_conta,
           valor_compra,
+          desconto,
           data_compra,
           datacriacao,
           ultimaatualizacao
@@ -183,6 +195,7 @@ export class MovimentoService {
       const compraResult = await pool.query(compraQuery, [
         contaId,
         valorTotal,
+        desconto,
         dataCompra,
       ]);
       const compra = compraResult.rows[0];
@@ -249,7 +262,8 @@ export class MovimentoService {
   async createCompra(
     contaId: number,
     valorCompra: number,
-    usuarioId: number
+    usuarioId: number,
+    desconto = 0
   ): Promise<any> {
     // Validar que a conta pertence ao usuário
     const validationQuery = `
@@ -269,18 +283,19 @@ export class MovimentoService {
       }
 
       const query = `
-        INSERT INTO compra (id_conta, valor_compra)
-        VALUES ($1, $2)
+        INSERT INTO compra (id_conta, valor_compra, desconto)
+        VALUES ($1, $2, $3)
         RETURNING 
           id_compra,
           id_conta,
           valor_compra,
+          desconto,
           data_compra,
           datacriacao,
           ultimaatualizacao
       `;
 
-      const result = await pool.query(query, [contaId, valorCompra]);
+      const result = await pool.query(query, [contaId, valorCompra, desconto]);
       const compra = result.rows[0];
 
       // Notificar atualização do total
@@ -356,7 +371,8 @@ export class MovimentoService {
     compraId: number,
     valorCompra: number,
     dataCompra: string | null,
-    usuarioId: number
+    usuarioId: number,
+    desconto = 0
   ): Promise<any> {
     // Validar que a compra pertence ao usuário
     const validationQuery = `
@@ -383,31 +399,33 @@ export class MovimentoService {
       if (dataCompra) {
         query = `
           UPDATE compra
-          SET valor_compra = $1, data_compra = $2, ultimaatualizacao = NOW()
+          SET valor_compra = $1, desconto = $2, data_compra = $3, ultimaatualizacao = NOW()
+          WHERE id_compra = $4
+          RETURNING 
+            id_compra,
+            id_conta,
+            valor_compra,
+            desconto,
+            data_compra,
+            datacriacao,
+            ultimaatualizacao
+        `;
+        params = [valorCompra, desconto, dataCompra, compraId];
+      } else {
+        query = `
+          UPDATE compra
+          SET valor_compra = $1, desconto = $2, ultimaatualizacao = NOW()
           WHERE id_compra = $3
           RETURNING 
             id_compra,
             id_conta,
             valor_compra,
+            desconto,
             data_compra,
             datacriacao,
             ultimaatualizacao
         `;
-        params = [valorCompra, dataCompra, compraId];
-      } else {
-        query = `
-          UPDATE compra
-          SET valor_compra = $1, ultimaatualizacao = NOW()
-          WHERE id_compra = $2
-          RETURNING 
-            id_compra,
-            id_conta,
-            valor_compra,
-            data_compra,
-            datacriacao,
-            ultimaatualizacao
-        `;
-        params = [valorCompra, compraId];
+        params = [valorCompra, desconto, compraId];
       }
 
       const result = await pool.query(query, params);
@@ -603,7 +621,8 @@ export class MovimentoService {
       quantidade: number;
       valor_unitario: number;
     }>,
-    usuarioId: number
+    usuarioId: number,
+    desconto = 0
   ): Promise<any> {
     // Validar que a compra pertence ao usuário
     const validationQuery = `
@@ -679,10 +698,19 @@ export class MovimentoService {
         }
       }
 
-      // Calcular o valor total da compra
-      const valorTotal = itens.reduce((total, item) => {
+      const subtotal = itens.reduce((total, item) => {
         return total + item.quantidade * item.valor_unitario;
       }, 0);
+
+      if (desconto < 0) {
+        throw new Error("Desconto não pode ser negativo");
+      }
+
+      if (desconto > subtotal) {
+        throw new Error("Desconto não pode ser maior que o subtotal da compra");
+      }
+
+      const valorTotal = subtotal - desconto;
 
       // Retornar estoque dos itens antigos
       for (const oldItem of oldItensResult.rows) {
@@ -695,12 +723,13 @@ export class MovimentoService {
       // Atualizar a compra
       const updateCompraQuery = `
         UPDATE compra
-        SET valor_compra = $1, data_compra = $2, ultimaatualizacao = NOW()
-        WHERE id_compra = $3
+        SET valor_compra = $1, desconto = $2, data_compra = $3, ultimaatualizacao = NOW()
+        WHERE id_compra = $4
         RETURNING 
           id_compra,
           id_conta,
           valor_compra,
+          desconto,
           data_compra,
           datacriacao,
           ultimaatualizacao
@@ -708,6 +737,7 @@ export class MovimentoService {
 
       const compraResult = await pool.query(updateCompraQuery, [
         valorTotal,
+        desconto,
         dataCompra,
         compraId,
       ]);
