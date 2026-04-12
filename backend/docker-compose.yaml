@@ -1,14 +1,11 @@
 services:
   db:
     image: postgres:17-alpine
-    container_name: caderneta
     restart: always
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/caderneta-backup.sql:/docker-entrypoint-initdb.d/01-caderneta-backup.sql:ro
@@ -27,7 +24,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: caderneta
     restart: unless-stopped
     depends_on:
       db:
@@ -41,16 +37,22 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+      DB_SSL: ${DB_SSL}
+      DB_SSL_REJECT_UNAUTHORIZED: ${DB_SSL_REJECT_UNAUTHORIZED}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_EXPIRE: ${JWT_EXPIRE}
       JWT_REFRESH_EXPIRE: ${JWT_REFRESH_EXPIRE}
       RATE_LIMIT_WINDOW: ${RATE_LIMIT_WINDOW}
       RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
-    ports:
-      - "${API_PORT}:8080"
+    expose:
+      - "${API_PORT}"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/v1/health >/dev/null || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:${API_PORT}/api/v1/health >/dev/null || exit 1",
+        ]
       interval: 15s
       timeout: 5s
       retries: 10
