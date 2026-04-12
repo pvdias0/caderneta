@@ -6,5 +6,7 @@ logs
 .env.local
 .env.production
 .env.staging
-database
+database/*
+!database/Dockerfile
+!database/caderneta-backup.sql
 npm-debug.log*
