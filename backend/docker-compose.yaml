@@ -1,6 +1,8 @@
 services:
   db:
-    image: postgres:17-alpine
+    build:
+      context: .
+      dockerfile: database/Dockerfile
     restart: always
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -8,7 +10,6 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/caderneta-backup.sql:/docker-entrypoint-initdb.d/01-caderneta-backup.sql:ro
     healthcheck:
       test:
         [
